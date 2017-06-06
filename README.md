@@ -1,5 +1,6 @@
 # NHWG-MIMS
 ## New Hampshire Wing Member Info Management System
+## (WARNING THIS IS UNDER DEVELOPMENT)
 
 Author: Capt Marshall Giguere
 
@@ -8,7 +9,7 @@ MIMS is intended to synchronize member accounts between National database and Wi
 #### Requirements:
 * O/S: Linux, Windows 7 or above
 * Python 3
-* GAMADV-X (an excellent tool developed by Ross Scroggs)
+* [GAMADV-X]:https://github.com/taers232c/GAMADV-X (an excellent tool developed by Ross Scroggs)
 * MongoDB document database manager 3.4>
 * Selenium Python webdriver module
 * Chrome webdriver or equivalent browser webdriver
