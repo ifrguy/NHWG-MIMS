@@ -8,7 +8,7 @@ MIMS is intended to synchronize member accounts between National database and Wi
 
 #### Requirements:
 * O/S: Linux, Windows 7 or above
-* Python 3
+* Python 3.0>
 * [GAMADV-X](https://github.com/taers232c/GAMADV-X) Ross Scroggs excellent fork of the [GAM](https://github.com/taers232c/GAM) tool.
 * MongoDB document database manager 3.4>
 * Selenium Python webdriver module
