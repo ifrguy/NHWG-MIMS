@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-
+VERSION - "0.8.1"
 # Maps CAP squadron/unit to Google organization path
 orgUnitPath = {
     0:"/000 - New Hampshire Wing",
