@@ -1,5 +1,7 @@
 #!/usr/bin/python3
-VERSION - "0.8.1"
+version_tuple = (0,8,1)
+VERSION = str(version_tuple[0]) + "." + str(version_tuple[1]) + "." + str(version_tuple[2])
+
 # Maps CAP squadron/unit to Google organization path
 orgUnitPath = {
     0:"/000 - New Hampshire Wing",
