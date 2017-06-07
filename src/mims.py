@@ -48,7 +48,6 @@ class Manager(object):
     __DB = __client.NHWG
     __TS = ""  # Global timestamp for file naming
     def __init__( self ):
-        self.myName = 'Manager'
         self.myJobs = []
         for c in type(self).__subclasses__():
             self.myJobs.append( c.__name__ )
@@ -72,7 +71,7 @@ class Manager(object):
         """
         Returns the name of the class.
         """
-        return myName
+        return self.__class__.__name__
 
     def Job(self, job):
         """
@@ -93,7 +92,6 @@ class AddMembers( Manager ):
     a new Google wing account GAM command is generated and added to a
     batch job file for later execution.
     """
-    myName = 'AddMembers'
     def __init__():
         super().__init__()
         self.query = { "$or":[{'Type':'SENIOR'},{'Type':'CADET'},{'Type':'PATRON'}], "$and":[ {'MbrStatus':'ACTIVE'}] }
@@ -126,7 +124,6 @@ class RemoveMembers( Manager ):
     a GAM command is generated to delete the user account from Google, and 
     the command is added to a batch file for latter execution.
     """
-    myName = 'RemoveMembers'
     def __init__():
         super().__init__()
         self.query = { 'externalIds':{'$elemMatch':{'value':{'$ne':None}}}}
@@ -156,7 +153,6 @@ class Expired( Factory ):
     has expired and issues a GAM command to suspend the users Wing
     account.
     """
-    myName = 'Expired'
     def __init__( self ):
         super().__init__()
         self.query = { 'MbrStatus':'EXPIRED'] }
