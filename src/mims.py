@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool.
 
 History:
+07Jun17 MEG Configurable log and job file paths, separate config file
 05Jun17 MEG Added suspend for expired members.
 28May17 MEG Created.
 """
@@ -33,6 +34,7 @@ import datetime
 import logging
 import pymongo
 from pymongo import *
+from mims_conf import *
 
 class Manager(object):
     """
@@ -52,8 +54,8 @@ class Manager(object):
         for c in type(self).__subclasses__():
             self.myJobs.append( c.__name__ )
         __TS = datetime.datetime.now().strftime("%Y%m%dT%H%M")
-        self.logfileName = self.name() + __TS + ".log"
-        self.outfileName = self.name() + __TS + ".job"
+        self.logfileName = LogFilePath + self.name() + __TS + ".log"
+        self.outfileName = JobFilePath + self.name() + __TS + ".job"
 
     def DB(self):
         """
@@ -65,7 +67,7 @@ class Manager(object):
         """
         Returns a list of all known jobs, AKA my subclasses
         """
-        return myJobs
+        return self.myJobs
 
     def name( self ):
         """
@@ -84,7 +86,7 @@ class Manager(object):
             return globals()[ job ]()   # create a new Manager job subclass
         return self
 
-class AddMembers( Manager ):
+class NewMembers( Manager ):
     """
     AddMembers - scans the Member collection for active senior, cadet and patron
     members.  It then checks the Google collection to see if the member
@@ -117,7 +119,7 @@ class AddMembers( Manager ):
                        str( m[ 'CAPID' ] ) + "@nhwg.cap.gov",
                        file = outfile )
 
-class RemoveMembers( Manager ):    
+class PurgeMembers( Manager ):    
     """
     RemoveUsers job - scans the Google user account collection by externalID
     i.e. CAPID and checks to see if the member is on the CAP rolls, if not
@@ -134,18 +136,30 @@ class RemoveMembers( Manager ):
     """
     Runs the MongoDB query to find all members in Google not currently
     on the CAP rolls and produces a batch file to remove those member
-    accounts using the GAM utility .
+    accounts from Google accounts using the GAM utility, deletes users
+    record from Google MongoDB, although they will be gone after the next
+    Google download anyway. It's just cleaner to remove the documents for
+    subsequent runs.
     """
     l = []  # list of members to remove
     g = self.DB().Google.find( self.query )
         for i in g:
+            id = i[ '_id' ]
             capid = i['externalIds'][0]['value']
             m = self.DB().Member.find_one({'CAPID':capid})
             if m == None: # member nolonger on rolls
                 l.append( i[ 'primaryEmail' ] )
+                logging.info( "%s: %d %s", "Removed",
+                              capid,
+                              i['name']['fullName'] )
+                # delete user document from DB
+                print("Delete document:", "self.DB().Google.delete({'_id':",
+                      id,"})" )
         l.sort()
         for j in l:
-            print( "gamx user delete", j )
+            with open( self.outfileName, 'w' ) as outfile:
+                for j in l:
+                    print( "gamx user delete", j, file = outfile )
 
 class Expired( Factory ):
     """
