@@ -50,12 +50,22 @@ class Manager(object):
     __DB = __client.NHWG
     __TS = ""  # Global timestamp for file naming
     def __init__( self ):
-        self.myJobs = []
-        for c in type(self).__subclasses__():
-            self.myJobs.append( c.__name__ )
+        self.myJobs = self.allSubClasses( type( self ))
         __TS = datetime.datetime.now().strftime("%Y%m%dT%H%M")
         self.logfileName = LogFilePath + self.name() + __TS + ".log"
         self.outfileName = JobFilePath + self.name() + __TS + ".job"
+
+    def allSubClasses( self, cls ):
+        """
+        Recurses down the class tree and builds a list of all
+        subclasses.  Factory subclass names are the functions that
+        can be performed by MIMS.
+        """
+        allsubs = []
+        for sub in cls.__subclasses__():
+            allsubs.append( sub.__name__ )
+            allsubs.extend( self.allSubClasses( sub ))
+        return allsubs
 
     def DB(self):
         """
@@ -80,10 +90,11 @@ class Manager(object):
         Job creates the requested subclass that does a particular job.
         The caller requests a job by sending the classes name string as
         the arguement 'job'.  Job returns the appropriate subclass instance,
-        if the requested job cannot be found self is returned.
+        if the requested job cannot be found self is returned. This insurse
+        that something runable is returned.
         """
         if job in self.myJobs:
-            return globals()[ job ]()   # create a new Manager job subclass
+            return globals()[ job ]()   # create subclass job 
         return self
 
 class NewMembers( Manager ):
@@ -153,8 +164,9 @@ class PurgeMembers( Manager ):
                               capid,
                               i['name']['fullName'] )
                 # delete user document from DB
-                print("Delete document:", "self.DB().Google.delete({'_id':",
-                      id,"})" )
+                if ( DELETE_PURGED ):
+                    print("Delete document:", "self.DB().Google.delete({'_id':",
+                          id,"})" )
         l.sort()
         for j in l:
             with open( self.outfileName, 'w' ) as outfile:
@@ -193,7 +205,56 @@ class Expired( Factory ):
                                   else m[ 'NameSuffix' ] )
                     print( "gamx suspend user",
                            g[ 'primaryEmail' ], file = outfile )
+                    
+
+class ListManager( Factory ):
+    """
+    Root class of all mailing list management subclasses/jobs.
+    This is just a base class doesn't do anything, subclasses
+    are the real actors.
+    """
+    def __init__(self):
+        super().__init__()
+
+    def run( self ):
+        """
+        Doesn't do anything just a placeholder for subclasses.
+        """
+        return
+
+    def isGroupMember( self, groups, group ):
+        """
+        Search the users groups list to see if group email address is in
+        the members list of groups. If not found return None.
+        """
+        for g in groups:
+            if ( g['email'] == group ):
+                return True
+        return None # not member of group
     
+class SeniorListChecker( ListManager ):
+    """
+    Scan Google users for senior members, check to see if they are on the
+    senior mailing list, if not add them.
+    """
+    def __init__( self ):
+        super().__init__()
+        logging.basicConfig( filename = self.logfileName, filemode = 'w',
+                             level = logging.DEBUG )
+        self.query = {'organizations':{'$elemMatch':{'description':"SENIOR"}}}
+
+    def run( self ):
+        """
+        Scan for senior members and add them to the senior mailing list
+        """
+        cur = self.DB().Google.find( self.query )
+        with open( self.outfileName, 'w' ) as outfile:
+            for m in cur:
+                primaryEmail = m['primaryEmail']
+                if not self.isGroupMember( m['groups'], "seniors@nhwg.cap.gov"):
+                    logging.info( "%s %s", "Senior mailing list Add:", primaryemail ) 
+                    print( "gam user", primaryEmail, "add groups member",
+                           "seniors@nhwg.cap.gov", file = outfile )
 def main():
     """
     Main - MIMS produces a stream of GAM commands to create, remove or 
