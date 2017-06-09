@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-version_tuple = (0,8,1)
+version_tuple = (0,8,2)
 VERSION = str(version_tuple[0]) + "." + str(version_tuple[1]) + "." + str(version_tuple[2])
 
 # Maps CAP squadron/unit to Google organization path
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool.
 
 History:
+09Jun17 MEG Manager scans to leaf classes, added mailing list updater
 07Jun17 MEG Configurable log and job file paths, separate config file
 05Jun17 MEG Added suspend for expired members.
 28May17 MEG Created.
