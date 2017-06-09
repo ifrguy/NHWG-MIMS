@@ -252,7 +252,7 @@ class SeniorListChecker( ListManager ):
             for m in cur:
                 primaryEmail = m['primaryEmail']
                 if not self.isGroupMember( m['groups'], "seniors@nhwg.cap.gov"):
-                    logging.info( "%s %s", "Senior mailing list Add:", primaryemail ) 
+                    logging.info( "%s %s", "Senior mailing list Add:", primaryEmail ) 
                     print( "gam user", primaryEmail, "add groups member",
                            "seniors@nhwg.cap.gov", file = outfile )
 def main():
