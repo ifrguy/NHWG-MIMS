@@ -126,7 +126,7 @@ class help( Manager):
         """
         print("Summary:")
         print( sys.argv[0], " <job>" )
-        print( "Available Jobs:",Fact.jobs() )
+        print( "Available Jobs:",MIMS.jobs() )
 
         
 class NewMembers( Manager ):
@@ -287,6 +287,10 @@ class SeniorListChecker( ListManager ):
                     logging.info( "%s %s", "Senior mailing list Add:", primaryEmail ) 
                     print( "gam user", primaryEmail, "add groups member",
                            "seniors@nhwg.cap.gov", file = outfile )
+                    
+# MIMS is the factory base class object
+MIMS = Manager()
+
 def main():
     """
     Main - MIMS produces a stream of GAM commands to create, remove or 
@@ -297,7 +301,7 @@ def main():
     LOGGING = os.environ.get( 'LOGGING' )
     # Create the base factory object
     # MIMS is the stand-in for the Manager Class
-    MIMS = Manager()
+#    MIMS = Manager()
 
     job = MIMS( sys.argv[1] )
     job.run()
