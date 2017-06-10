@@ -113,6 +113,22 @@ class Manager(object):
             return globals()[ job ]()   # create subclass job 
         return self
 
+class help( Manager):
+    """
+    Prints a help screen.
+    """
+    def __init__( self ):
+        super().__init__()
+
+    def run( self ):
+        """
+        Print help and forces exit.
+        """
+        print("Summary:")
+        print( sys.argv[0], " <job>" )
+        print( "Available Jobs:",Fact.jobs() )
+
+        
 class NewMembers( Manager ):
     """
     AddMembers - scans the Member collection for active senior, cadet and patron
@@ -127,21 +143,21 @@ class NewMembers( Manager ):
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
-        def run():
-    """
-    Runs the MongoDB query to find all new members and produce the job
-    batch file to create new member Google accounts.
-    """
-    cur = self.DB().Member.find( self.query )
-    with open( self.outfileName, 'w' ) as outfile:
-        for m in cur:
-            g = self.DB().Google.find_one( {'externalIds':{'$elemMatch':{'value':m['CAPID']}}} )
-            if ( g == None ):
-                logging.info( "%s %d %s %s %s", "New:",
-                              m[ 'CAPID' ],m[ 'NameFirst' ],
-                              m[ 'NameLast' ],
-                              "" if ( m[ 'NameSuffix' ] == None )
-                              else m[ 'NameSuffix' ] )
+    def run():
+        """
+        Runs the MongoDB query to find all new members and produce the job
+        batch file to create new member Google accounts.
+        """
+        cur = self.DB().Member.find( self.query )
+        with open( self.outfileName, 'w' ) as outfile:
+            for m in cur:
+                g = self.DB().Google.find_one( {'externalIds':{'$elemMatch':{'value':m['CAPID']}}} )
+                if ( g == None ):
+                    logging.info( "%s %d %s %s %s", "New:",
+                                  m[ 'CAPID' ],m[ 'NameFirst' ],
+                                  m[ 'NameLast' ],
+                                  "" if ( m[ 'NameSuffix' ] == None )
+                else m[ 'NameSuffix' ] )
                 print( "gamx create user",
                        str( m[ 'CAPID' ] ) + "@nhwg.cap.gov",
                        file = outfile )
@@ -160,16 +176,16 @@ class PurgeMembers( Manager ):
                              level = logging.DEBUG )
 
     def run():
-    """
-    Runs the MongoDB query to find all members in Google not currently
-    on the CAP rolls and produces a batch file to remove those member
-    accounts from Google accounts using the GAM utility, deletes users
-    record from Google MongoDB, although they will be gone after the next
-    Google download anyway. It's just cleaner to remove the documents for
-    subsequent runs.
-    """
-    l = []  # list of members to remove
-    g = self.DB().Google.find( self.query )
+        """
+        Runs the MongoDB query to find all members in Google not currently
+        on the CAP rolls and produces a batch file to remove those member
+        accounts from Google accounts using the GAM utility, deletes users
+        record from Google MongoDB, although they will be gone after the next
+        Google download anyway. It's just cleaner to remove the documents for
+        subsequent runs.
+        """
+        l = []  # list of members to remove
+        g = self.DB().Google.find( self.query )
         for i in g:
             id = i[ '_id' ]
             capid = i['externalIds'][0]['value']
@@ -189,7 +205,7 @@ class PurgeMembers( Manager ):
                 for j in l:
                     print( "gamx user delete", j, file = outfile )
 
-class Expired( Factory ):
+class Expired( Manager ):
     """
     Expired scans the Member collection for members whose membership
     has expired and issues a GAM command to suspend the users Wing
@@ -197,7 +213,7 @@ class Expired( Factory ):
     """
     def __init__( self ):
         super().__init__()
-        self.query = { 'MbrStatus':'EXPIRED'] }
+        self.query = { 'MbrStatus':'EXPIRED' }
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
@@ -223,7 +239,7 @@ class Expired( Factory ):
                            g[ 'primaryEmail' ], file = outfile )
                     
 
-class ListManager( Factory ):
+class ListManager( Manager ):
     """
     Root class of all mailing list management subclasses/jobs.
     This is just a base class doesn't do anything, subclasses
@@ -280,6 +296,7 @@ def main():
     # Logging on/off to stderr
     LOGGING = os.environ.get( 'LOGGING' )
     # Create the base factory object
+    # MIMS is the stand-in for the Manager Class
     MIMS = Manager()
 
     job = MIMS( sys.argv[1] )
