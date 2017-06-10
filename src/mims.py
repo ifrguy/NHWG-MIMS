@@ -303,7 +303,7 @@ def main():
     # MIMS is the stand-in for the Manager Class
 #    MIMS = Manager()
 
-    job = MIMS( sys.argv[1] )
+    job = MIMS.Job( sys.argv[1] )
     job.run()
 
 
