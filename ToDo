@@ -1,0 +1,3 @@
+* New member create with extended attributes.
+* Create job pick-up and exec
+* Move capwatch downloader to headless (chrome or JSPhantom)
