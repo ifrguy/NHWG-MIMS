@@ -1,3 +1,4 @@
 * New member create with extended attributes.
-* Create job pick-up and exec
+* Create job pick-up and exec util
 * Move capwatch downloader to headless (chrome or JSPhantom)
+** Custom data importer for CAPWATCH and Google??
