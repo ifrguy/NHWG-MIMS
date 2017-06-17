@@ -64,12 +64,12 @@ class Manager(object):
     """
     __client = MongoClient( host=MIMS_HOST, port=MIMS_PORT )
     __DB = __client[ MIMS_DB ]
-    __TS = ""  # Global timestamp for file naming
+    __TS = datetime.datetime.now().strftime("%Y%m%dT%H%M")
     def __init__( self ):
         self.myJobs = self.allSubClasses( type( self ))
         __TS = datetime.datetime.now().strftime("%Y%m%dT%H%M")
-        self.logfileName = LogFilePath + self.name() + __TS + ".log"
-        self.outfileName = JobFilePath + self.name() + __TS + ".job"
+        self.logfileName = LogFilePath + self.name() + self.TS() + ".log"
+        self.outfileName = JobFilePath + self.name() + self.TS() + ".job"
 
     def allSubClasses( self, cls ):
         """
@@ -101,12 +101,19 @@ class Manager(object):
         """
         return self.__class__.__name__
 
+    @classmethod
+    def TS( cls ):
+        """
+        Returns classes timestamp string.
+        """
+        return cls.__TS
+    
     def Job(self, job):
         """
         Job creates the requested subclass that does a particular job.
         The caller requests a job by sending the classes name string as
         the arguement 'job'.  Job returns the appropriate subclass instance,
-        if the requested job cannot be found self is returned. This insurse
+        if the requested job cannot be found self is returned. This insures
         that something runable is returned.
         """
         if job in self.myJobs:
