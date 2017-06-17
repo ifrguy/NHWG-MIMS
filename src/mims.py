@@ -62,8 +62,8 @@ class Manager(object):
     actually do the work, like adding new members to the rolls, or removing
     members that have fallen off the rolls.
     """
-    __client = MongoClient()
-    __DB = __client.NHWG
+    __client = MongoClient( host=MIMS_HOST, port=MIMS_PORT )
+    __DB = __client[ MIMS_DB ]
     __TS = ""  # Global timestamp for file naming
     def __init__( self ):
         self.myJobs = self.allSubClasses( type( self ))
@@ -287,7 +287,8 @@ class SeniorListChecker( ListManager ):
                     logging.info( "%s %s", "Senior mailing list Add:", primaryEmail ) 
                     print( "gam user", primaryEmail, "add groups member",
                            "seniors@nhwg.cap.gov", file = outfile )
-                    
+
+# Create the base object for all jobs
 # MIMS is the factory base class object
 MIMS = Manager()
 
@@ -299,9 +300,6 @@ def main():
     """
     # Logging on/off to stderr
     LOGGING = os.environ.get( 'LOGGING' )
-    # Create the base factory object
-    # MIMS is the stand-in for the Manager Class
-#    MIMS = Manager()
 
     job = MIMS.Job( sys.argv[1] )
     job.run()
