@@ -64,6 +64,7 @@ class Manager(object):
     """
     __client = MongoClient( host=MIMS_HOST, port=MIMS_PORT )
     __DB = __client[ MIMS_DB ]
+    __DB.authenticate( MIMSUSER, MIMSPASS )
     __TS = datetime.datetime.now().strftime("%Y%m%dT%H%M")
     def __init__( self ):
         self.myJobs = self.allSubClasses( type( self ))
@@ -88,6 +89,9 @@ class Manager(object):
         Returns the current MongoDB object.
         """
         return self.__DB
+
+    def close( self ):
+        self.__client.close()
 
     def jobs( self ):
         """
@@ -310,8 +314,9 @@ def main():
 
     job = MIMS.Job( sys.argv[1] )
     job.run()
-
-
+    job.DB().logout()
+    MIMS.close()
+    
 ###########################################
 #
 #       Invoke main function
