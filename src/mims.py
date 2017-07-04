@@ -154,24 +154,57 @@ class NewMembers( Manager ):
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
-    def run():
+    def givenName( self, f, m ):
+        """
+        Returns firstname + middle initial
+        """
+        mi = ''
+        if m:
+            mi = ' ' + m[0]
+        return f + mi
+
+    def familyName( self, l, s ):
+        """
+        Returns lastname + name suffix if any
+        """
+        if s:
+            return l + ' ' + s
+        return l
+
+    def mkpasswd( self, m ):
+        """
+        Make a password for the new user m and return it.
+        """
+        return str(m['CAPID']) + '!' + m['NameFirst'][0]+ m['NameLast'][0]
+
+    def run(self):
         """
         Runs the MongoDB query to find all new members and produce the job
         batch file to create new member Google accounts.
         """
+        gamcmdfmt = 'gamx create user {}@nhwg.cap.gov externalid organization {:d} givenname "{}" familyname "{}" organizations department {:03d} description {} primary orgunitpath "{}" password \'{}\' changepassword true'
         cur = self.DB().Member.find( self.query )
         with open( self.outfileName, 'w' ) as outfile:
             for m in cur:
                 g = self.DB().Google.find_one( {'externalIds':{'$elemMatch':{'value':m['CAPID']}}} )
                 if ( g == None ):
-                    logging.info( "%s %d %s %s %s", "New:",
+                    logging.info( "New User: %d %s %s %s",
                                   m[ 'CAPID' ],m[ 'NameFirst' ],
                                   m[ 'NameLast' ],
                                   "" if ( m[ 'NameSuffix' ] == None )
-                else m[ 'NameSuffix' ] )
-                print( "gamx create user",
-                       str( m[ 'CAPID' ] ) + "@nhwg.cap.gov",
-                       file = outfile )
+                                  else m[ 'NameSuffix' ] )
+                    print( gamcmdfmt.format( m['CAPID'],
+                                             m['CAPID'],
+                                             self.givenName( m['NameFirst'],
+                                                        m['NameMiddle'] ),
+                                             self.familyName( m['NameLast'],
+                                                         m['NameSuffix'] ),
+                                             m['Unit'],
+                                             m['Type'],
+                                             orgUnitPath[m['Unit']],
+                                             self.mkpasswd( m )),
+                                             file = outfile )
+
 
 class PurgeMembers( Manager ):    
     """
