@@ -1,0 +1,8 @@
+CAPID.int32()
+Duty.string()
+FunctArea.string()
+Lvl.string()
+Asst.int32()
+UsrID.string()
+DateMod.date_ms(M/dd/yyyy HH:mm:ss)
+ORGID.int32()

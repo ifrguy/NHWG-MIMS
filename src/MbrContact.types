@@ -1,0 +1,8 @@
+CAPID.int32()
+Type.string()
+Priority.string()
+Contact.string()
+UsrID.string()
+DateMod.date_ms(M/dd/yyyy HH:mm:ss)
+DoNotContact.boolean()
+ContactName.string()
