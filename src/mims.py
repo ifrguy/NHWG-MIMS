@@ -178,22 +178,20 @@ class NewMembers( Manager ):
         return str(m['CAPID']) + '!' + m['NameFirst'][0]+ m['NameLast'][0]
 
     def run(self):
-        """
-        Runs the MongoDB query to find all new members and produce the job
-        batch file to create new member Google accounts.
-        """
-        gamcmdfmt = 'gamx create user {}@nhwg.cap.gov externalid organization {:d} givenname "{}" familyname "{}" organizations department {:03d} description {} primary orgunitpath "{}" password \'{}\' changepassword true'
+        gamcmdfmt = 'gam create user {}@nhwg.cap.gov externalid organization {:d} givenname "{}" familyname "{}" organizations department {:03d} description {} primary orgunitpath "{}" password \'{}\' changepassword true'
+        notifyfmt = ' notify {} subject "{}" message file "{}"'
         cur = self.DB().Member.find( self.query )
         with open( self.outfileName, 'w' ) as outfile:
             for m in cur:
+                if ( m['Unit'] == 0 ): continue  #Skip Unit 000 members
                 g = self.DB().Google.find_one( {'externalIds':{'$elemMatch':{'value':m['CAPID']}}} )
-                if ( g == None ):
+                if ( g == None ): # if user does not exist make one
                     logging.info( "New User: %d %s %s %s",
-                                  m[ 'CAPID' ],m[ 'NameFirst' ],
-                                  m[ 'NameLast' ],
-                                  "" if ( m[ 'NameSuffix' ] == None )
-                                  else m[ 'NameSuffix' ] )
-                    print( gamcmdfmt.format( m['CAPID'],
+                                  m['CAPID'],m['NameFirst'],
+                                  m['NameLast'],
+                                  "" if ( m['NameSuffix'] == None )
+                                  else m['NameSuffix'] )
+                    cmd = gamcmdfmt.format( m['CAPID'],
                                              m['CAPID'],
                                              self.givenName( m['NameFirst'],
                                                         m['NameMiddle'] ),
@@ -202,8 +200,22 @@ class NewMembers( Manager ):
                                              m['Unit'],
                                              m['Type'],
                                              orgUnitPath[m['Unit']],
-                                             self.mkpasswd( m )),
-                                             file = outfile )
+                                             self.mkpasswd( m ))
+                    # check for primary email to notify member
+                    contact = self.DB().MbrContact.find_one({'CAPID':m['CAPID'],
+                                              'Type':'EMAIL',
+                                              'Priority':'PRIMARY'})
+                    if contact:
+                        cmd = cmd + notifyfmt.format( contact['Contact'],
+                                                      "Welcome to your NH Wing account",
+                                                      WELCOMEMSG )
+                        print( cmd, file = outfile )
+                    else: # do not issue account
+                        logging.warn( "Member: %d %s %s %s does not have a primary email address.",
+                                  m['CAPID'],m['NameFirst'],
+                                  m['NameLast'],
+                                  "" if ( m['NameSuffix'] == None )
+                                  else m['NameSuffix'] )
 
 
 class PurgeMembers( Manager ):    
@@ -228,26 +240,28 @@ class PurgeMembers( Manager ):
         Google download anyway. It's just cleaner to remove the documents for
         subsequent runs.
         """
+        gamcmdfmt = 'gam {} user {}'
         l = []  # list of members to remove
+        #Scan all Google users
         g = self.DB().Google.find( self.query )
         for i in g:
-            id = i[ '_id' ]
+            id = i['_id']
             capid = i['externalIds'][0]['value']
             m = self.DB().Member.find_one({'CAPID':capid})
             if m == None: # member nolonger on rolls
-                l.append( i[ 'primaryEmail' ] )
+                l.append( i['primaryEmail'] )
                 logging.info( "%s: %d %s", "Removed",
                               capid,
-                              i['name']['fullName'] )
+                              i['name']['fullName'])
                 # delete user document from DB
                 if ( DELETE_PURGED ):
                     print("Delete document:", "self.DB().Google.delete({'_id':",
                           id,"})" )
         l.sort()
-        for j in l:
-            with open( self.outfileName, 'w' ) as outfile:
-                for j in l:
-                    print( "gamx user delete", j, file = outfile )
+        with open( self.outfileName, 'w' ) as outfile:
+            for j in l:
+                print( gamcmdfmt.format( PURGE_ACTION, j ),
+                       file = outfile )
 
 class Expired( Manager ):
     """
@@ -268,19 +282,21 @@ class Expired( Manager ):
         Google account.  The account is NOT deleted and may be reactivated
         by any sys admin.
         """
+        gamcmdfmt = "gam {} user {}"
         cur = self.DB().Member.find( self.query )
         with open( self.outfileName, 'w' ) as outfile:
             for m in cur:
                 g = self.DB().Google.find_one(
                     {'externalIds':{'$elemMatch':{'value':m[ 'CAPID' ]}}} )
-                if ( g != None ):
+                if ( g ):
                     logging.info( "%s %d %s %s %s", "Suspended:",
                                   m[ 'CAPID' ], m[ 'NameFirst' ],
                                   m[ 'NameLast' ],
                                   "" if ( m[ 'NameSuffix' ] == None )
                                   else m[ 'NameSuffix' ] )
-                    print( "gamx suspend user",
-                           g[ 'primaryEmail' ], file = outfile )
+                    print( gamcmdfmt.format( EXPIRED_ACTION,
+                                             g[ 'primaryEmail' ]),
+                           file = outfile )
                     
 
 class ListManager( Manager ):
