@@ -225,13 +225,13 @@ class PurgeMembers( Manager ):
     a GAM command is generated to delete the user account from Google, and 
     the command is added to a batch file for latter execution.
     """
-    def __init__():
+    def __init__(self):
         super().__init__()
         self.query = { 'externalIds':{'$elemMatch':{'value':{'$ne':None}}}}
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
-    def run():
+    def run(self):
         """
         Runs the MongoDB query to find all members in Google not currently
         on the CAP rolls and produces a batch file to remove those member
