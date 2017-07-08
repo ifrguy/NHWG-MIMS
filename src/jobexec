@@ -1,0 +1,57 @@
+#!/bin/bash
+# jobexec is designed to be run as a cron job, when awakened it
+# scans the JOBS directory for .job files.  The jobs are executed in sort
+# order, successfully completed job files are move to the completed
+# directory.  Job files that begin with "HOLD-" | "hold-"  are skipped. Jobs
+# that fail are left in the job queue and any errors are reported.
+#
+# History:
+# 07Jul17 MEG Created.
+#
+
+# Location of config file
+# you should move this to /etc/defaults/ and make it owned by root
+CONF=./jobexec.conf
+
+# check for config file, source configuration if it exists
+if [ ! -f $CONF ]; then
+    echo $(basename $0)": Missing config file: $CONF"
+    exit 1
+fi
+# source config
+. $CONF
+
+# Set default locations if conf file missing
+# Path to .job files
+ [ -z $JOBS ] && JOBS=./job
+
+# location for completed jobs
+ [ -z $COMPJOBS ] && COMPJOBS=./completed
+
+# Check that jobs directory exists before we do anything
+if [ ! -d $JOBS ]; then
+    echo ERROR: jobs directory: $JOBS not found.
+    exit 1
+fi
+
+# move to the jobs directory before further action
+cd $JOBS
+
+# Make sure completed job directory exists, if not create it
+if [ ! -d $COMPJOBS ]; then
+    /bin/mkdir -p $COMPJOBS
+fi
+
+# loop over job files in sort order, skip files ^HOLD-*
+
+for j in *.job; do
+    echo $j|grep -qi '^hold-' && continue
+    /bin/bash <$j
+    if [ $? == "0" ]; then
+	/bin/mv $j $COMPJOBS
+    else
+	echo "ERROR:Job: $j failed."
+    fi
+done
+
+    
