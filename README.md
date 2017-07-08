@@ -20,4 +20,4 @@ MIMS is intended to synchronize member accounts between National database and Wi
 * capwatch.py - CAPWATCH downloader webdriver client
 * capwatch_conf.py - capwatch.py config file
 * mims.py - MIMS batch job generator
-* jsched - Batch job scheduler/executor (TBD)
+* jobexec - Job executive runs job created by mims
