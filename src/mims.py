@@ -340,13 +340,15 @@ class SeniorListChecker( ListManager ):
         Scan for senior members and add them to the senior mailing list
         """
         cur = self.DB().Google.find( self.query )
+        gamcmdfmt = 'gam user {} add groups member {}'
         with open( self.outfileName, 'w' ) as outfile:
             for m in cur:
                 primaryEmail = m['primaryEmail']
                 if not self.isGroupMember( m['groups'], "seniors@nhwg.cap.gov"):
                     logging.info( "%s %s", "Senior mailing list Add:", primaryEmail ) 
-                    print( "gam user", primaryEmail, "add groups member",
-                           "seniors@nhwg.cap.gov", file = outfile )
+                    print( gamcmdfnt.format( primaryEmail,
+                           "seniors@nhwg.cap.gov"),
+                           file = outfile )
 
 # Create the base object for all jobs
 # MIMS is the factory base class object
