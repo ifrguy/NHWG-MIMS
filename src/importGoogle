@@ -1,0 +1,34 @@
+#!/bin/bash -e
+# 
+# Calls GAM to pull a JSON dump of the entire wing user database,
+# and imports it into the wing NHWG database on mongoDB.  This script
+# is intended "mostly" to be run as a cron/batch job.
+#
+# Note: You will need to update the variables to point to the utilities.
+#
+# History:
+# 10Jul17 MEG Changed json file filter now uses sed for speed.
+# 09Jul17 MEG Created.
+#
+
+# Database
+DB=NHWG
+# Host
+HOST=localhost
+# Collection in DB to import into
+COLL=Google
+# GAM command
+GAM=/usr/local/bin/gam
+# Import command
+IMP=/usr/bin/mongoimport
+# JSON output file
+JSON=./Google.json
+# Log file
+LOG=./log/GAM.log
+
+echo "Downloading Google members"
+$GAM redirect stderr $LOG info users all users formatjson | sed -r -f ./jsonfix.sed >$JSON
+cat $LOG
+echo "Importing members into MongoDB NHWG"
+$IMP --host $HOST --db $DB --collection $COLL --drop --type json --file $JSON
+echo "Done."
