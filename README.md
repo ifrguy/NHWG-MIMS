@@ -20,3 +20,6 @@ MIMS is intended to synchronize member accounts between National database and Wi
 * capwatch.py - CAPWATCH downloader webdriver client
 * mims.py - MIMS batch job generator
 * jobexec - Job executive runs jobs created by mims
+* importGoogle - Google data downloader and mongoDB import
+* importTables - Unpack CAPWATCH zip file, filter and load into mongoDB
+
