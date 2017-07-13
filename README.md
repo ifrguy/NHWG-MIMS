@@ -22,7 +22,7 @@ MIMS is intended to synchronize member accounts between National database and Wi
 * jobexec - Job executive runs jobs created by MIMS (bash script)
 * getTables - Unpack CAPWATCH tables and filter for import into MongoDB (bash script)
 * importGoogle - Google data downloader and mongoDB import (bash script)
-* importTables - Load tables into mongoDB (bash script)
+* importTables - Load CAPWATCH tables into mongoDB (bash script)
 * jsonfix.sed - sed (Stream Editor) script used by importGoogle.
 
 * Note: bash script utilities have not been ported to the Windows environment yet. They may work under cygwin??
