@@ -1,21 +1,55 @@
 #!/bin/bash -e
 #
-# Import CAPWATCH tables into MongoDB.
-# Note: Files must have been preprocessed with getTables before importing.
+# Import CAPWATCH tables into MongoDB. User may change the database or
+# provide a list of substitute tables to import.
+# Note 1: Subsitute tables must have a companion .types file for mongoimport
+.
+# Note 2: Files must have been preprocessed with getTables before importing
+#         or similar to convert dates to MicroSoft SQL date format.
 #
 # History:
+# 13Jul17 MEG User option to change database and substitute tables.
 # 03Jul17 MEG Created.
 #
 # Database to connect to
 DB=NHWG
+
 # Mongo import tool
 IMP=/usr/bin/mongoimport
+
 # CAPWATCH table to import
 TABLES="Member MbrContact MbrAddresses MbrAchievements DutyPosition"
+
 # Path to column type def's for each table
-TYPEPATH=./MIMS
-UID=MIMSImporter
-PASS=mimsimporter
+TYPEPATH=/home/meg/work/NHWG/MIMS
+MONGOUID=MIMSImporter
+MONGOPASS=mimsimporter
+
+# Command options
+OPTS="d:t:h?"
+
+# Help text
+USAGE="Usage: $(basename $0) [$OPTS] [table table...] \n
+\tImport CAPWATCH tables into MongoDB. \n
+\td - database ($DB)\n
+\th|? - help \n
+\tt - path to .type files ($TYPEPATH)\n
+\tTABLES=$TABLES\n"
+
+while getopts $OPTS o; do
+    case $o in
+	d) DB=$OPTARG;;
+	t) TYPEPATH=$OPTARG;;
+	h|?) echo -e $USAGE;exit 1;;
+	*) echo -e $USAGE;exit 1;;
+    esac
+done
+shift $(($OPTIND - 1))
+
+# Check for substituted list of tables to import
+if [ $# -ge 1 ]; then
+    TABLES=$@
+fi
 
 for t in $TABLES; do
     $IMP --db $DB  --collection $t --drop --type csv --columnsHaveTypes \

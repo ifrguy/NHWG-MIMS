@@ -1,36 +1,52 @@
 #!/bin/bash
 # Extract tables from CAPWATCH file and convert them to something
 # mongoimport can live with. Extracts tables listed in TABLES and 
-# converts them to CSV files appropriate for monogimport
+# converts them to CSV files appropriate for monogimport. User may
+# substitute tables to be extracted.
 #
 # History:
+# 13Jul17 MEG User may not substitute tables form cmd line.
 # 03Jul17 MEG Convert date fields to Oracle UTC format.
 # 23Jun17 MEG Created.
 #
 # Archiver
 ARC=unzip
+
 # Default Zip file
 ZIP=462283.zip
+
 # Default DB
 DB=NHWG
+
+# Options
 OPTS="a:h?"
+
 # List of Tables to extract
 TABLES="Member MbrContact MbrAddresses MbrAchievements DutyPosition"
-USAGE="Usage: $(basename $0) [$OPTS]\n
-\t-a - archive ($ZIP)"
+
+# Help message
+USAGE="Usage: $(basename $0) [$OPTS] [table table...]\n
+\tExtract tables from CAPWATCH archive and filter.\n
+\t-a - archive ($ZIP)\n
+\tTABLES - $TABLES"
 
 # Process options
 while getopts $OPTS o; do
     case $o in
 	a) ZIP=$OPTARG;;
-	h|?)echo -e $USAGE;exit 0;;
-	*) echo -e $USAGE;exit 0;;
+	h|?) echo -e $USAGE;exit 1;;
+	*) echo -e $USAGE;exit 1;;
     esac
 done
 shift $(( $OPTIND - 1 ))
 
+# Check for substituted list of tables
+if [ $# -ge 1 ]; then
+    TABLES=$@
+fi
+
 # Extract each table, strip header line, strip quotes,
 # convert dates to Oracle UTC format and write to a csv file
 for t in $TABLES; do
-    $ARC -p $ZIP $t.txt|tail -n +2|sed -r -e 's/\"//g;s/[0-9]+\/[0-9]+\/[0-9]+/& 00:00:00 -05:00/g' >$t.csv
+    $ARC -p $ZIP $t.txt|sed -r -e 's/(\")([0-9]+\/[0-9]{2}\/[0-9]{4})(\")/\2 05:00:00/g' >$t.csv
 done
