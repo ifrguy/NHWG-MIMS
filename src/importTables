@@ -3,7 +3,6 @@
 # Import CAPWATCH tables into MongoDB. User may change the database or
 # provide a list of substitute tables to import.
 # Note 1: Subsitute tables must have a companion .types file for mongoimport
-.
 # Note 2: Files must have been preprocessed with getTables before importing
 #         or similar to convert dates to MicroSoft SQL date format.
 #
