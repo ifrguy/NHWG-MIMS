@@ -113,7 +113,7 @@ class Manager(object):
         """
         return cls.__TS
     
-    def Job(self, job):
+    def job(self, job):
         """
         Job creates the requested subclass that does a particular job.
         The caller requests a job by sending the classes name string as
