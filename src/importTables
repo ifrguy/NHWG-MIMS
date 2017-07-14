@@ -20,7 +20,7 @@ IMPORT=/usr/bin/mongoimport
 TABLES="Member MbrContact MbrAddresses MbrAchievements DutyPosition"
 
 # Path to column type def's for each table
-TYPEPATH=/home/meg/work/NHWG/MIMS
+TYPEPATH="."
 MONGOUID=""
 MONGOPASS=""
 
