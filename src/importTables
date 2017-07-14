@@ -21,8 +21,8 @@ TABLES="Member MbrContact MbrAddresses MbrAchievements DutyPosition"
 
 # Path to column type def's for each table
 TYPEPATH=/home/meg/work/NHWG/MIMS
-MONGOUID=MIMSImporter
-MONGOPASS=mimsimporter
+MONGOUID=""
+MONGOPASS=""
 
 # Command options
 OPTS="d:t:h?"
