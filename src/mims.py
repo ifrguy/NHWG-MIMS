@@ -14,34 +14,35 @@
 ##   limitations under the License.
 
 
-version_tuple = (0,8,2)
+version_tuple = (0,9,0)
 VERSION = str(version_tuple[0]) + "." + str(version_tuple[1]) + "." + str(version_tuple[2])
 
 # Maps CAP squadron/unit to Google organization path
 orgUnitPath = {
-    0:"/000 - New Hampshire Wing",
-    1:"/001 - New Hampshire Wing",
-    10:"/010 - Portsmouth Squadron",
-    14:"/014 - Lebanon Squadron",
-    16:"/016 - Nashua Squadron",
-    32:"/032 - Concord Squadron",
-    37:"/037 - Highlanders Squadron - Rochester",
-    53:"/053 - Monadnock Squadron - Keene",
-    54:"/054 - Manchester Squadron",
-    56:"/056 - Hawk Squadron - Laconia",
-    75:"/075 - Whitefield",
-    801:"/801 - Humphrey Squadron - Nashua Cadets",
+    '000':"/000 - New Hampshire Wing",
+    '001':"/001 - New Hampshire Wing",
+    '010':"/010 - Portsmouth Squadron",
+    '014':"/014 - Lebanon Squadron",
+    '016':"/016 - Nashua Squadron",
+    '032':"/032 - Concord Squadron",
+    '037':"/037 - Highlanders Squadron - Rochester",
+    '053':"/053 - Monadnock Squadron - Keene",
+    '054':"/054 - Manchester Squadron",
+    '056':"/056 - Hawk Squadron - Laconia",
+    '075':"/075 - Whitefield",
+    '801':"/801 - Humphrey Squadron - Nashua Cadets",
 }
 
 """
 MIMS - Member Information Management System.
        Google account synchronization between National and NH Wing.
        MIMS uses a combintation of MongoDB, Python, and the GAMADV-X
-       Google Account Management tool.
+       Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
-09Jun17 MEG Manager scans to leaf classes, added mailing list updater
-07Jun17 MEG Configurable log and job file paths, separate config file
+14Jul17 MEG Added NewSeniors class, NewMembers now basically an abstract class.
+09Jun17 MEG Manager scans to leaf classes for jobs, new senior mailing list updater.
+07Jun17 MEG Configurable log and job file paths, separate config file.
 05Jun17 MEG Added suspend for expired members.
 28May17 MEG Created.
 """
@@ -146,9 +147,10 @@ class NewMembers( Manager ):
     members.  It then checks the Google collection to see if the member
     has an account on the wing Google system.  If the user is not found
     a new Google wing account GAM command is generated and added to a
-    batch job file for later execution.
+    batch job file for later execution. 
+    Note: NewMembers does not add member to any groups.
     """
-    def __init__():
+    def __init__(self):
         super().__init__()
         self.query = { "$or":[{'Type':'SENIOR'},{'Type':'CADET'},{'Type':'PATRON'}], "$and":[ {'MbrStatus':'ACTIVE'}] }
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
@@ -178,12 +180,12 @@ class NewMembers( Manager ):
         return str(m['CAPID']) + '!' + m['NameFirst'][0]+ m['NameLast'][0]
 
     def run(self):
-        gamcmdfmt = 'gam create user {}@nhwg.cap.gov externalid organization {:d} givenname "{}" familyname "{}" organizations department {:03d} description {} primary orgunitpath "{}" password \'{}\' changepassword true'
+        gamcmdfmt = 'gam create user {}@nhwg.cap.gov externalid organization {:d} givenname "{}" familyname "{}" organizations department {} description {} primary orgunitpath "{}" password \'{}\' changepassword true'
         notifyfmt = ' notify {} subject "{}" message file "{}"'
         cur = self.DB().Member.find( self.query )
         with open( self.outfileName, 'w' ) as outfile:
             for m in cur:
-                if ( m['Unit'] == 0 ): continue  #Skip Unit 000 members
+                if ( (m['Unit'] == '000') or (m['Unit'] == "") ): continue  #Skip Unit 000 members
                 g = self.DB().Google.find_one( {'externalIds':{'$elemMatch':{'value':m['CAPID']}}} )
                 if ( g == None ): # if user does not exist make one
                     logging.info( "New User: %d %s %s %s",
@@ -216,6 +218,69 @@ class NewMembers( Manager ):
                                   m['NameLast'],
                                   "" if ( m['NameSuffix'] == None )
                                   else m['NameSuffix'] )
+
+
+class NewSeniors( NewMembers ):
+    """
+    Scans the Member table for Senior members not having Google accounts.
+    Make a new account if the senior member is active, add to senior mailing
+    list.
+    """
+    def __init__( self ):
+        super().__init__()
+        self.query = self.query = { 'Type':'SENIOR','MbrStatus':'ACTIVE' }
+        logging.basicConfig( filename = self.logfileName, filemode = 'w',
+                             level = logging.DEBUG )
+
+    def run( self ):
+        """
+        Search for new senior members, create account, notify and add
+        member to senior group.
+        """
+        gamcmdfmt = 'gam create user {}@nhwg.cap.gov externalid organization {:d} givenname "{}" familyname "{}" organizations department {} description {} primary orgunitpath "{}" password \'{}\' changepassword true'
+        gamgroupfmt = 'gam user {}@nhwg.cap.gov add groups member seniors@nhwg.cap.gov'
+        notifyfmt = ' notify {} subject "{}" message file "{}"'
+        cur = self.DB().Member.find( self.query )
+        with open( self.outfileName, 'w' ) as outfile:
+            for m in cur:
+                if ( m['Unit'] == '000' or m['Unit'] == "" ): continue  #Skip Unit 000 members
+                g = self.DB().Google.find_one( {'externalIds':{'$elemMatch':{'value':m['CAPID']}}} )
+                if ( g == None ): # if user does not exist make one
+                    logging.info( "New User: %d %s %s %s",
+                                  m['CAPID'],m['NameFirst'],
+                                  m['NameLast'],
+                                  "" if ( m['NameSuffix'] == None )
+                                  else m['NameSuffix'] )
+                    cmd = gamcmdfmt.format( m['CAPID'],
+                                             m['CAPID'],
+                                             self.givenName( m['NameFirst'],
+                                                        m['NameMiddle'] ),
+                                             self.familyName( m['NameLast'],
+                                                         m['NameSuffix'] ),
+                                             m['Unit'],
+                                             m['Type'],
+                                             orgUnitPath[ m['Unit'] ],
+                                             self.mkpasswd( m ))
+                    # check for primary email to notify member
+                    contact = self.DB().MbrContact.find_one({'CAPID':m['CAPID'],
+                                              'Type':'EMAIL',
+                                              'Priority':'PRIMARY'})
+                    if contact:
+                        cmd = cmd + notifyfmt.format( contact['Contact'],
+                                                      "Welcome to your NH Wing account",
+                                                      WELCOMEMSG )
+                        print( cmd, file = outfile )
+                    else: # do not issue account
+                        logging.warn( "Member: %d %s %s %s does not have a primary email address.",
+                                  m['CAPID'],m['NameFirst'],
+                                  m['NameLast'],
+                                  "" if ( m['NameSuffix'] == None )
+                                  else m['NameSuffix'] )
+                    # add member to senior group mailing list
+                    groupcmd = gamgroupfmt.format( m['CAPID'] )
+                    logging.info( 'Member: %d added to senior mailing list.',
+                                  m['CAPID'] )
+                    print( groupcmd, file = outfile )
 
 
 class PurgeMembers( Manager ):    
