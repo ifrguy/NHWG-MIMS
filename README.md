@@ -13,6 +13,8 @@ MIMS is intended to synchronize member accounts between National database and Wi
 * MongoDB document database manager 3.4>
 * Selenium Python webdriver module
 * Chrome webdriver or equivalent browser webdriver
+* Google G-Suite admin account.
+
 #### Optional
 * [Studio 3T](https://studio3t.com) - MongoDB browser/editor
 
