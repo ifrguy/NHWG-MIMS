@@ -7,6 +7,7 @@
 # Note: You will need to update the variables to point to the utilities.
 #
 # History:
+# 15Jul17 MEG Allow import to user specified collection and database.
 # 10Jul17 MEG Changed json file filter now uses sed for speed.
 # 09Jul17 MEG Created.
 #
@@ -22,9 +23,28 @@ GAM=/usr/local/bin/gam
 # Import command
 IMP=/usr/bin/mongoimport
 # JSON output file
-JSON=./Google.json
+JSON=./$COLL.json
 # Log file
 LOG=./log/GAM.log
+
+# options
+OPTS="c:d:h?"
+
+USAGE="Usage: $(basename $0) [$OPTS]\n
+\tDownload and import Google member data\n
+\tc - collection ($COLL)\n
+\td - database ($DB)\n
+\th|? - this help\n"
+
+while getopts $OPTS o; do
+    case $o in
+	c) COLL=$OPTARG;;
+	d) DB=$OPTARG;;
+	h|?) echo -e $USAGE;exit 1;;
+	*) echo -e $USAGE;exit 1;;
+    esac
+done
+shift $(($OPTIND - 1))
 
 echo "Downloading Google members"
 $GAM redirect stderr $LOG info users all users formatjson | sed -r -f ./jsonfix.sed >$JSON
