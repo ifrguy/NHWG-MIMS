@@ -20,7 +20,7 @@ MIMS is intended to synchronize member accounts between National database and Wi
 * Additional Cygwin tools: text-utils, bash, sed, tail, unzip
 
 #### Suggested but not required
-* [iPython](http://ipython.readthedocs.io/en/stable/index.html#) - interactive Python environment (makes life so much better)
+* [iPython](http://ipython.readthedocs.io/en/stable/index.html#) - interactive Python environment (makes life so much better for debugging)
 
 #### Optional
 * [Studio 3T](https://studio3t.com) - MongoDB browser/editor
@@ -38,4 +38,4 @@ MIMS is intended to synchronize member accounts between National database and Wi
 
 ## Installation
 Each component comes with either a companion configuration file, or the script header contains variables that must be set
-prior to running MIMS.  At minimum before you can run MIMS you must install and configure GAMADV-X, Python3 and MongoDB. If you want to automate download the tables you must install Selenium and Chrome webdriver. There is no installer for MIMS. Copy all of the MIMS components into a directory under your workspace, MIMS is a good name for it.
+prior to running MIMS.  At minimum before you can run MIMS you must install and configure GAMADV-X, Python3 and MongoDB. If you want to automate downloading of the tables you must install Selenium and Chrome webdriver. There is no installer for MIMS. Copy all of the MIMS components into a directory under your workspace, MIMS is a good name for it.
