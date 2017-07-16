@@ -6,6 +6,7 @@
 #
 # History:
 # 13Jul17 MEG User may not substitute tables form cmd line.
+# 12Jul17 MEG Converts dates to MicroSoft SQL format.
 # 03Jul17 MEG Convert date fields to Oracle UTC format.
 # 23Jun17 MEG Created.
 #
