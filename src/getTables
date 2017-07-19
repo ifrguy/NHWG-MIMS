@@ -5,6 +5,7 @@
 # substitute tables to be extracted.
 #
 # History:
+# 18Jul17 MEG Removed option to change archiver.
 # 13Jul17 MEG User may now substitute tables form cmd line.
 # 12Jul17 MEG Converts dates to MicroSoft SQL format.
 # 03Jul17 MEG Convert date fields to Oracle UTC format.
@@ -20,7 +21,7 @@ ZIP=CAPWATCH.zip
 DB=NHWG
 
 # Options
-OPTS="a:h?"
+OPTS="h?z:"
 
 # List of Tables to extract
 TABLES="Member MbrContact MbrAddresses MbrAchievements DutyPosition"
@@ -28,13 +29,14 @@ TABLES="Member MbrContact MbrAddresses MbrAchievements DutyPosition"
 # Help message
 USAGE="Usage: $(basename $0) [$OPTS] [table table...]\n
 \tExtract tables from CAPWATCH archive and filter.\n
-\t-a - archiver ($ARC)\n
+\tz - zip file ($ZIP)\n
 \tTABLES - $TABLES"
 
 # Process options
 while getopts $OPTS o; do
     case $o in
-	a) ZIP=$OPTARG;;
+	a) ARC=$OPTARG;;
+	z) ZIP=$OPTARG;;
 	h|?) echo -e $USAGE;exit 1;;
 	*) echo -e $USAGE;exit 1;;
     esac
@@ -47,7 +49,7 @@ if [ $# -ge 1 ]; then
 fi
 
 # Extract each table, strip header line,
-# convert dates to MircoSoft SQL format and write to a csv file
+# convert dates to MicroSoft SQL format and write to a csv file
 for t in $TABLES; do
-    $ARC -p $ZIP $t.txt|tail -n +2|sed -r -e 's/(\")([0-9]+\/[0-9]{2}\/[0-9]{4})(\")/\2 05:00:00/g' >$t.csv
+    $ARC -p $ZIP $t.txt|tail -n +2|sed -r -e 's/(")([0-9]+\/[0-9]{2}\/[0-9]{4})(")/\2 05:00:00/g' >$t.csv
 done
