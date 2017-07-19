@@ -28,7 +28,7 @@ TABLES="Member MbrContact MbrAddresses MbrAchievements DutyPosition"
 # Help message
 USAGE="Usage: $(basename $0) [$OPTS] [table table...]\n
 \tExtract tables from CAPWATCH archive and filter.\n
-\t-a - archiver ($ZIP)\n
+\t-a - archiver ($ARC)\n
 \tTABLES - $TABLES"
 
 # Process options
