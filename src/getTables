@@ -14,7 +14,7 @@
 ARC=unzip
 
 # Default Zip file
-ZIP=462283.zip
+ZIP=CAPWATCH.zip
 
 # Default DB
 DB=NHWG
