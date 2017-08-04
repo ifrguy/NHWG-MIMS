@@ -228,7 +228,7 @@ class NewSeniors( NewMembers ):
     """
     def __init__( self ):
         super().__init__()
-        self.query = self.query = { 'Type':'SENIOR','MbrStatus':'ACTIVE' }
+        self.query = { 'Type':'SENIOR','MbrStatus':'ACTIVE' }
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
