@@ -180,45 +180,8 @@ class NewMembers( Manager ):
         return str(m['CAPID']) + '!' + m['NameFirst'][0]+ m['NameLast'][0]
 
     def run(self):
-        gamcmdfmt = 'gam create user {}@nhwg.cap.gov externalid organization {:d} givenname "{}" familyname "{}" organizations department {} description {} primary orgunitpath "{}" password \'{}\' changepassword true'
-        notifyfmt = ' notify {} subject "{}" message file "{}"'
-        cur = self.DB().Member.find( self.query )
-        with open( self.outfileName, 'w' ) as outfile:
-            for m in cur:
-                if ( (m['Unit'] == '000') or (m['Unit'] == "") ): continue  #Skip Unit 000 members
-                g = self.DB().Google.find_one( {'externalIds':{'$elemMatch':{'value':m['CAPID']}}} )
-                if ( g == None ): # if user does not exist make one
-                    logging.info( "New User: %d %s %s %s",
-                                  m['CAPID'],m['NameFirst'],
-                                  m['NameLast'],
-                                  "" if ( m['NameSuffix'] == None )
-                                  else m['NameSuffix'] )
-                    cmd = gamcmdfmt.format( m['CAPID'],
-                                             m['CAPID'],
-                                             self.givenName( m['NameFirst'],
-                                                        m['NameMiddle'] ),
-                                             self.familyName( m['NameLast'],
-                                                         m['NameSuffix'] ),
-                                             m['Unit'],
-                                             m['Type'],
-                                             orgUnitPath[m['Unit']],
-                                             self.mkpasswd( m ))
-                    # check for primary email to notify member
-                    contact = self.DB().MbrContact.find_one({'CAPID':m['CAPID'],
-                                              'Type':'EMAIL',
-                                              'Priority':'PRIMARY'})
-                    if contact:
-                        cmd = cmd + notifyfmt.format( contact['Contact'],
-                                                      "Welcome to your NH Wing account",
-                                                      WELCOMEMSG )
-                        print( cmd, file = outfile )
-                    else: # do not issue account
-                        logging.warn( "Member: %d %s %s %s does not have a primary email address.",
-                                  m['CAPID'],m['NameFirst'],
-                                  m['NameLast'],
-                                  "" if ( m['NameSuffix'] == None )
-                                  else m['NameSuffix'] )
-
+        print( 'NewMembers is an abstract class, provides no services' )
+        return self     
 
 class NewSeniors( NewMembers ):
     """
