@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (0,9,0)
+version_tuple = (0,9,9)
 VERSION = str(version_tuple[0]) + "." + str(version_tuple[1]) + "." + str(version_tuple[2])
 
 # Maps CAP squadron/unit to Google organization path
@@ -143,7 +143,7 @@ class help( Manager):
         
 class NewMembers( Manager ):
     """
-    AddMembers - scans the Member collection for active senior, cadet and patron
+    NewMembers - scans the Member collection for active senior, cadet and patron
     members.  It then checks the Google collection to see if the member
     has an account on the wing Google system.  If the user is not found
     a new Google wing account GAM command is generated and added to a
@@ -152,27 +152,114 @@ class NewMembers( Manager ):
     """
     def __init__(self):
         super().__init__()
-        self.query = { "$or":[{'Type':'SENIOR'},{'Type':'CADET'},{'Type':'PATRON'}], "$and":[ {'MbrStatus':'ACTIVE'}] }
+        self.domain = 'nhwg.cap.gov'
+        # MongoDB query to find members
+        self.query = None
+        self.gamaccountfmt = 'gam create user {} externalid organization {:d} givenname "{}" familyname "{}" organizations department {} description {} primary orgunitpath "{}" password \'{}\' changepassword true'
+        self.gamgroupfmt = 'gam user {} add groups member {}@nhwg.cap.gov'
+        self.gamnotifyfmt = ' notify {} subject "{}" message file "{}"'
+        # Group to add member to
+        self.group = None
+        self.outfile = None
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
-    def givenName( self, f, m ):
+    def givenName( self, m ):
         """
+        Input member record
         Returns firstname + middle initial
         """
         mi = ''
-        if m:
-            mi = ' ' + m[0]
-        return f + mi
+        if m['NameMiddle']:
+            mi = ' ' + m[ 'NameMiddle' ][0]
+        return m[ 'NameFirst' ] + mi
 
-    def familyName( self, l, s ):
+    def familyName( self, m ):
         """
-        Returns lastname + name suffix if any
+        Input member record
+        Returns lastname + name + suffix if any
         """
-        if s:
-            return l + ' ' + s
-        return l
+        if m[ 'NameSuffix' ]:
+            return m[ 'NameLast' ] + ' ' + m[ 'NameSuffix' ]
+        return  m[ 'NameLast' ]
 
+    def getContact( self, id, type, priority ):
+        """
+        Return a contact record from MbrContact.
+        Input: id = CAPID
+               type = contact type: HOME PHONE, CELL PHONE, EMAIL...
+               priority = PRIMARY, SECONDARY, EMERGENCY
+        Returns: a string containing the contact. Receiver is responsible
+                 for comprehension.  We don't make it we just send it.
+        """
+        contact = self.DB().MbrContact.find_one( {'CAPID': id,
+                                                  'Type': type,
+                                                  'Priority': priority })
+        if contact:
+            return contact[ 'Contact' ]
+        else:
+            return ""
+
+    def mkEmailAddress( self, m ):
+        """
+        Make a Google email address for member.
+        Input: member record
+        Output: string email address
+        """
+        return str( m['CAPID']) + '@' + self.domain
+
+    def mkNewAccount( self, m ):
+        """
+        Make a new member account
+        Input member record.
+        Output GAM member creation command to job file.
+        Note this function never fails any failures are recorded in the log.
+        """
+        logging.info( "New User: %d %s %s %s",
+                      m['CAPID'],m['NameFirst'],
+                      m['NameLast'],
+                      m['NameSuffix'] )
+        email = self.mkEmailAddress( m )
+        cmd = self.gamaccountfmt.format( email,
+                                m['CAPID'],
+                                self.givenName( m ),
+                                self.familyName( m ),
+                                m['Unit'],
+                                m['Type'],
+                                orgUnitPath[ m['Unit'] ],
+                                self.mkpasswd( m ))
+        # check for primary email to notify member
+        contact = self.getContact( m['CAPID'],
+                                   'EMAIL',
+                                   'PRIMARY')
+        if contact:
+            cmd = cmd + self.gamnotifyfmt.format( email,
+                                             "Welcome to your NH Wing account",
+                                             WELCOMEMSG )
+            print( cmd, file = self.outfile )
+        else: # do not issue account
+            logging.warn( "Member: %d %s %s %s does not have a primary email address.",
+                          m['CAPID'],m['NameFirst'],
+                          m['NameLast'],
+                          m['NameSuffix'] )
+        return True
+
+    def addToGroup( self, m ):
+        """
+        Add a member to a group
+        Input member record
+        Output GAM command to add member to a mailing list/group.
+        Note: this function always succeeds.
+        """
+        if self.group:
+            groupcmd = self.gamgroupfmt.format( m['CAPID'], self.group )
+            logging.info( 'Member: %d added to %s mailing list.',
+                          m['CAPID'],
+                          self.group )
+            print( groupcmd, file = self.outfile )
+        return True
+        
+        
     def mkpasswd( self, m ):
         """
         Make a password for the new user m and return it.
@@ -180,8 +267,24 @@ class NewMembers( Manager ):
         return str(m['CAPID']) + '!' + m['NameFirst'][0]+ m['NameLast'][0]
 
     def run(self):
-        print( 'NewMembers is an abstract class, provides no services' )
-        return self     
+        """
+        Search for new members, create account, notify and add
+        member to group and appropriate mailing list.  The subclass
+        must specify the query to find members.
+        """
+        # if no query we must be abstract class we don't do anything
+        if self.query == None: return
+        cur = self.DB().Member.find( self.query )
+        with open( self.outfileName, 'w' ) as self.outfile:
+            for m in cur:
+                # skip unit 000 members
+                if ( m['Unit'] == '000' or m['Unit'] == "" ): continue
+                # see if member has Google account
+                g = self.DB().Google.find_one( {'externalIds':{'$elemMatch':{'value':m['CAPID']}}} )
+                if ( g == None ): # if user does not exist make new account
+                    self.mkNewAccount( m )
+                    # add member to group mailing list if one exists
+                    self.addToGroup( m )
 
 class NewSeniors( NewMembers ):
     """
@@ -191,64 +294,30 @@ class NewSeniors( NewMembers ):
     """
     def __init__( self ):
         super().__init__()
+        self.group = 'seniors'
         self.query = { 'Type':'SENIOR','MbrStatus':'ACTIVE' }
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
+class NewCadets( NewMembers ):
+    """
+    Scans the Member table for Cadet members not having Google accounts.
+    Make a new account if the senior member is active, add to mailing
+    list.
+    """
+    def __init__( self ):
+        super().__init__()
+        self.group = None
+        self.query = { 'Type':'CADET','MbrStatus':'ACTIVE' }
+        logging.basicConfig( filename = self.logfileName, filemode = 'w',
+                             level = logging.DEBUG )
     def run( self ):
-        """
-        Search for new senior members, create account, notify and add
-        member to senior group.
-        """
-        gamcmdfmt = 'gam create user {}@nhwg.cap.gov externalid organization {:d} givenname "{}" familyname "{}" organizations department {} description {} primary orgunitpath "{}" password \'{}\' changepassword true'
-        gamgroupfmt = 'gam user {}@nhwg.cap.gov add groups member seniors@nhwg.cap.gov'
-        notifyfmt = ' notify {} subject "{}" message file "{}"'
-        cur = self.DB().Member.find( self.query )
-        with open( self.outfileName, 'w' ) as outfile:
-            for m in cur:
-                if ( m['Unit'] == '000' or m['Unit'] == "" ): continue  #Skip Unit 000 members
-                g = self.DB().Google.find_one( {'externalIds':{'$elemMatch':{'value':m['CAPID']}}} )
-                if ( g == None ): # if user does not exist make one
-                    logging.info( "New User: %d %s %s %s",
-                                  m['CAPID'],m['NameFirst'],
-                                  m['NameLast'],
-                                  "" if ( m['NameSuffix'] == None )
-                                  else m['NameSuffix'] )
-                    cmd = gamcmdfmt.format( m['CAPID'],
-                                             m['CAPID'],
-                                             self.givenName( m['NameFirst'],
-                                                        m['NameMiddle'] ),
-                                             self.familyName( m['NameLast'],
-                                                         m['NameSuffix'] ),
-                                             m['Unit'],
-                                             m['Type'],
-                                             orgUnitPath[ m['Unit'] ],
-                                             self.mkpasswd( m ))
-                    # check for primary email to notify member
-                    contact = self.DB().MbrContact.find_one({'CAPID':m['CAPID'],
-                                              'Type':'EMAIL',
-                                              'Priority':'PRIMARY'})
-                    if contact:
-                        cmd = cmd + notifyfmt.format( contact['Contact'],
-                                                      "Welcome to your NH Wing account",
-                                                      WELCOMEMSG )
-                        print( cmd, file = outfile )
-                    else: # do not issue account
-                        logging.warn( "Member: %d %s %s %s does not have a primary email address.",
-                                  m['CAPID'],m['NameFirst'],
-                                  m['NameLast'],
-                                  "" if ( m['NameSuffix'] == None )
-                                  else m['NameSuffix'] )
-                    # add member to senior group mailing list
-                    groupcmd = gamgroupfmt.format( m['CAPID'] )
-                    logging.info( 'Member: %d added to senior mailing list.',
-                                  m['CAPID'] )
-                    print( groupcmd, file = outfile )
-
-
+        print('Cadet account creation not permitted at this time.')
+        logging.warn('Cadet account creation not permitted.')
+        
 class PurgeMembers( Manager ):    
     """
-    RemoveUsers job - scans the Google user account collection by externalID
+    Scans the Google user account collection by externalID
     i.e. CAPID and checks to see if the member is on the CAP rolls, if not
     a GAM command is generated to delete the user account from Google, and 
     the command is added to a batch file for latter execution.
@@ -391,7 +460,7 @@ def main():
     # Logging on/off to stderr
     LOGGING = os.environ.get( 'LOGGING' )
 
-    job = MIMS.Job( sys.argv[1] )
+    job = MIMS.job( sys.argv[1] )
     job.run()
     job.DB().logout()
     MIMS.close()
