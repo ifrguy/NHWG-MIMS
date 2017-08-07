@@ -222,6 +222,7 @@ class NewMembers( Manager ):
         Make a new member account
         Input member record.
         Output GAM member creation command to job file.
+        Returns Gmail address
         Note this function never fails any failures are recorded in the log.
         """
         logging.info( "New User: %d %s %s %s",
@@ -242,7 +243,7 @@ class NewMembers( Manager ):
                                    'EMAIL',
                                    'PRIMARY')
         if contact:
-            cmd = cmd + self.gamnotifyfmt.format( email,
+            cmd = cmd + self.gamnotifyfmt.format( contact,
                                              "Welcome to your NH Wing account",
                                              WELCOMEMSG )
             print( cmd, file = self.outfile )
@@ -251,19 +252,19 @@ class NewMembers( Manager ):
                           m['CAPID'],m['NameFirst'],
                           m['NameLast'],
                           m['NameSuffix'] )
-        return True
+        return email
 
-    def addToGroup( self, m ):
+    def addToGroup( self, email ):
         """
         Add a member to a group
-        Input member record
+        Input member Google email address
         Output GAM command to add member to a mailing list/group.
         Note: this function always succeeds.
         """
         if self.group:
-            groupcmd = self.gamgroupfmt.format( m['CAPID'], self.group )
-            logging.info( 'Member: %d added to %s mailing list.',
-                          m['CAPID'],
+            groupcmd = self.gamgroupfmt.format( email, self.group )
+            logging.info( 'Member: %s added to %s mailing list.',
+                          email,
                           self.group )
             print( groupcmd, file = self.outfile )
         return True
@@ -291,9 +292,9 @@ class NewMembers( Manager ):
                 # see if member has Google account
                 g = self.DB().Google.find_one( {'externalIds':{'$elemMatch':{'value':m['CAPID']}}} )
                 if ( g == None ): # if user does not exist make new account
-                    self.mkNewAccount( m )
+                    email = self.mkNewAccount( m )
                     # add member to group mailing list if one exists
-                    self.addToGroup( m )
+                    self.addToGroup( email )
 
 class NewSeniors( NewMembers ):
     """
