@@ -15,8 +15,8 @@
 
 
 version_tuple = (0,9,9)
-VERSION = str(version_tuple[0]) + "." + str(version_tuple[1]) + "." + str(version_tuple[2])
-
+#VERSION = str(version_tuple[0]) + "." + str(version_tuple[1]) + "." + str(version_tuple[2])
+VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 # Maps CAP squadron/unit to Google organization path
 orgUnitPath = {
     '000':"/000 - New Hampshire Wing",
@@ -138,25 +138,34 @@ class help( Manager):
         """
         print("Summary:")
         print( sys.argv[0], " <job>" )
+        print( 'Version:', VERSION )
         print( "Available Jobs:",MIMS.jobs() )
 
         
 class NewMembers( Manager ):
     """
-    NewMembers - scans the Member collection for active senior, cadet and patron
-    members.  It then checks the Google collection to see if the member
-    has an account on the wing Google system.  If the user is not found
-    a new Google wing account GAM command is generated and added to a
-    batch job file for later execution. 
-    Note: NewMembers does not add member to any groups.
+    NewMembers - Is the base class for all member creation subclasses.
+    It is intended as an abstract class containing services needed by
+    subclasses to create new Google accounts.  In most cases the new member
+    creation subclass will only need to declare the query needed to find
+    potential members in the Member collection, and the name of the
+    mailing list/group if any used by those members.
+
+    The run method does the work of generating the commands necessary to
+    create the members Gmail account and add to the mailing list supplied.
+    In rare cases with special requirements a subclass may need to
+    override the run method.
     """
     def __init__(self):
         super().__init__()
         self.domain = 'nhwg.cap.gov'
         # MongoDB query to find members
         self.query = None
+        # GAM account creation command
         self.gamaccountfmt = 'gam create user {} externalid organization {:d} givenname "{}" familyname "{}" organizations department {} description {} primary orgunitpath "{}" password \'{}\' changepassword true'
+        # GAM group add member command
         self.gamgroupfmt = 'gam user {} add groups member {}@nhwg.cap.gov'
+        # GAM command to email notification to new member
         self.gamnotifyfmt = ' notify {} subject "{}" message file "{}"'
         # Group to add member to
         self.group = None
