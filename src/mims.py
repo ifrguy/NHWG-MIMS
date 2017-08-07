@@ -281,6 +281,8 @@ class NewMembers( Manager ):
         Search for new members, create account, notify and add
         member to group and appropriate mailing list.  The subclass
         must specify the query to find members.
+        Note: by construction members in unit 000 or no unit
+        are not considered for new accounts.
         """
         # if no query we must be abstract class we don't do anything
         if self.query == None: return
