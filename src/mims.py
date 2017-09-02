@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (0,9,9)
+version_tuple = (0,9,10)
 #VERSION = str(version_tuple[0]) + "." + str(version_tuple[1]) + "." + str(version_tuple[2])
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 # Maps CAP squadron/unit to Google organization path
@@ -40,6 +40,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+31Aug17 MEG Email accounts no longer CAPID, per order of High Command.
 14Jul17 MEG Added NewSeniors class, NewMembers now basically an abstract class.
 09Jun17 MEG Manager scans to leaf classes for jobs, new senior mailing list updater.
 07Jun17 MEG Configurable log and job file paths, separate config file.
@@ -51,6 +52,7 @@ import datetime
 import logging
 import pymongo
 from pymongo import *
+import re
 from mims_conf import *
 
 class Manager(object):
@@ -209,13 +211,31 @@ class NewMembers( Manager ):
         else:
             return ""
 
+    def mkename( self, nm, i ):
+        """
+        make non-colliding email account name string
+        ckeck Google collection for primaryEmail begining with nm,
+        if found offest the name and keep trying until we find
+        a name that doesn't match.
+        """
+        if ( self.DB().Google.find_one( {'primaryEmail' :
+                                         { '$regex': '/^'+nm+'/i'}} )):
+            i += 1
+            nm = re.sub( '[0-9]*', '', nm )  # strip trailing numbers
+            return self.mkename( nm + str( i ), i )
+        else:
+            return nm
+
     def mkEmailAddress( self, m ):
         """
         Make a Google email address for member.
         Input: member record
         Output: string email address
         """
-        return str( m['CAPID']) + '@' + self.domain
+        email = (m['NameFirst'][0] + m['NameLast'] + m['NameSuffix']).lower()
+        email = re.sub( '[\']', '', email )  # remove apostrophes
+        email = self.mkename( email, 0 )
+        return email + '@' + self.domain
 
     def mkNewAccount( self, m ):
         """
@@ -359,7 +379,7 @@ class PurgeMembers( Manager ):
             m = self.DB().Member.find_one({'CAPID':capid})
             if m == None: # member nolonger on rolls
                 l.append( i['primaryEmail'] )
-                logging.info( "%s: %d %s", "Removed",
+                logging.info( "%s: %d %s", "Remove",
                               capid,
                               i['name']['fullName'])
                 # delete user document from DB
@@ -389,23 +409,36 @@ class Expired( Manager ):
         Runs a query against the Member collection looking for expired
         members, if found issues a GAM command to suspend the Wing user
         Google account.  The account is NOT deleted and may be reactivated
-        by any sys admin.
+        by any sys admin.  Also prints a list of files owned by member.
         """
         gamcmdfmt = "gam {} user {}"
-        cur = self.DB().Member.find( self.query )
+        gamcmdfiles = 'gam user {} show filelist fields "title"'
+        cur = self.DB().Member.find( self.query ).sort('CAPID',
+                                                       pymongo.ASCENDING)
         with open( self.outfileName, 'w' ) as outfile:
             for m in cur:
                 g = self.DB().Google.find_one(
                     {'externalIds':{'$elemMatch':{'value':m[ 'CAPID' ]}}} )
                 if ( g ):
-                    logging.info( "%s %d %s %s %s", "Suspended:",
-                                  m[ 'CAPID' ], m[ 'NameFirst' ],
+                    logging.info( "%s %d %s %s %s %s", "Suspend:",
+                                  m[ 'CAPID' ],
+                                  m[ 'NameFirst' ],
                                   m[ 'NameLast' ],
-                                  "" if ( m[ 'NameSuffix' ] == None )
-                                  else m[ 'NameSuffix' ] )
+                                  m[ 'NameSuffix' ],
+                                  m[ 'Type' ] )
                     print( gamcmdfmt.format( EXPIRED_ACTION,
                                              g[ 'primaryEmail' ]),
                            file = outfile )
+                    print( gamcmdfiles.format( g[ 'primaryEmail' ]),
+                           file = outfile )
+                else:
+                    logging.error( "%s %d %s %s %s %s",
+                                   "Suspend: No Google Account:",
+                                   m[ 'CAPID' ],
+                                   m[ 'NameFirst' ],
+                                   m[ 'NameLast' ],
+                                   m[ 'NameSuffix' ],
+                                   m[ 'Type' ] )
                     
 
 class ListManager( Manager ):
