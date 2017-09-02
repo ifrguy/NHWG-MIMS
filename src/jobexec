@@ -3,15 +3,17 @@
 # scans the JOBS directory for .job files.  The jobs are executed in sort
 # order, successfully completed job files are move to the completed
 # directory.  Job files that begin with "HOLD-" | "hold-"  are skipped. Jobs
-# that fail are left in the job queue and any errors are reported.
+# that run with errors are moved from the queue to completed and errors
+# are reported, this is to prevent unintended re-runs.
 #
 # History:
+# 02Sep17 MEG Jobs that have errors now sent to "completed" regardless.
 # 07Jul17 MEG Created.
 #
 
 # Location of config file
 # you should move this to /etc/defaults/ and make it owned by root
-CONF=./jobexec.conf
+CONF=/home/meg/work/NHWG/MIMS/jobexec.conf
 
 # check for config file, source configuration if it exists
 if [ ! -f $CONF ]; then
@@ -26,7 +28,7 @@ fi
  [ -z $JOBS ] && JOBS=./job
 
 # location for completed jobs
- [ -z $COMPJOBS ] && COMPJOBS=./completed
+ [ -z $COMPJOBS ] && COMPJOBS=$JOB/completed
 
 # Check that jobs directory exists before we do anything
 if [ ! -d $JOBS ]; then
@@ -47,11 +49,8 @@ fi
 for j in *.job; do
     echo $j|grep -qi '^hold-' && continue
     /bin/bash <$j
+    /bin/mv $j $COMPJOBS
     if [ $? == "0" ]; then
-	/bin/mv $j $COMPJOBS
-    else
-	echo "ERROR:Job: $j failed."
+	echo "WARNING: Job: $j completed with errors."
     fi
 done
-
-    
