@@ -412,7 +412,7 @@ class Expired( Manager ):
         by any sys admin.  Also prints a list of files owned by member.
         """
         gamcmdfmt = "gam {} user {}"
-        gamcmdfiles = 'gam user {} show filelist fields "title"'
+        gamcmdfiles = 'gam user {} show filelist fields "id,title,permissions"'
         cur = self.DB().Member.find( self.query ).sort('CAPID',
                                                        pymongo.ASCENDING)
         with open( self.outfileName, 'w' ) as outfile:
