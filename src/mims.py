@@ -457,7 +457,6 @@ class Expired( Manager ):
                                    m[ 'NameLast' ],
                                    m[ 'NameSuffix' ],
                                    m[ 'Type' ] )
-
         logging.info( "Accounts suspended: %d", n )
         return
 
