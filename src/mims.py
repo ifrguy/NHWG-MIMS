@@ -51,6 +51,7 @@ import os, sys
 import datetime
 import logging
 import pymongo
+from datetime import date, timedelta
 from pymongo import *
 import re
 from mims_conf import *
@@ -307,6 +308,7 @@ class NewMembers( Manager ):
         # if no query we must be abstract class we don't do anything
         if self.query == None: return
         cur = self.DB().Member.find( self.query )
+        n = 0  # number of new member accounts created
         with open( self.outfileName, 'w' ) as self.outfile:
             for m in cur:
                 # skip unit 000 members
@@ -317,6 +319,10 @@ class NewMembers( Manager ):
                     email = self.mkNewAccount( m )
                     # add member to group mailing list if one exists
                     self.addToGroup( email )
+                    n += 1
+
+        logging.info( "New accounts created: %d", n)
+        return
 
 class NewSeniors( NewMembers ):
     """
@@ -371,6 +377,7 @@ class PurgeMembers( Manager ):
         """
         gamcmdfmt = 'gam {} user {}'
         l = []  # list of members to remove
+        n = 0 # Number of memeber accounts removed
         #Scan all Google users
         g = self.DB().Google.find( self.query )
         for i in g:
@@ -378,6 +385,7 @@ class PurgeMembers( Manager ):
             capid = i['externalIds'][0]['value']
             m = self.DB().Member.find_one({'CAPID':capid})
             if m == None: # member nolonger on rolls
+                n += 1
                 l.append( i['primaryEmail'] )
                 logging.info( "%s: %d %s", "Remove",
                               capid,
@@ -391,16 +399,21 @@ class PurgeMembers( Manager ):
             for j in l:
                 print( gamcmdfmt.format( PURGE_ACTION, j ),
                        file = outfile )
+        logging.info( "Accounts purged: %d", d)
+        return
 
 class Expired( Manager ):
     """
     Expired scans the Member collection for members whose membership
-    has expired and issues a GAM command to suspend the users Wing
-    account.
+    has expired LOOKBACK or more days ago and issues a GAM command
+    to suspend the users Wing account.
     """
     def __init__( self ):
         super().__init__()
-        self.query = { 'MbrStatus':'EXPIRED' }
+        today = datetime.datetime.today()
+        expired = today - timedelta( days = LOOKBACK )
+        self.query = { 'MbrStatus' : 'EXPIRED',
+                       'Expiration' : { '$lte': expired }}
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
@@ -408,18 +421,23 @@ class Expired( Manager ):
         """
         Runs a query against the Member collection looking for expired
         members, if found issues a GAM command to suspend the Wing user
-        Google account.  The account is NOT deleted and may be reactivated
-        by any sys admin.  Also prints a list of files owned by member.
+        Google account.  Only accounts that have expired more than LOOKBACK
+        days are considered for suspension.  The account is NOT deleted
+        and may be reactivated by any sys admin.
+        Also prints a list of files owned by member.
         """
         gamcmdfmt = "gam {} user {}"
         gamcmdfiles = 'gam user {} show filelist fields "id,title,permissions"'
         cur = self.DB().Member.find( self.query ).sort('CAPID',
                                                        pymongo.ASCENDING)
+        n = 0   # number of suspended member accounts
+
         with open( self.outfileName, 'w' ) as outfile:
             for m in cur:
                 g = self.DB().Google.find_one(
                     {'externalIds':{'$elemMatch':{'value':m[ 'CAPID' ]}}} )
                 if ( g ):
+                    n += 1
                     logging.info( "%s %d %s %s %s %s", "Suspend:",
                                   m[ 'CAPID' ],
                                   m[ 'NameFirst' ],
@@ -439,7 +457,9 @@ class Expired( Manager ):
                                    m[ 'NameLast' ],
                                    m[ 'NameSuffix' ],
                                    m[ 'Type' ] )
-                    
+
+        logging.info( "Accounts suspended: %d", n )
+        return
 
 class ListManager( Manager ):
     """
