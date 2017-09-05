@@ -435,10 +435,11 @@ class Expired( Manager ):
         with open( self.outfileName, 'w' ) as outfile:
             for m in cur:
                 g = self.DB().Google.find_one(
-                    {'externalIds':{'$elemMatch':{'value':m[ 'CAPID' ]}}} )
+                    {'externalIds':{'$elemMatch':{'value':m[ 'CAPID' ]}},
+                                    'suspended':False} )
                 if ( g ):
                     n += 1
-                    logging.info( "%s %d %s %s %s %s", "Suspend:",
+                    logging.info( "Suspend: %d %s %s %s %s", 
                                   m[ 'CAPID' ],
                                   m[ 'NameFirst' ],
                                   m[ 'NameLast' ],
@@ -451,7 +452,7 @@ class Expired( Manager ):
                            file = outfile )
                 else:
                     logging.error( "%s %d %s %s %s %s",
-                                   "Suspend: No Google Account:",
+                                   "Suspend: No Google Account or suspended:",
                                    m[ 'CAPID' ],
                                    m[ 'NameFirst' ],
                                    m[ 'NameLast' ],
