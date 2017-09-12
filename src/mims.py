@@ -399,7 +399,7 @@ class PurgeMembers( Manager ):
             for j in l:
                 print( gamcmdfmt.format( PURGE_ACTION, j ),
                        file = outfile )
-        logging.info( "Accounts purged: %d", d)
+        logging.info( "Accounts purged: %d", n)
         return
 
 class Expired( Manager ):
