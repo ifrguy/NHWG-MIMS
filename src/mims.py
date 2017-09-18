@@ -167,7 +167,7 @@ class NewMembers( Manager ):
         # GAM account creation command
         self.gamaccountfmt = 'gam create user {} externalid organization {:d} givenname "{}" familyname "{}" organizations department {} description {} primary orgunitpath "{}" password \'{}\' changepassword true'
         # GAM group add member command
-        self.gamgroupfmt = 'gam user {} add groups member {}@nhwg.cap.gov'
+        self.gamgroupfmt = 'gam update group {}@nhwg.cap.gov add member {}'
         # GAM command to email notification to new member
         self.gamnotifyfmt = ' notify {} subject "{}" message file "{}"'
         # Group to add member to
@@ -283,7 +283,7 @@ class NewMembers( Manager ):
         Note: this function always succeeds.
         """
         if self.group:
-            groupcmd = self.gamgroupfmt.format( email, self.group )
+            groupcmd = self.gamgroupfmt.format( self.group, email  )
             logging.info( 'Member: %s added to %s mailing list.',
                           email,
                           self.group )
@@ -357,14 +357,49 @@ class PurgeMembers( Manager ):
     """
     Scans the Google user account collection by externalID
     i.e. CAPID and checks to see if the member is on the CAP rolls, if not
-    a GAM command is generated to delete the user account from Google, and 
-    the command is added to a batch file for latter execution.
+    a GAM commands are generated to list all of the members files, delete
+    the user account from Google.
+
+    NOTE: two batch jobs are created. The first prefixed by "FileList"
+    produces a listing files owned by each member.  The second file prefixed
+    by "PurgeMembers" contains the actual commands to delete the users.  THIS
+    FILE IS PUT ON HOLD by default, and will not execute.  The administrator
+    must examine member files and determine if they are to be kept or just
+    deleted.  The admin may then transfer the entire member drive to the
+    appropriate member using the gam user <old user> transfer drive <new user>
+    command.  The admin must take the purge job off of hold status and run it.
     """
     def __init__(self):
         super().__init__()
+        self.outfileName = JobFilePath + 'hold-' + self.name() + self.TS() + ".job"
         self.query = { 'externalIds':{'$elemMatch':{'value':{'$ne':None}}}}
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
+
+    def writePurge( self, list ):
+        """
+        Write a GAM batch job file to purge members.
+        """
+        gamcmdfmt = 'gam {} user {}'
+        with open( self.outfileName, 'w' ) as outfile:
+            for j in list:
+                print( gamcmdfmt.format( PURGE_ACTION, j ),
+                       file = outfile )
+        return
+
+    def writeGetFiles( self, list ):
+        """
+        Write a GAM batch job file to list all of a members files.
+        Files should be examined before and moved prior to purging
+        the member.
+        """
+        gamcmdfmt = 'gam user {} print filelist fields id title mimetype'
+        filename = JobFilePath + 'FileList' + self.TS() + '.job'
+        with open( filename, 'w' ) as ofile:
+            for j in list:
+                print( gamcmdfmt.format( j ),
+                       file = ofile )
+        return
 
     def run(self):
         """
@@ -375,7 +410,7 @@ class PurgeMembers( Manager ):
         Google download anyway. It's just cleaner to remove the documents for
         subsequent runs.
         """
-        gamcmdfmt = 'gam {} user {}'
+
         l = []  # list of members to remove
         n = 0 # Number of memeber accounts removed
         #Scan all Google users
@@ -395,11 +430,11 @@ class PurgeMembers( Manager ):
                     print("Delete document:", "self.DB().Google.delete({'_id':",
                           id,"})" )
         l.sort()
-        with open( self.outfileName, 'w' ) as outfile:
-            for j in l:
-                print( gamcmdfmt.format( PURGE_ACTION, j ),
-                       file = outfile )
+        # generate the purge job
+        self.writePurge( l )
         logging.info( "Accounts purged: %d", n)
+        # generate job to list purged members files for examination
+        self.writeGetFiles( l )
         return
 
 class Expired( Manager ):
