@@ -4,6 +4,7 @@
 # CAPWATCH file.
 #
 # History:
+# 20Sep17 MEG - Delete CAPWATCH file before start. Wait for download to finish.
 # 22Jan17 MEG - Created
 #
 
@@ -22,10 +23,18 @@ argv = sys.argv
 if len(argv) > 1:
     UNIT = 'NER-NH-' + argv[1]
 
+# kill existing CAPWATCH download
+if ( os.path.exists( DL_FILEPATH ):
+    os.remove( DL_FILEPATH )
+
+#opts = webdriver.ChromeOptions()
+#opts.add_argument( 'headless' )
+#opts.add_argument( 'window-size=1200x600' )
 # create a browser instance
 www = webdriver.Chrome()
+#www = webdriver.Chrome( chrome_options=opts )
 # How long to wait for an element to appear in the DOM
-#www.implicit_wait( DOM_TIMEOUT )
+www.implicitly_wait( DOM_TIMEOUT )
 www.get('https://www.capnhq.gov')
 assert "eServices Sign In" in www.title
 
@@ -50,18 +59,16 @@ www.find_element_by_id('ctl00_MainContentPlaceHolder_btnSubmit').click()
 sessionID = www.get_cookie( 'ASP.NET_SessionID' )
 capauth = www.get_cookie( '.CAPAUTH' )
 
-#download the data file
-#dl = www.find_element_by_partial_link_text('Download').click()
 try:
     (WebDriverWait( www, DOM_TIMEOUT ).until(
         ExC.presence_of_element_located((By.PARTIAL_LINK_TEXT, 'Download'))
     )).click()
 finally:
-# wait for download to finish
-    time.sleep( TIMEOUT )
+    # wait for download to finish
+    while ( os.path.exists( DL_FILEPATH ) == False ):
+        time.sleep( TIMEOUT )
 
 # Finish and logout
-#sout = www.find_element_by_id('ctl00_LogoutButton').click()
 sout=www.find_element_by_partial_link_text('Sign Out').click()
 
 # close browser
