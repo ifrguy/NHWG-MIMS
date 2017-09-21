@@ -23,9 +23,11 @@ argv = sys.argv
 if len(argv) > 1:
     UNIT = 'NER-NH-' + argv[1]
 
-# kill existing CAPWATCH download
-if ( os.path.exists( DL_FILEPATH ):
+# kill previous CAPWATCH download if it exists
+try:
     os.remove( DL_FILEPATH )
+except FileNotFoundError:
+    pass
 
 #opts = webdriver.ChromeOptions()
 #opts.add_argument( 'headless' )
