@@ -37,8 +37,13 @@ www = webdriver.Chrome()
 #www = webdriver.Chrome( chrome_options=opts )
 # How long to wait for an element to appear in the DOM
 www.implicitly_wait( DOM_TIMEOUT )
-www.get('https://www.capnhq.gov')
-assert "eServices Sign In" in www.title
+
+try:
+    www.get('https://www.capnhq.gov')
+except:
+    print('Unable to connect to eServices!')
+    www.close()
+    sys.exit( 1 )
 
 # login to eServices
 uid = www.find_element_by_id('UserName')
@@ -48,8 +53,12 @@ pwd.send_keys( PASSWD )
 www.find_element_by_name('Login1$LoginButton').click()
 
 # go to the CAPWATCH download page
-www.get('https://www.capnhq.gov/cap.capwatch.web/download.aspx')
-assert "CAPWATCH Download" in www.title
+try:
+    www.get('https://www.capnhq.gov/cap.capwatch.web/download.aspx')
+except:
+    print("Failed to login the eServices")
+    www.close()
+    sys.exit( 1 )
 
 # choose UNIT and request file
 select=Select(www.find_element_by_name('ctl00$MainContentPlaceHolder$OrganizationChooser1$ctl00'))
