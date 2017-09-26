@@ -4,6 +4,7 @@
 # CAPWATCH file.
 #
 # History:
+# 24Sep17 MEG - Added virtual framebuffer support of background operation.
 # 20Sep17 MEG - Delete CAPWATCH file before start. Wait for download to finish.
 # 22Jan17 MEG - Created
 #
@@ -16,6 +17,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ExC
+
+# Create virutal display buffer for Chrome, requires Linux and xvfb
+if BATCH & (sys.platform == 'linux'):
+    from pyvirtualdisplay import Display
+    display = Display(visible=0, size=(800,600))
+    display.start()
 
 argv = sys.argv
 
@@ -40,12 +47,14 @@ www.implicitly_wait( DOM_TIMEOUT )
 
 try:
     www.get('https://www.capnhq.gov')
+    print("Connecting to eServices")
 except:
     print('Unable to connect to eServices!')
     www.close()
     sys.exit( 1 )
 
 # login to eServices
+print('Logging in to eServices')
 uid = www.find_element_by_id('UserName')
 uid.send_keys( UID )
 pwd = www.find_element_by_id('Password')
@@ -56,11 +65,12 @@ www.find_element_by_name('Login1$LoginButton').click()
 try:
     www.get('https://www.capnhq.gov/cap.capwatch.web/download.aspx')
 except:
-    print("Failed to login the eServices")
+    print("Failed to login to eServices")
     www.close()
     sys.exit( 1 )
 
 # choose UNIT and request file
+print('Selecting Unit to download')
 select=Select(www.find_element_by_name('ctl00$MainContentPlaceHolder$OrganizationChooser1$ctl00'))
 select.select_by_visible_text( UNIT )
 # find the submit button and click it
@@ -71,16 +81,24 @@ sessionID = www.get_cookie( 'ASP.NET_SessionID' )
 capauth = www.get_cookie( '.CAPAUTH' )
 
 try:
+    print('Downloading CAPWATCH file...')
     (WebDriverWait( www, DOM_TIMEOUT ).until(
         ExC.presence_of_element_located((By.PARTIAL_LINK_TEXT, 'Download'))
     )).click()
 finally:
     # wait for download to finish
+    print('Waiting for download to complete...')
     while ( os.path.exists( DL_FILEPATH ) == False ):
         time.sleep( TIMEOUT )
 
 # Finish and logout
+print('Download completed logging out of eServices')
 sout=www.find_element_by_partial_link_text('Sign Out').click()
 
 # close browser
 www.close()
+print('Browser session closed.')
+
+if BATCH & (sys.platform == 'linux'):
+    display.stop()
+
