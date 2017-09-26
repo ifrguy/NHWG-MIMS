@@ -14,8 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (0,9,10)
-#VERSION = str(version_tuple[0]) + "." + str(version_tuple[1]) + "." + str(version_tuple[2])
+version_tuple = (1,0,0)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 # Maps CAP squadron/unit to Google organization path
 orgUnitPath = {
@@ -40,6 +39,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+18Sep17 MEG Purge lists user files, puts purge job on hold.
 31Aug17 MEG Email accounts no longer CAPID, per order of High Command.
 14Jul17 MEG Added NewSeniors class, NewMembers now basically an abstract class.
 09Jun17 MEG Manager scans to leaf classes for jobs, new senior mailing list updater.
