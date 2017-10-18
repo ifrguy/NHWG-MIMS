@@ -22,6 +22,7 @@
 # are reported, this is to prevent unintended re-runs.
 #
 # History:
+# 14Oct17 MEG Pipe jobs thru tr to strip \r for execution under Windows.
 # 02Sep17 MEG Jobs that have errors now sent to "completed" regardless.
 # 07Jul17 MEG Created.
 #
@@ -63,7 +64,7 @@ fi
 
 for j in *.job; do
     echo $j|grep -qi '^hold-' && continue
-    /bin/bash <$j
+     /usr/bin/tr -d '\r' <$j|/bin/bash
     /bin/mv $j $COMPJOBS
     if [ $? != "0" ]; then
 	echo "WARNING: Job: $j completed with errors."
