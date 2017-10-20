@@ -246,10 +246,11 @@ class NewMembers( Manager ):
         Returns Gmail address
         Note this function never fails any failures are recorded in the log.
         """
-        logging.info( "New User: %d %s %s %s",
+        logging.info( "New User: %d %s %s %s Unit: %s",
                       m['CAPID'],m['NameFirst'],
                       m['NameLast'],
-                      m['NameSuffix'] )
+                      m['NameSuffix'],
+                      orgUnitPath[ m[ 'Unit' ]] )
         email = self.mkEmailAddress( m )
         cmd = self.gamaccountfmt.format( email,
                                 m['CAPID'],
@@ -393,7 +394,7 @@ class PurgeMembers( Manager ):
         Files should be examined before and moved prior to purging
         the member.
         """
-        gamcmdfmt = 'gam user {} print filelist fields id title mimetype'
+        gamcmdfmt = 'gam user {} print filelist fields "id,title,mimetype"'
         filename = JobFilePath + 'FileList' + self.TS() + '.job'
         with open( filename, 'w' ) as ofile:
             for j in list:
@@ -461,7 +462,7 @@ class Expired( Manager ):
         and may be reactivated by any sys admin.
         Also prints a list of files owned by member.
         """
-        gamcmdfmt = "gam {} user {}"
+        gamcmdfmt = "gam {} user {} &>err"
         gamcmdfiles = 'gam user {} show filelist fields "id,title,permissions"'
         cur = self.DB().Member.find( self.query ).sort('CAPID',
                                                        pymongo.ASCENDING)
