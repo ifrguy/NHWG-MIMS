@@ -39,6 +39,8 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+25Nov17 MEG Added class to unsuspend reactivated members.
+25Nov17 MEG Moved login cred's from mims_conf to separate "credentials" file.
 18Sep17 MEG Purge lists user files, puts purge job on hold.
 31Aug17 MEG Email accounts no longer CAPID, per order of High Command.
 14Jul17 MEG Added NewSeniors class, NewMembers now basically an abstract class.
@@ -55,6 +57,7 @@ from datetime import date, timedelta
 from pymongo import *
 import re
 from mims_conf import *
+from credentials import *
 
 class Manager(object):
     """
@@ -528,7 +531,7 @@ class SeniorListChecker( ListManager ):
     senior mailing list, if not add them.
     """
     def __init__( self ):
-        super().__init__()
+        self.super().__init__()
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
         self.query = {'organizations':{'$elemMatch':{'description':"SENIOR"}}}
@@ -547,6 +550,41 @@ class SeniorListChecker( ListManager ):
                     print( gamcmdfnt.format( primaryEmail,
                            "seniors@nhwg.cap.gov"),
                            file = outfile )
+
+class UnSuspend( Manager ):
+    """
+    UnSuspend scans Google documents for suspended accounts and checks
+    them against the Member document to see if the member has re-upped and is
+    ACTIVE again, if so the account is unsuspended.
+    """
+    def __init__( self ):
+        super().__init__()
+        self.query = { 'suspended' : True }
+        logging.basicConfig( filename = self.logfileName, filemode = 'w',
+                             level = logging.DEBUG )
+
+    def run( self ):
+        """
+        Scans Google account documents for suspended accounts. Checks account
+        against the Member document to see if the member is ACTIVE again
+        and emits a GAM command to unsuspend the account on Google.
+        """
+        gamcmdfmt = 'gam unsuspend user {}'
+        count = 0
+        cur = self.DB().Google.find( self.query ).sort( 'externalIds',
+                                                        pymongo.ASCENDING )
+        with open( self.outfileName, 'w' ) as outfile:
+            for g in cur:
+                # lookup user in Member documents
+                m = self.DB().Member.find_one( { 'CAPID' : g[ 'externalIds'][0]['value'], 'MbrStatus' : 'ACTIVE' } )
+                if m :
+                    print( gamcmdfmt.format( g[ 'primaryEmail' ] ),
+                                             file = outfile )
+                    logging.info( "UNSUSPEND: %d, %s, %s, %s",
+                                  m['CAPID'], g['name']['fullName'],
+                                  g['primaryEmail'], orgUnitPath[ m['Unit'] ] )
+                    count += 1
+            logging.info( "Total members reactivatied: %d", count)
 
 # Create the base object for all jobs
 # MIMS is the factory base class object
