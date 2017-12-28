@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/cygdrive/c/Program Files/Python35/python
 ## Copyright 2017 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
@@ -84,7 +84,7 @@ except:
     sys.exit( 1 )
 
 # choose UNIT and request file
-print('Selecting Unit to download')
+print('Selecting Unit to download:',UNIT)
 select=Select(www.find_element_by_name('ctl00$MainContentPlaceHolder$OrganizationChooser1$ctl00'))
 select.select_by_visible_text( UNIT )
 # find the submit button and click it
