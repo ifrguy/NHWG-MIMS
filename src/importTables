@@ -1,5 +1,5 @@
 #!/bin/bash -e
-### Copyright 2017 Marshall E. Giguere
+## Copyright 2017 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 ##   limitations under the License.
 
 
+#
 # Import CAPWATCH tables into MongoDB. User may change the database or
 # provide a list of substitute tables to import.
 # Note 1: Subsitute tables must have a companion .types file for mongoimport
@@ -28,15 +29,15 @@
 DB=NHWG
 
 # Mongo import tool
-IMPORT=/usr/bin/mongoimport
+IMPORT=mongoimport
 
 # CAPWATCH table to import
 TABLES="Member MbrContact MbrAddresses MbrAchievements DutyPosition"
 
 # Path to column type def's for each table
-TYPEPATH="."
-MONGOUID=""
-MONGOPASS=""
+TYPEPATH=C:/Users/meg/work/NHWG/MIMS
+MONGOUID=MIMSImporter
+MONGOPASS=mimsimporter
 
 # Command options
 OPTS="d:t:h?"
