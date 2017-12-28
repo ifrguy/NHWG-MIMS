@@ -578,6 +578,15 @@ class UnSuspend( Manager ):
                 # lookup user in Member documents
                 m = self.DB().Member.find_one( { 'CAPID' : g[ 'externalIds'][0]['value'], 'MbrStatus' : 'ACTIVE' } )
                 if m :
+                    # check to see if we should update the local Google collection
+                    if UPDATE_SUSPEND :
+                        result = self.DB().Google.update( { 'primaryEmail' : g['primaryEmail']},
+                                       { '$set' : { 'suspended' : False,
+                                                    'suspensionReason': '' }} )
+                        if ( result[ 'nModified' ] == 0 ) :
+                            logging.warn( "WARNING: Failed to update suspended for: %s in Google collection.",
+                                          g[ 'primaryEmail' ] )
+                    
                     print( gamcmdfmt.format( g[ 'primaryEmail' ] ),
                                              file = outfile )
                     logging.info( "UNSUSPEND: %d, %s, %s, %s",
