@@ -26,7 +26,7 @@ MIMS is intended to synchronize member accounts between National database and Wi
 * [Studio 3T](https://studio3t.com) - MongoDB browser/editor
 
 #### Components:
-* capwatch.py - CAPWATCH downloader webdriver client ## ---> Deprecated <---
+* capwatch.py - CAPWATCH downloader webdriver client ** ---> Deprecated <--- **
 * capwatch2.py - CAPWATCH downloader uses the new download API, replaces capwatch.py
 * mims.py - MIMS batch job generator
 * jobexec - Job executive runs jobs created by MIMS (bash script)
