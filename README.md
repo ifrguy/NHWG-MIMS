@@ -26,7 +26,8 @@ MIMS is intended to synchronize member accounts between National database and Wi
 * [Studio 3T](https://studio3t.com) - MongoDB browser/editor
 
 #### Components:
-* capwatch.py - CAPWATCH downloader webdriver client
+* capwatch.py - CAPWATCH downloader webdriver client #### Deprecated
+* capwatch2.py - CAPWATCH downloader uses the new download API, replaces capwatch.py
 * mims.py - MIMS batch job generator
 * jobexec - Job executive runs jobs created by MIMS (bash script)
 * getTables - Unpack CAPWATCH tables and filter for import into MongoDB (bash script)
@@ -34,7 +35,7 @@ MIMS is intended to synchronize member accounts between National database and Wi
 * importTables - Load CAPWATCH tables into mongoDB (bash script)
 * jsonfix.sed - sed (Stream Editor) script used by importGoogle.
 
-* Note: bash script utilities have not been ported to the Windows environment yet. They may work under cygwin??
+* Note: bash script utilities have not been ported to the Windows environment yet. They work with cygwin bash shell.
 
 ## Installation
 Each component comes with either a companion configuration file, or the script header contains variables that must be set
