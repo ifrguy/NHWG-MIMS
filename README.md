@@ -39,4 +39,5 @@ MIMS is intended to synchronize member accounts between National database and Wi
 
 ## Installation
 Each component comes with either a companion configuration file, or the script header contains variables that must be set
-prior to running MIMS.  At minimum before you can run MIMS you must install and configure GAMADV-X, Python3 and MongoDB. If you want to automate downloading of the tables you must install Selenium and Chrome webdriver. There is no installer for MIMS. Copy all of the MIMS components into a directory under your workspace, MIMS is a good name for it.
+prior to running MIMS.  At minimum before you can run MIMS you must install and configure GAMADV-X, Python3 and MongoDB. If you want to automate downloading of the tables you must install Selenium and Chrome webdriver. There is no installer for MIMS. Copy all of the MIMS components into a directory under your workspace, MIMS is a good name for it.  Once installed you will need to update the configuation files, credential files and bash shell scripts with defaults appropriate to your installation.  Config vars for the bash scripts are located at the top of each script. Python files will have a conf file and possibly a credentials file, e.g. capwatch2.py includes capwatch2_creds.py and capwatch2_conf.py.
+
