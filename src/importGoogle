@@ -1,5 +1,5 @@
 #!/bin/bash -e
-# ## Copyright 2017 Marshall E. Giguere
+## Copyright 2017 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
 ##   limitations under the License.
 
 
-# Calls GAM to pull a JSON dump of the entire wing user database,
-# and imports it into the wing NHWG database on mongoDB.  This script
+# 
+# Optional calls GAM to pull a JSON dump of the G-Suite user database.
+# Imports JSON file into the wing NHWG database on MongoDB.  This script
 # is intended "mostly" to be run as a cron/batch job.
 #
 # Note: You will need to update the variables to point to the utilities.
 #
 # History:
+# 19Jan18 MEG Download now optional with -D switch
 # 15Jul17 MEG Allow import to user specified collection and database.
 # 10Jul17 MEG Changed json file filter now uses sed for speed.
 # 09Jul17 MEG Created.
@@ -36,23 +38,25 @@ COLL=Google
 GAM=/usr/local/bin/gam
 # Import command
 IMP=/usr/bin/mongoimport
-# JSON output file
+# JSON Google G-Suite data file
 JSON=./$COLL.json
 # Log file
 LOG=./log/GAM.log
 
 # options
-OPTS="c:d:h?"
+OPTS="c:Dd:h?"
 
 USAGE="Usage: $(basename $0) [$OPTS]\n
-\tDownload and import Google member data\n
-\tc - collection ($COLL)\n
+\tImport Google G-Suite member data\n
+\tc - collection name ($COLL)\n
+\tD - Download G-Suite members from Google first
 \td - database ($DB)\n
 \th|? - this help\n"
 
 while getopts $OPTS o; do
     case $o in
 	c) COLL=$OPTARG;;
+	D) D = yes;;
 	d) DB=$OPTARG;;
 	h|?) echo -e $USAGE;exit 1;;
 	*) echo -e $USAGE;exit 1;;
@@ -60,9 +64,18 @@ while getopts $OPTS o; do
 done
 shift $(($OPTIND - 1))
 
-echo "Downloading Google members"
-$GAM redirect stderr $LOG info users all users formatjson | sed -r -f ./jsonfix.sed >$JSON
-cat $LOG
-echo "Importing members into MongoDB NHWG"
-$IMP --host $HOST --db $DB --collection $COLL --drop --type json --file $JSON
-echo "Done."
+if [ "$D" ]; then
+    echo "Downloading Google members"
+    $GAM redirect stderr $LOG info users all users formatjson | sed -r -f ./jsonfix.sed >$JSON
+    cat $LOG
+fi
+
+if [ -f $COLL.json ]; then
+    echo "Importing members into MongoDB NHWG"
+    $IMP --host $HOST --db $DB --collection $COLL --drop --type json --file $JSON
+    echo "Done."
+else
+    echo "Error: unable to open JSON file: $COLL.json"
+    exit 1
+fi
+
