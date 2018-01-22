@@ -22,9 +22,14 @@
 #         or similar to convert dates to MicroSoft SQL date format.
 #
 # History:
+# 22Jan18 MEG Move MongoDB login cred's to separate file.
 # 13Jul17 MEG User option to change database and substitute tables.
 # 03Jul17 MEG Created.
 #
+
+# MongoDB login credentials file path
+CREDS=./importercreds
+
 # Database to connect to
 DB=NHWG
 
@@ -35,9 +40,10 @@ IMPORT=mongoimport
 TABLES="Member MbrContact MbrAddresses MbrAchievements DutyPosition"
 
 # Path to column type def's for each table
-TYPEPATH=C:/Users/meg/work/NHWG/MIMS
-MONGOUID=MIMSImporter
-MONGOPASS=mimsimporter
+TYPEPATH=/home/meg/work/NHWG/MIMS
+
+# load Mongo MIMS importer credentials
+. ./$CREDS
 
 # Command options
 OPTS="d:t:h?"
@@ -66,6 +72,7 @@ if [ $# -ge 1 ]; then
 fi
 
 for t in $TABLES; do
-    $IMPORT --db $DB  --collection $t --drop --type csv --columnsHaveTypes \
+    $IMPORT --db $DB  --authenticationDatabase=$DB --username=$MONGOUID \
+--password=$MONGOPASS --collection $t --drop --type csv --columnsHaveTypes \
 	--fieldFile $TYPEPATH/$t.types --file $t.csv
 done
