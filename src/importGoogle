@@ -22,11 +22,15 @@
 # Note: You will need to update the variables to point to the utilities.
 #
 # History:
+# 22Jan18 MEG MongoDB login credentials required.
 # 19Jan18 MEG Download now optional with -D switch
 # 15Jul17 MEG Allow import to user specified collection and database.
 # 10Jul17 MEG Changed json file filter now uses sed for speed.
 # 09Jul17 MEG Created.
 #
+
+# MongoDB importer credentials file
+CREDS="./importercreds"
 
 # Database
 DB=NHWG
@@ -42,6 +46,9 @@ IMP=/usr/bin/mongoimport
 JSON=./$COLL.json
 # Log file
 LOG=./log/GAM.log
+
+# Load MongoDB login creds
+. $CREDS
 
 # options
 OPTS="c:Dd:h?"
@@ -72,10 +79,10 @@ fi
 
 if [ -f $COLL.json ]; then
     echo "Importing members into MongoDB NHWG"
-    $IMP --host $HOST --db $DB --collection $COLL --drop --type json --file $JSON
+    $IMP --host $HOST --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
+--password=$MONGOPASS --collection $COLL --drop --type json --file $JSON
     echo "Done."
 else
     echo "Error: unable to open JSON file: $COLL.json"
     exit 1
 fi
-
