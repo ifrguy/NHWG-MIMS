@@ -64,7 +64,8 @@ fi
 
 for j in *.job; do
     echo $j|grep -qi '^hold-' && continue
-     /usr/bin/tr -d '\r' <$j|/bin/bash
+    echo "Run Job: " $j
+    /usr/bin/tr -d '\r' <$j|/bin/bash
     /bin/mv $j $COMPJOBS
     if [ $? != "0" ]; then
 	echo "WARNING: Job: $j completed with errors."
