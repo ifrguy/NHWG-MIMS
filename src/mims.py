@@ -129,7 +129,10 @@ class Manager(object):
         """
         if job in self.myJobs:
             return globals()[ job ]()   # create subclass job 
-        return self
+        else:
+            print('ERROR: no such job: ', job )
+            print('Available Jobs:', self.myJobs )
+            sys.exit( 1 )
 
 class help( Manager):
     """
@@ -466,7 +469,7 @@ class Expired( Manager ):
         Also prints a list of files owned by member.
         """
         gamcmdfmt = "gam {} user {} &>err"
-        gamcmdfiles = 'gam user {} show filelist fields "id,title,permissions"'
+        gamcmdfiles = 'gam user {} show filelist fields "id,title,ownedbyme"'
         cur = self.DB().Member.find( self.query ).sort('CAPID',
                                                        pymongo.ASCENDING)
         n = 0   # number of suspended member accounts
