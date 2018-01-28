@@ -127,10 +127,11 @@ class Manager(object):
         if the requested job cannot be found self is returned. This insures
         that something runable is returned.
         """
-        if job in self.myJobs:
+        try:
             return globals()[ job ]()   # create subclass job 
-        else:
-            print('ERROR: no such job: ', job )
+        except KeyError as e:
+            print('ERROR: no such job: ', e )
+            print('Usage: ', sys.argv[0], '<job>' )
             print('Available Jobs:', self.myJobs )
             sys.exit( 1 )
 
