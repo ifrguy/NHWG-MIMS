@@ -30,7 +30,7 @@
 ARC=unzip
 
 # Default Zip file
-ZIP=$HOEM/Downloads/CAPWATCH.zip
+ZIP=$HOME/Downloads/CAPWATCH.zip
 
 # Default DB
 DB=NHWG
