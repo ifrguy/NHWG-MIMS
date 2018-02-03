@@ -32,16 +32,17 @@ CAPWATCH once in a 24 hour period.
 
 # build an argument parser, set options and defaults
 parser = argparse.ArgumentParser()
-parser.add_argument( '-i', default=ID, metavar='user', help='eServices login ID')
+parser.add_argument( '-i', default=ID, metavar='user',
+                     help='eServices login ID (' + ID + ')' )
 parser.add_argument( '-o', default=ORGID, type=int,
-                     metavar='org', help='CAP organization number')
+                     metavar='org', help='CAP organization number (' + str(ORGID) + ')')
 parser.add_argument( '-p', default=PASSWD, metavar='password',
                      help='eServices password')
 parser.add_argument( '-t', default=TIMEOUT, metavar='timeout',
                      help='Time in seconds to wait for response' )
 parser.add_argument( '-v', help='Verbose', action='store_true')
 parser.add_argument( 'outfile', default=OUTFILE, nargs='?',
-                     help='path for download')
+                     help='path for download (' + OUTFILE + ')' )
 # invoke parser
 opts = parser.parse_args()
 
@@ -53,6 +54,7 @@ args = 'ORGID={}&unitOnly=0'.format( opts.o )
 uri = url + args
 
 # Make download request and save results
+if ( opts.v == True ): print( 'Requesting CAPWATCH for', ORGID )
 try:
     r = requests.get( uri, auth=( opts.i, opts.p), timeout=opts.t ) 
 except requests.execptions.HTTPError as e:
@@ -62,15 +64,18 @@ except requests.exceptions.Timeout:
     print('Request: download orgid:', str( opts.o ), 'timed out.')
     sys.exit( 1 )
 except requests.exceptions.RequestException as e:
-    print( e )
+    print( e, r.reason )
     sys.exit( 1 )
 
 if ( r.status_code == 200 ):
+    if ( opts.v == True ): print( 'Request OK downloading to:', OUTFILE )
     with open( opts.outfile , 'wb' ) as f:
         f.write( r.content )
+    if ( opts.v == True ): print( 'Download Complete.' )
 else:
     print( 'ERROR:', r.status_code, r.content )
 
+if ( opts.v == True ): print( 'Done.' )
 sys.exit( r.status_code )
 
 
