@@ -39,7 +39,7 @@ parser.add_argument( '-o', default=ORGID, type=int,
 parser.add_argument( '-p', default=PASSWD, metavar='password',
                      help='eServices password')
 parser.add_argument( '-t', default=TIMEOUT, metavar='timeout',
-                     help='Time in seconds to wait for response' )
+                     help='Time in seconds to wait for response (' + str(TIMEOUT) + ')' )
 parser.add_argument( '-v', help='Verbose', action='store_true')
 parser.add_argument( 'outfile', default=OUTFILE, nargs='?',
                      help='path for download (' + OUTFILE + ')' )
