@@ -22,6 +22,7 @@
 # are reported, this is to prevent unintended re-runs.
 #
 # History:
+# 05Feb18 MEG Print last line of .log file as job summary.
 # 14Oct17 MEG Pipe jobs thru tr to strip \r for execution under Windows.
 # 02Sep17 MEG Jobs that have errors now sent to "completed" regardless.
 # 07Jul17 MEG Created.
@@ -65,6 +66,8 @@ fi
 for j in *.job; do
     echo $j|grep -qi '^hold-' && continue
     echo "Run Job: " $j
+    l="${j%.*}"
+    tail -1 ../log/$l.log
     /usr/bin/tr -d '\r' <$j|/bin/bash
     /bin/mv $j $COMPJOBS
     if [ $? != "0" ]; then
