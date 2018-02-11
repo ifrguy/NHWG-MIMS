@@ -32,6 +32,8 @@
 # MongoDB importer credentials file
 CREDS="./importercreds"
 
+# Download Google json
+D=NO
 # Database
 DB=NHWG
 # Host
@@ -56,7 +58,7 @@ OPTS="c:Dd:h?"
 USAGE="Usage: $(basename $0) [$OPTS]\n
 \tImport Google G-Suite member data\n
 \tc - collection name ($COLL)\n
-\tD - Download G-Suite members from Google first\n
+\tD - Download G-Suite members from Google first ($D)\n
 \td - database ($DB)\n
 \th|? - this help\n"
 
