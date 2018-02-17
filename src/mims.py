@@ -597,7 +597,7 @@ class UnSuspend( Manager ):
                                   m['CAPID'], g['name']['fullName'],
                                   g['primaryEmail'], orgUnitPath[ m['Unit'] ] )
                     count += 1
-            logging.info( "Total members reactivatied: %d", count)
+            logging.info( "Total members reactivated: %d", count)
 
 # Create the base object for all jobs
 # MIMS is the factory base class object
