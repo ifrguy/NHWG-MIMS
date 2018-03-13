@@ -16,9 +16,8 @@
 
 version_tuple = (1,0,0)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
-# Maps CAP squadron/unit to Google organization path
+# Maps CAP operational squadron/unit to Google organization path
 orgUnitPath = {
-    '000':"/000 - New Hampshire Wing",
     '001':"/001 - New Hampshire Wing",
     '010':"/010 - Portsmouth Squadron",
     '014':"/014 - Lebanon Squadron",
@@ -30,6 +29,7 @@ orgUnitPath = {
     '056':"/056 - Hawk Squadron - Laconia",
     '075':"/075 - Whitefield",
     '801':"/801 - Humphrey Squadron - Nashua Cadets",
+    '999':"/999 - State Legislators",
 }
 
 """
@@ -319,8 +319,10 @@ class NewMembers( Manager ):
         n = 0  # number of new member accounts created
         with open( self.outfileName, 'w' ) as self.outfile:
             for m in cur:
-                # skip unit 000 members
-                if ( m['Unit'] == '000' or m['Unit'] == "" ): continue
+                if ( m['Unit'] not in orgUnitPath ):
+                    logging.error('Unknown unit: %s, CAPID: %d no account created.',
+                                  m['Unit'], m['CAPID'] )
+                    continue
                 # see if member has Google account
                 g = self.DB().Google.find_one( {'externalIds':{'$elemMatch':{'value':m['CAPID']}}} )
                 if ( g == None ): # if user does not exist make new account
@@ -341,7 +343,9 @@ class NewSeniors( NewMembers ):
     def __init__( self ):
         super().__init__()
         self.group = 'seniors'
-        self.query = { 'Type':'SENIOR','MbrStatus':'ACTIVE' }
+        self.query = { 'Type':'SENIOR',
+                       'MbrStatus':'ACTIVE',
+                       'Unit' : { '$ne' : '000' }  }
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
