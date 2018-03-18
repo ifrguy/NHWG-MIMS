@@ -18,6 +18,7 @@ version_tuple = (1,0,0)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 # Maps CAP operational squadron/unit to Google organization path
 orgUnitPath = {
+    '000':"/000 - New Hampshire Wing",
     '001':"/001 - New Hampshire Wing",
     '010':"/010 - Portsmouth Squadron",
     '014':"/014 - Lebanon Squadron",
