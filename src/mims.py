@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,0,0)
+version_tuple = (1,1,0)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 # Maps CAP operational squadron/unit to Google organization path
 orgUnitPath = {
