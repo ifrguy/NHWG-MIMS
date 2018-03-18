@@ -486,7 +486,6 @@ class Expired( Manager ):
         Also prints a list of files owned by member.
         """
         gamcmdfmt = "gam {} user {} &>err"
-        gamcmdfiles = 'gam user {} show filelist fields "id,title,ownedbyme"'
         cur = self.DB().Member.find( self.query ).sort('CAPID',
                                                        pymongo.ASCENDING)
         n = 0   # number of suspended member accounts
@@ -506,8 +505,6 @@ class Expired( Manager ):
                                   m[ 'Type' ] )
                     print( gamcmdfmt.format( EXPIRED_ACTION,
                                              g[ 'primaryEmail' ]),
-                           file = outfile )
-                    print( gamcmdfiles.format( g[ 'primaryEmail' ]),
                            file = outfile )
                 else:
                     logging.error( "%s %d %s %s %s %s",
