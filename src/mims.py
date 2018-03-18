@@ -406,6 +406,7 @@ class PurgeMembers( Manager ):
         Files should be examined before and moved prior to purging
         the member.
         """
+        if len( list ) == 0 : return # if empty skip making file
         gamcmdfmt = 'gam user {} print filelist fields "id,title,mimetype"'
         filename = JobFilePath + 'FileList' + self.TS() + '.job'
         with open( filename, 'w' ) as ofile:
@@ -431,6 +432,16 @@ class PurgeMembers( Manager ):
         for i in g:
             id = i['_id']
             capid = i['externalIds'][0]['value']
+
+            # Check to see if member is on no purge list and skip
+            nopurge = self.DB().NoPurge.find_one({'CAPID':capid})
+            if ( nopurge ):
+                logging.info("Member on hold CAPID: %d, Account: %s",
+                             capid,
+                             i['primaryEmail'],
+                             )
+                continue
+
             m = self.DB().Member.find_one({'CAPID':capid})
             if m == None: # member nolonger on rolls
                 n += 1
