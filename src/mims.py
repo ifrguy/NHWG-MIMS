@@ -580,6 +580,18 @@ class UnSuspend( Manager ):
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
+    def updateNoPurgeList( self, capid ):
+        """
+        Check to see if member was on the NoPurge list for suspension
+        at the National level and has now reappeared as ACTIVE and remove
+        them from the NoPurge list. Allow account to be unsuspended.
+        """
+        try:
+            r = self.DB().NoPurge.delete_one( {'CAPID' : capid } )
+        except Exception, e:
+            print( str( e ) )
+        return r.delete_count
+
     def run( self ):
         """
         Scans Google account documents for suspended accounts. Checks account
@@ -595,6 +607,9 @@ class UnSuspend( Manager ):
                 # lookup user in Member documents
                 m = self.DB().Member.find_one( { 'CAPID' : g[ 'externalIds'][0]['value'], 'MbrStatus' : 'ACTIVE' } )
                 if m :
+                    # check to see if member is on the NoPurge list and remove
+                    self.updateNoPurgeList( m['CAPID'] )
+
                     # check to see if we should update the local Google collection
                     if UPDATE_SUSPEND :
                         result = self.DB().Google.update( { 'primaryEmail' : g['primaryEmail']},
