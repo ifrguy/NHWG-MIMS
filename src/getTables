@@ -39,7 +39,7 @@ DB=NHWG
 OPTS="h?z:"
 
 # List of Tables to extract
-TABLES="Member MbrContact MbrAddresses MbrAchievements DutyPosition"
+TABLES="Commanders Member MbrContact MbrAddresses MbrAchievements DutyPosition"
 
 # Help message
 USAGE="Usage: $(basename $0) [$OPTS] [table table...]\n
