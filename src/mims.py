@@ -385,7 +385,7 @@ class PurgeMembers( Manager ):
     def __init__(self):
         super().__init__()
         self.outfileName = JobFilePath + 'hold-' + self.name() + self.TS() + ".job"
-        self.query = { 'externalIds':{'$elemMatch':{'value':{'$ne':None}}}}
+        self.query = { 'externalIds':{'$elemMatch':{'value':{'$gt':100000}}}}
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
@@ -432,7 +432,7 @@ class PurgeMembers( Manager ):
         for i in g:
             id = i['_id']
             capid = i['externalIds'][0]['value']
-
+            if capid == None: continue
             # Check to see if member is on no purge list and skip
             nopurge = self.DB().NoPurge.find_one({'CAPID':capid})
             if ( nopurge ):
@@ -586,11 +586,8 @@ class UnSuspend( Manager ):
         at the National level and has now reappeared as ACTIVE and remove
         them from the NoPurge list. Allow account to be unsuspended.
         """
-        try:
-            r = self.DB().NoPurge.delete_one( {'CAPID' : capid } )
-        except Exception, e:
-            print( str( e ) )
-        return r.delete_count
+        r = self.DB().NoPurge.delete_one( {'CAPID' : capid } )
+        return r.deleted_count
 
     def run( self ):
         """
