@@ -20,6 +20,7 @@
 # substitute tables to be extracted.
 #
 # History:
+# 25Mar18 MEG Extract Commanders table.
 # 18Jul17 MEG Removed option to change archiver.
 # 13Jul17 MEG User may now substitute tables form cmd line.
 # 12Jul17 MEG Converts dates to MicroSoft SQL format.
