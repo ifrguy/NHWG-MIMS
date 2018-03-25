@@ -22,6 +22,7 @@
 #         or similar to convert dates to MicroSoft SQL date format.
 #
 # History:
+# 25Mar18 MEG Now imports Commanders table.
 # 22Jan18 MEG Move MongoDB login cred's to separate file.
 # 13Jul17 MEG User option to change database and substitute tables.
 # 03Jul17 MEG Created.
@@ -37,7 +38,7 @@ DB=NHWG
 IMPORT=mongoimport
 
 # CAPWATCH table to import
-TABLES="Member MbrContact MbrAddresses MbrAchievements DutyPosition"
+TABLES="Commanders Member MbrContact MbrAddresses MbrAchievements DutyPosition"
 
 # Path to column type def's for each table
 TYPEPATH=./
