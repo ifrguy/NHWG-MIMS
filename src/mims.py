@@ -586,7 +586,10 @@ class UnSuspend( Manager ):
         at the National level and has now reappeared as ACTIVE and remove
         them from the NoPurge list. Allow account to be unsuspended.
         """
-        r = self.DB().NoPurge.delete_one( {'CAPID' : capid } )
+        try:
+            r = self.DB().NoPurge.delete_one( {'CAPID' : capid } )
+        except Exception as e:
+            print( str( e ))
         return r.deleted_count
 
     def run( self ):
