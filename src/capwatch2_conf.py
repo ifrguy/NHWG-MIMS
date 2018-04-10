@@ -6,6 +6,7 @@ WARNING: You must change the None values to the appropriate values.
 These options may be overridden by commandline options.
 
 """
+import os
 
 # Fully qualified output filename
 OUTFILE = None
