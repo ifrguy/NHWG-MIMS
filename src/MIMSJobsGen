@@ -1,0 +1,27 @@
+#!/bin/bash -e
+# Batch script to create mims jobs to update NHWG member accounts
+# This script creates all the weekly jobs.
+# Add new jobs as classes to mims.py, then add class name to TASK var.
+
+
+echo "NHWG MIMS Member create update batch jobs."
+
+cd $HOME/work/NHWG/MIMS
+
+# the list of mims jobs to be run
+TASK="NewSeniors Expired PurgeMembers UnSuspend"
+
+
+for t in $TASK; do
+    echo "Running create job: "$t
+    ./mims.py $t
+    echo "Done. Check job and log for errors."
+done
+
+echo "Jobs will be run tomorrow!"
+echo "Check for accuracy!"
+echo "Check jobs for files and correctness before releasing."
+echo "PurgeMember jobs are on HOLD by default."
+echo "List of pending jobs:"
+ls -l job/*.job
+echo "Done."
