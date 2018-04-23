@@ -29,7 +29,7 @@ orgUnitPath = {
     '054':"/054 - Manchester Squadron",
     '056':"/056 - Hawk Squadron - Laconia",
     '075':"/075 - Whitefield",
-    '801':"/801 - Humphrey Squadron - Nashua Cadets",
+    '801':"/801 - Humphrey Squadron - ASD Nashua Cadets",
     '999':"/999 - State Legislators",
 }
 
