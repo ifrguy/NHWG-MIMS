@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,1,0)
+version_tuple = (1,1,1)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 # Maps CAP operational squadron/unit to Google organization path
 orgUnitPath = {
@@ -29,7 +29,7 @@ orgUnitPath = {
     '054':"/054 - Manchester Squadron",
     '056':"/056 - Hawk Squadron - Laconia",
     '075':"/075 - Whitefield",
-    '801':"/801 - Humphrey Squadron - ASD Nashua Cadets",
+    '801':"/801 - 801 - Humphrey Squadron - ASD Nashua Cadets",
     '999':"/999 - State Legislators",
 }
 
@@ -40,6 +40,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+14May18 MEG Updated client authentication to Mongo 3.6
 25Nov17 MEG Added class to unsuspend reactivated members.
 25Nov17 MEG Moved login cred's from mims_conf to separate "credentials" file.
 18Sep17 MEG Purge lists user files, puts purge job on hold.
@@ -70,9 +71,10 @@ class Manager(object):
     actually do the work, like adding new members to the rolls, or removing
     members that have fallen off the rolls.
     """
-    __client = MongoClient( host=MIMS_HOST, port=MIMS_PORT )
+    __client = MongoClient( host=MIMS_HOST, port=MIMS_PORT,
+                            username=MIMSUSER, password=MIMSPASS,
+                            authSource=MIMS_DB)
     __DB = __client[ MIMS_DB ]
-    __DB.authenticate( MIMSUSER, MIMSPASS )
     __TS = datetime.datetime.now().strftime("%Y%m%dT%H%M")
     def __init__( self ):
         self.myJobs = self.allSubClasses( type( self ))
@@ -407,7 +409,7 @@ class PurgeMembers( Manager ):
         the member.
         """
         if len( list ) == 0 : return # if empty skip making file
-        gamcmdfmt = 'gam user {} print filelist fields "id,title,mimetype"'
+        gamcmdfmt = 'gam user {} print filelist fields "title,mimetype"'
         filename = JobFilePath + 'FileList' + self.TS() + '.job'
         with open( filename, 'w' ) as ofile:
             for j in list:
