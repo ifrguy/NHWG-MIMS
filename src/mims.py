@@ -103,6 +103,14 @@ class Manager(object):
     def close( self ):
         self.__client.close()
 
+    def checkHolds( self, capid ):
+        """
+        Check to see if member account is on hold and not to be removed
+        or otherwise changed.
+        Returns the held document, or None if not found in Holds.
+        """
+        return self.DB().Holds.find_one({'CAPID':capid})
+
     def jobs( self ):
         """
         Returns a list of all known jobs, AKA my subclasses
@@ -435,10 +443,11 @@ class PurgeMembers( Manager ):
             id = i['_id']
             capid = i['externalIds'][0]['value']
             if capid == None: continue
-            # Check to see if member is on no purge list and skip
-            nopurge = self.DB().NoPurge.find_one({'CAPID':capid})
-            if ( nopurge ):
-                logging.info("Member on hold CAPID: %d, Account: %s",
+            # Check to see if member account is on Hold list and skip.
+            # This done since Nat'l removes members on suspension from
+            # The CAPWATCH download.
+            if ( self.checkHolds( capid ) ):
+                logging.warn("Member on permanent hold CAPID: %d, Account: %s not removed.",
                              capid,
                              i['primaryEmail'],
                              )
@@ -582,18 +591,6 @@ class UnSuspend( Manager ):
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
-    def updateNoPurgeList( self, capid ):
-        """
-        Check to see if member was on the NoPurge list for suspension
-        at the National level and has now reappeared as ACTIVE and remove
-        them from the NoPurge list. Allow account to be unsuspended.
-        """
-        try:
-            r = self.DB().NoPurge.delete_one( {'CAPID' : capid } )
-        except Exception as e:
-            print( str( e ))
-        return r.deleted_count
-
     def run( self ):
         """
         Scans Google account documents for suspended accounts. Checks account
@@ -608,9 +605,13 @@ class UnSuspend( Manager ):
             for g in cur:
                 # lookup user in Member documents
                 m = self.DB().Member.find_one( { 'CAPID' : g[ 'externalIds'][0]['value'], 'MbrStatus' : 'ACTIVE' } )
-                if m :
-                    # check to see if member is on the NoPurge list and remove
-                    self.updateNoPurgeList( m['CAPID'] )
+                if ( m ) :
+                    # check to see if member is on the Holds list and skip
+                    if ( self.checkHolds( m['CAPID'] )):
+                        logging.warn("Member on permanent hold CAPID: %d, Account: %s not reactivated.",
+                                     m['CAPID'],
+                                     g['primaryEmail'] )
+                        continue
 
                     # check to see if we should update the local Google collection
                     if UPDATE_SUSPEND :
