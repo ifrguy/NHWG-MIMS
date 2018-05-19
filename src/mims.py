@@ -323,7 +323,7 @@ class NewMembers( Manager ):
         min = 8
         pwd = ''
         chars = string.ascii_uppercase + string.ascii_lowercase + \
-        string.digits + '!@#$%^&'
+        string.digits + '!@#$%^&+='
         size = random.randint( min, max )
         return pwd.join( random.choice( chars ) for x in range( size ) )
 
