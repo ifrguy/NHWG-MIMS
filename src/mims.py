@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,1,1)
+version_tuple = (1,1,2)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 # Maps CAP operational squadron/unit to Google organization path
 orgUnitPath = {
@@ -40,6 +40,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+19May18 MEG Improved random password generation.
 14May18 MEG Updated client authentication to Mongo 3.6
 25Nov17 MEG Added class to unsuspend reactivated members.
 25Nov17 MEG Moved login cred's from mims_conf to separate "credentials" file.
@@ -51,7 +52,7 @@ History:
 05Jun17 MEG Added suspend for expired members.
 28May17 MEG Created.
 """
-import os, sys
+import os, sys, string, random
 import datetime
 import logging
 import pymongo
@@ -277,7 +278,7 @@ class NewMembers( Manager ):
                                 m['Unit'],
                                 m['Type'],
                                 orgUnitPath[ m['Unit'] ],
-                                self.mkpasswd( m ))
+                                self.mkpasswd() )
         # check for primary email to notify member
         contact = self.getContact( m['CAPID'],
                                    'EMAIL',
@@ -310,11 +311,21 @@ class NewMembers( Manager ):
         return True
         
         
-    def mkpasswd( self, m ):
+    def mkpasswd( self, max=12 ):
         """
-        Make a password for the new user m and return it.
+        Make a random password and return it.
+        The password will be a random string between min
+        and max chars in length.
+
+        Input: max - max chars in password. Default is 12.
+        Output: string
         """
-        return str(m['CAPID']) + '!' + m['NameFirst'][0]+ m['NameLast'][0]
+        min = 8
+        pwd = ''
+        chars = string.ascii_uppercase + string.ascii_lowercase + \
+        string.digits + '!@#$%^&'
+        size = random.randint( min, max )
+        return pwd.join( random.choice( chars ) for x in range( size ) )
 
     def run(self):
         """
