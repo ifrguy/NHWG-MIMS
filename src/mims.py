@@ -507,7 +507,7 @@ class Expired( Manager ):
         and may be reactivated by any sys admin.
         Also prints a list of files owned by member.
         """
-        gamcmdfmt = "gam {} user {} &>err"
+        gamcmdfmt = "gam {} user {}"
         cur = self.DB().Member.find( self.query ).sort('CAPID',
                                                        pymongo.ASCENDING)
         n = 0   # number of suspended member accounts
