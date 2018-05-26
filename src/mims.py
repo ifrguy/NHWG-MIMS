@@ -654,7 +654,14 @@ def main():
     """
     # Logging on/off to stderr
     LOGGING = os.environ.get( 'LOGGING' )
+# check for no job on command line
+    if ( len(sys.argv) < 2 ):
+        MIMS.job( 'help' ).run()
+        MIMS.DB().logout()
+        MIMS.close()
+        sys.exit( 0 )
 
+# All good try to run job        
     job = MIMS.job( sys.argv[1] )
     job.run()
     job.DB().logout()
