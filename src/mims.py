@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,1,2)
+version_tuple = (1,1,3)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 # Maps CAP operational squadron/unit to Google organization path
 orgUnitPath = {
@@ -40,6 +40,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+26May18 MEG Expired.run(), skip already suspended members.
 19May18 MEG Improved random password generation.
 14May18 MEG Updated client authentication to Mongo 3.6
 25Nov17 MEG Added class to unsuspend reactivated members.
@@ -515,9 +516,9 @@ class Expired( Manager ):
         with open( self.outfileName, 'w' ) as outfile:
             for m in cur:
                 g = self.DB().Google.find_one(
-                    {'externalIds':{'$elemMatch':{'value':m[ 'CAPID' ]}},
-                                    'suspended':False} )
+                    {'externalIds':{'$elemMatch':{'value':m[ 'CAPID' ]}}} )
                 if ( g ):
+                    if ( g[ 'suspended' ] ): continue # already suspended
                     n += 1
                     logging.info( "Suspend: %d %s %s %s %s", 
                                   m[ 'CAPID' ],
