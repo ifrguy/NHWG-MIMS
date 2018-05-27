@@ -75,7 +75,7 @@ shift $(($OPTIND - 1))
 
 if [ $D = "yes" ]; then
     echo "Downloading Google members"
-    $GAM redirect stderr $LOG info users all users formatjson | sed -r -f ./jsonfix.sed >$JSON
+    $GAM redirect stderr $LOG info users all users nolicenses formatjson | sed -r -f ./jsonfix.sed >$JSON
     cat $LOG
 fi
 
