@@ -22,6 +22,7 @@
 # Note: You will need to update the variables to point to the utilities.
 #
 # History:
+# 26May18 MEG Added "nolicenses" option to gam command.
 # 22Jan18 MEG MongoDB login credentials required.
 # 19Jan18 MEG Download now optional with -D switch
 # 15Jul17 MEG Allow import to user specified collection and database.
