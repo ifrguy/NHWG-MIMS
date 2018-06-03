@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,1,3)
+version_tuple = (1,1,4)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 # Maps CAP operational squadron/unit to Google organization path
 orgUnitPath = {
@@ -40,6 +40,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+03Jun18 MEG Mongo now requires regexs to be packaged in bson
 26May18 MEG Expired.run(), skip already suspended members.
 19May18 MEG Improved random password generation.
 14May18 MEG Updated client authentication to Mongo 3.6
@@ -62,6 +63,7 @@ from pymongo import *
 import re
 from mims_conf import *
 from credentials import *
+from bson.regex import Regex
 
 class Manager(object):
     """
@@ -240,7 +242,7 @@ class NewMembers( Manager ):
         a name that doesn't match.
         """
         if ( self.DB().Google.find_one( {'primaryEmail' :
-                                         { '$regex': '/^'+nm+'/i'}} )):
+                                         { '$regex': Regex('^'+nm, 'i')}} )):
             i += 1
             nm = re.sub( '[0-9]*', '', nm )  # strip trailing numbers
             return self.mkename( nm + str( i ), i )
