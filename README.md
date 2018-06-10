@@ -23,6 +23,7 @@ MIMS is intended to synchronize member accounts between National database and Wi
 
 #### Optional
 * [Studio 3T](https://studio3t.com) - MongoDB browser/editor
+
 Note: Studio 3T is free for non-commercial use.
 
 #### Components:
@@ -46,6 +47,7 @@ prior to running MIMS.  At minimum before you can run MIMS you must install and 
 * argparse
 * pymongo
 * requests
+
 The above modules may be installed using Python pip: pip install <module name>
 
 ## NOTES:
