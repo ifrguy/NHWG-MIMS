@@ -10,7 +10,7 @@ MIMS is intended to synchronize member accounts between National database and Wi
 #### Requirements:
 * O/S: Linux, Windows 7 or above*
 * Python 3.0>
-* [GAMADV-X](https://github.com/taers232c/GAMADV-X) Ross Scroggs excellent fork of the [GAM](https://github.com/jay0lee/GAM) tool.
+* [GAMADV-XTD](https://github.com/taers232c/GAMADV-XTD) Ross Scroggs excellent fork of the [GAM](https://github.com/jay0lee/GAM) tool.
 * [MongoDB](https://www.mongodb.com/download-center#community) document database manager 3.4>
 * Google G-Suite admin account.
 
@@ -33,12 +33,13 @@ MIMS is intended to synchronize member accounts between National database and Wi
 * importGoogle - Google data downloader and mongoDB import (bash script)
 * importTables - Load CAPWATCH tables into mongoDB (bash script)
 * jsonfix.sed - sed (Stream Editor) script used by importGoogle.
+* MIMSJobsGen - bash convinence script to generate GAM job files for a list of MIMS classes.
 
 * Note: bash script utilities have not been ported to the Windows environment yet. They work with cygwin bash shell.
 
 ## Installation
 Each component comes with either a companion configuration file, or the script header contains variables that must be set
-prior to running MIMS.  At minimum before you can run MIMS you must install and configure GAMADV-X, Python3 and MongoDB. If you want to automate downloading of the tables you must install Selenium and Chrome webdriver. There is no installer for MIMS. Copy all of the MIMS components into a directory under your workspace, MIMS is a good name for it.  Once installed you will need to update the configuation files, credential files and bash shell scripts with defaults appropriate to your installation.  Config vars for the bash scripts are located at the top of each script. Python files will have a conf file and possibly a credentials file, e.g. capwatch2.py includes capwatch2_creds.py and capwatch2_conf.py.
+prior to running MIMS.  At minimum before you can run MIMS you must install and configure GAMADV-XTD, Python3 and MongoDB. If you want to automate downloading of the tables you must install Selenium and Chrome webdriver. There is no installer for MIMS. Copy all of the MIMS components into a directory under your workspace, MIMS is a good name for it.  Once installed you will need to update the configuation files, credential files and bash shell scripts with defaults appropriate to your installation.  Config vars for the bash scripts are located at the top of each script. Python files will have a conf file and possibly a credentials file, e.g. capwatch2.py includes capwatch2_creds.py and capwatch2_conf.py.
 
 ## NOTES:
-**capwatch.py** has been deprecated and is no longer supported. It is retained only as an example of using the selenium webdriver tool. It will probably be removed from the repository at some time in the future.
+**capwatch.py** is deprecated and is no longer supported. It is retained only as an example of using the selenium webdriver tool. It will probably be removed from the repository at some time in the future.
