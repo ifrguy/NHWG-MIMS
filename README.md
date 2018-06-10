@@ -23,6 +23,7 @@ MIMS is intended to synchronize member accounts between National database and Wi
 
 #### Optional
 * [Studio 3T](https://studio3t.com) - MongoDB browser/editor
+Note: Studio 3T is free for non-commercial use.
 
 #### Components:
 * capwatch.py - CAPWATCH downloader webdriver client ---> Deprecated <---
@@ -39,7 +40,13 @@ MIMS is intended to synchronize member accounts between National database and Wi
 
 ## Installation
 Each component comes with either a companion configuration file, or the script header contains variables that must be set
-prior to running MIMS.  At minimum before you can run MIMS you must install and configure GAMADV-XTD, Python3 and MongoDB. If you want to automate downloading of the tables you must install Selenium and Chrome webdriver. There is no installer for MIMS. Copy all of the MIMS components into a directory under your workspace, MIMS is a good name for it.  Once installed you will need to update the configuation files, credential files and bash shell scripts with defaults appropriate to your installation.  Config vars for the bash scripts are located at the top of each script. Python files will have a conf file and possibly a credentials file, e.g. capwatch2.py includes capwatch2_creds.py and capwatch2_conf.py.
+prior to running MIMS.  At minimum before you can run MIMS you must install and configure GAMADV-XTD, Python3 and MongoDB. There is no installer for MIMS. Copy all of the MIMS components into a directory under your workspace, MIMS is a good name for it.  Once installed you will need to update the configuation files, credential files and bash shell scripts with defaults appropriate to your installation.  Config vars for the bash scripts are located at the top of each script. Python files will have a conf file and possibly a credentials file, e.g. capwatch2.py includes capwatch2_creds.py and capwatch2_conf.py.
+
+## Additional Python modules required:
+* argparse
+* pymongo
+* requests
+The above modules may be installed using Python pip: pip install <module name>
 
 ## NOTES:
 **capwatch.py** is deprecated and is no longer supported. It is retained only as an example of using the selenium webdriver tool. It will probably be removed from the repository at some time in the future.
