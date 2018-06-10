@@ -34,7 +34,7 @@ fi
 
 for t in $TASK; do
     echo "Running create job: "$t
-   " ./mims.py $t"
+    ./mims.py $t
     echo "Done. Check job and log for errors."
 done
 
