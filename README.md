@@ -48,7 +48,7 @@ prior to running MIMS.  At minimum before you can run MIMS you must install and 
 * pymongo
 * requests
 
-The above modules may be installed using Python pip: pip install <module name>
+The above modules may be installed using Python pip: pip install module_name
 
 ## NOTES:
 **capwatch.py** is deprecated and is no longer supported. It is retained only as an example of using the selenium webdriver tool. It will probably be removed from the repository at some time in the future.
