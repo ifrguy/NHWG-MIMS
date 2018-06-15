@@ -476,7 +476,7 @@ class PurgeMembers( Manager ):
                               i['name']['fullName'])
                 # delete user document from DB
                 if ( DELETE_PURGED ):
-                    print("Delete document:", "self.DB().Google.delete({'_id':",
+                    print("Delete document:", "self.DB().Google.delete_one({'_id':",
                           id,"})" )
         l.sort()
         # generate the purge job
