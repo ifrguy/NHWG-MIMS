@@ -28,7 +28,7 @@ cd $HOME/work/NHWG/MIMS
 # the list of mims jobs to be run
 TASK="NewSeniors Expired PurgeMembers UnSuspend"
 
-if [ $# > 1 ]; then
+if [ $# gt 1 ]; then
     TASK=$@
 fi
 
