@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env /usr/bin/python3
 
 ## Copyright 2018 Marshall E. Giguere
 ##
@@ -46,36 +46,40 @@ parser.add_argument( 'outfile', default=OUTFILE, nargs='?',
 # invoke parser
 opts = parser.parse_args()
 
+if ( opts.v ): print( 'USERID:', opts.i )
+
 # CAPWATCH API request URL
 url = 'https://www.capnhq.gov/CAP.CapWatchAPI.Web/api/cw?'
 
 args = 'ORGID={}&unitOnly=0'.format( opts.o )
 
 uri = url + args
+if ( opts.v ): print( 'URI:', uri )
 
 # Make download request and save results
-if ( opts.v == True ): print( 'Requesting CAPWATCH for', ORGID )
+if ( opts.v ): print( 'Requesting CAPWATCH for OrgID:', opts.o )
+
 try:
     r = requests.get( uri, auth=( opts.i, opts.p), timeout=opts.t ) 
 except requests.execptions.HTTPError as e:
-    print( e )
+    print( e, r.status_code, r.reason )
     sys.exit( 1 )
 except requests.exceptions.Timeout:
     print('Request: download orgid:', str( opts.o ), 'timed out.')
     sys.exit( 1 )
 except requests.exceptions.RequestException as e:
-    print( e, r.reason )
+    print( e, r.status_code, r.reason )
     sys.exit( 1 )
 
+if ( opts.v ): print("HTTP request returned status code:", r.status_code )
+
 if ( r.status_code == 200 ):
-    if ( opts.v == True ): print( 'Request OK downloading to:', OUTFILE )
+    if ( opts.v ): print( 'Request OK downloading to:', opts.outfile )
     with open( opts.outfile , 'wb' ) as f:
         f.write( r.content )
-    if ( opts.v == True ): print( 'Download Complete.' )
+    if ( opts.v ): print( 'Download Complete.' )
 else:
     print( 'ERROR:', r.status_code, r.content )
 
-if ( opts.v == True ): print( 'Done.' )
+if ( opts.v ): print( 'Done.' )
 sys.exit( r.status_code )
-
-
