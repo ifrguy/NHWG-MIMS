@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,1,4)
+version_tuple = (1,1,5)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 # Maps CAP operational squadron/unit to Google organization path
 orgUnitPath = {
@@ -40,6 +40,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+07Aug18 MEG Create accounts for Cadets >= 18 years.
 03Jun18 MEG Mongo now requires regexs to be packaged in bson
 26May18 MEG Expired.run(), skip already suspended members.
 19May18 MEG Improved random password generation.
@@ -58,7 +59,7 @@ import os, sys, string, random
 import datetime
 import logging
 import pymongo
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime, timezone
 from pymongo import *
 import re
 from mims_conf import *
@@ -79,10 +80,10 @@ class Manager(object):
                             username=MIMSUSER, password=MIMSPASS,
                             authSource=MIMS_DB)
     __DB = __client[ MIMS_DB ]
-    __TS = datetime.datetime.now().strftime("%Y%m%dT%H%M")
+    __TS = datetime.now().strftime("%Y%m%dT%H%M")
     def __init__( self ):
         self.myJobs = self.allSubClasses( type( self ))
-        __TS = datetime.datetime.now().strftime("%Y%m%dT%H%M")
+        __TS = datetime.now().strftime("%Y%m%dT%H%M")
         self.logfileName = LogFilePath + self.name() + self.TS() + ".log"
         self.outfileName = JobFilePath + self.name() + self.TS() + ".job"
 
@@ -198,6 +199,17 @@ class NewMembers( Manager ):
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
+    def age( self, dob ):
+        """
+        Computes the age of a member based on DOB field.
+        Birthdays are assumed to always be on the first day of the month.
+        Input: python datatime object containing the birth date
+        Returns: age in whole years, truncated to nearest year.
+        """
+        yr = datetime.datetime.utcnow().year
+        m = datetime.datetime.utcnow().month
+        return int(((( yr - dob.year) * 12 ) + ( m - dob.month ))/12)
+
     def givenName( self, m ):
         """
         Input member record
@@ -256,7 +268,7 @@ class NewMembers( Manager ):
         Output: string email address
         """
         email = (m['NameFirst'][0] + m['NameLast'] + m['NameSuffix']).lower()
-        email = re.sub( '[\']', '', email )  # remove apostrophes
+        email = re.sub( '[\' ]', '', email )  # remove apostrophes & spaces
         email = self.mkename( email, 0 )
         return email + '@' + self.domain
 
@@ -377,19 +389,32 @@ class NewSeniors( NewMembers ):
 class NewCadets( NewMembers ):
     """
     Scans the Member table for Cadet members not having Google accounts.
-    Make a new account if the senior member is active, add to mailing
-    list.
-    """
+    Makes a new account if the member is active and is 18 years of age or over.    """
     def __init__( self ):
         super().__init__()
         self.group = None
-        self.query = { 'Type':'CADET','MbrStatus':'ACTIVE' }
+        y = datetime.utcnow().year - MIN_CADET_AGE
+        m = datetime.utcnow().month
+        qd = datetime( y, m, 1, tzinfo=timezone.utc)
+        self.query = { 'Type':'CADET',
+                       'MbrStatus':'ACTIVE',
+                       'DOB': { u'$lte' : qd }
+        }
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
-    def run( self ):
-        print('Cadet account creation not permitted at this time.')
-        logging.warn('Cadet account creation not permitted.')
-        
+
+    def run(self):
+        """
+        Create Cadet accounts if enabled.
+        Account creation restricted by MIN_CADET_AGE.
+        """
+        if ( CREATE_CADET_ACCOUNTS ):
+            super().run()
+        else:
+            print('Cadet account creation is not enabled.')
+            logging.warn('Cadet account creation is not enabled.')
+        return
+
 class PurgeMembers( Manager ):    
     """
     Scans the Google user account collection by externalID

@@ -18,6 +18,8 @@
 # Add new jobs as classes to mims.py, then add class name to TASK var.
 
 # HISTORY:
+# 09Aug18 MEG Added New Cadets to TASK list.
+# 24Jun18 MEG Check table import failure and abort
 # 10Jun18 MEG Specify job list on Command line.
 # 19Apr18 MEG Created.
 
@@ -26,8 +28,15 @@ echo "NHWG MIMS Member create update batch jobs."
 cd $HOME/work/NHWG/MIMS
 
 # the list of mims jobs to be run
-TASK="NewSeniors Expired PurgeMembers UnSuspend"
+TASK="NewSeniors NewCadets Expired PurgeMembers UnSuspend"
 
+# check for flag that table import failed and abort
+if [ -f "IMPORTFAILED" ]; then
+   echo "CAPWATCH tables import failed, not continuing with job creation."
+   echo "Please check previous stages for failures."
+   exit 1
+fi
+   
 if [ $# -gt 1 ]; then
     TASK=$@
 fi

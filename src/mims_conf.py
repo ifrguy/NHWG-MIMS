@@ -20,14 +20,21 @@ MIMS Configuration File
 MIMS_HOST = 'localhost'
 MIMS_PORT = 27017
 MIMS_DB = 'NHWG'
-MIMSUSER = 'MIMS'
-MIMSPASS = '********'
+
+# Cadet account creation control
+CREATE_CADET_ACCOUNTS = True
+# Minimun age at which Cadets are premitted to have accounts
+MIN_CADET_AGE = 18
+
+# Look Back period - how many days back to start considering expired members
+# for suspend
+LOOKBACK = 45
 
 # Default action for Expired members
 EXPIRED_ACTION = 'suspend'
 
 # Default action for ex-members, no longer on eSerives rolls
-PURGE_ACTION = 'suspend'
+PURGE_ACTION = 'delete'
 
 # Flag to remove purged members from NHWG.Google collection
 DELETE_PURGED=False
@@ -36,5 +43,8 @@ DELETE_PURGED=False
 LogFilePath = "./log/"
 JobFilePath = "./job/"
 
-# Welcome message template file path
+# if true update the user record in local MongoDB Google collection
+UPDATE_SUSPEND = False
+
+# Welcome message template file path relaitve to ./job
 WELCOMEMSG = "./email-template.txt"
