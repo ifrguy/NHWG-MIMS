@@ -32,6 +32,7 @@ Note: Studio 3T is free for non-commercial use.
 * mims.py - MIMS batch job generator
 * jobexec - Job executive runs jobs created by MIMS (bash script)
 * getTables - Unpack CAPWATCH tables and filter for import into MongoDB (bash script)
+* holdMember - put member accounts on hold to prevent removal by MIMS, remove or list held accounts.
 * importGoogle - Google data downloader and mongoDB import (bash script)
 * importTables - Load CAPWATCH tables into mongoDB (bash script)
 * jsonfix.sed - sed (Stream Editor) script used by importGoogle.
