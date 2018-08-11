@@ -206,8 +206,8 @@ class NewMembers( Manager ):
         Input: python datatime object containing the birth date
         Returns: age in whole years, truncated to nearest year.
         """
-        yr = datetime.datetime.utcnow().year
-        m = datetime.datetime.utcnow().month
+        yr = datetime.utcnow().year
+        m = datetime.utcnow().month
         return int(((( yr - dob.year) * 12 ) + ( m - dob.month ))/12)
 
     def givenName( self, m ):
@@ -519,7 +519,7 @@ class Expired( Manager ):
     """
     def __init__( self ):
         super().__init__()
-        today = datetime.datetime.today()
+        today = datetime.today()
         expired = today - timedelta( days = LOOKBACK )
         self.query = { 'MbrStatus' : 'EXPIRED',
                        'Expiration' : { '$lte': expired }}
