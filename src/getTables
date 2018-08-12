@@ -20,6 +20,7 @@
 # substitute tables to be extracted.
 #
 # History:
+# 24Jun18 MEG Remove old csv files, check for missing CAPWATCH download.
 # 25Mar18 MEG Extract Commanders table.
 # 18Jul17 MEG Removed option to change archiver.
 # 13Jul17 MEG User may now substitute tables form cmd line.
@@ -30,8 +31,15 @@
 # Archiver
 ARC=unzip
 
+# remove old csv files
+/bin/rm -f *.csv
+
 # Default Zip file
-ZIP=$HOME/Downloads/CAPWATCH.zip
+ZIP=$HOME/downloads/NHWG.zip
+if [ ! -f $ZIP ]; then
+    echo "ERROR: file not found: $ZIP"
+    exit 1
+fi
 
 # Default DB
 DB=NHWG
@@ -45,13 +53,12 @@ TABLES="Commanders Member MbrContact MbrAddresses MbrAchievements DutyPosition"
 # Help message
 USAGE="Usage: $(basename $0) [$OPTS] [table table...]\n
 \tExtract tables from CAPWATCH archive and filter.\n
-\tz - zip file ($ZIP)\n
+\t-z - zip file ($ZIP)\n
 \tTABLES - $TABLES"
 
 # Process options
 while getopts $OPTS o; do
     case $o in
-	a) ARC=$OPTARG;;
 	z) ZIP=$OPTARG;;
 	h|?) echo -e $USAGE;exit 1;;
 	*) echo -e $USAGE;exit 1;;
