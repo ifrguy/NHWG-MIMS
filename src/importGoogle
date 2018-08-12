@@ -22,6 +22,8 @@
 # Note: You will need to update the variables to point to the utilities.
 #
 # History:
+# 12Aug18 MEG Added index Google collection script config variable.
+# 20Jul18 MEG Index Google collection.
 # 26May18 MEG Added "nolicenses" option to gam command.
 # 22Jan18 MEG MongoDB login credentials required.
 # 19Jan18 MEG Download now optional with -D switch
@@ -35,20 +37,29 @@ CREDS="./importercreds"
 
 # Download Google json
 D=NO
+
 # Database
 DB=NHWG
+
 # Host
 HOST=localhost
+
 # Collection in DB to import into
 COLL=Google
+
 # GAM command
 GAM=/usr/local/bin/gam
+
 # Import command
 IMP=/usr/bin/mongoimport
+
 # JSON Google G-Suite data file
 JSON=./$COLL.json
+
 # Log file
 LOG=./log/GAM.log
+# MongoDB Google index collection script
+INDEXSCRIPT="./indexGoogle.js"
 
 # Load MongoDB login creds
 . $CREDS
@@ -89,3 +100,9 @@ else
     echo "Error: unable to open JSON file: $COLL.json"
     exit 1
 fi
+
+# index Google collection
+echo "Indexing Google"
+mongo  --quiet --host $HOST --authenticationDatabase=$DB --username=$MONGOUID \
+       --password=$MONGOPASS $INDEXSCRIPT
+echo "Done."

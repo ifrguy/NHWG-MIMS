@@ -22,6 +22,9 @@
 #         or similar to convert dates to MicroSoft SQL date format.
 #
 # History:
+# 12Aug18 MEG Index script config variable added
+# 20Jul18 MEG Index CAPWATCH collections.
+# 24Jun18 MEG Check for missing import files.
 # 25Mar18 MEG Now imports Commanders table.
 # 22Jan18 MEG Move MongoDB login cred's to separate file.
 # 13Jul17 MEG User option to change database and substitute tables.
@@ -37,13 +40,17 @@ DB=NHWG
 # Mongo import tool
 IMPORT=mongoimport
 
-# CAPWATCH table to import
+# MongoDB script to index CAPWATCH collections
+INDEXSCRIPT="./indexCAPWATCH.js"
+
+# CAPWATCH tables to import
 TABLES="Commanders Member MbrContact MbrAddresses MbrAchievements DutyPosition"
 
 # Path to column type def's for each table
-TYPEPATH=./
+TYPEPATH=$HOME/work/NHWG/MIMS
+
 # load Mongo MIMS importer credentials
-. ./$CREDS
+. $CREDS
 
 # Command options
 OPTS="d:t:h?"
@@ -71,8 +78,25 @@ if [ $# -ge 1 ]; then
     TABLES=$@
 fi
 
+# remove old import failure flag if it exists
+if [ -f "IMPORTFAILED" ]; then
+    /bin/rm -f IMPORTFAILED
+fi
+
 for t in $TABLES; do
-    $IMPORT --db $DB  --authenticationDatabase=$DB --username=$MONGOUID \
+    if [ ! -f "$t.csv" ]; then
+	echo "ERROR: file not found: $t.csv"
+	touch IMPORTFAILED
+	continue
+    fi
+    $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
 --password=$MONGOPASS --collection $t --drop --type csv --columnsHaveTypes \
 	--fieldFile $TYPEPATH/$t.types --file $t.csv
 done
+
+
+# create indices for collections
+echo "Index CAPWATCH collection"
+mongo --quiet --authenticationDatabase=$DB --username=$MONGOUID \
+      --password=$MONGOPASS $INDEXSCRIPT
+echo "Done."
