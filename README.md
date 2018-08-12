@@ -33,8 +33,8 @@ Note: Studio 3T is free for non-commercial use.
 * jobexec - Job executive runs jobs created by MIMS (bash script)
 * getTables - Unpack CAPWATCH tables and filter for import into MongoDB (bash script)
 * holdMember - put member accounts on hold to prevent removal by MIMS, remove or list held accounts.
-* importGoogle - Google data downloader and mongoDB import (bash script)
-* importTables - Load CAPWATCH tables into mongoDB (bash script)
+* importGoogle - Google data downloader and mongoDB import, index collection script included (bash script)
+* importTables - Load CAPWATCH tables into mongoDB, index collections script included (bash script)
 * jsonfix.sed - sed (Stream Editor) script used by importGoogle.
 * MIMSJobsGen - bash convinence script to generate GAM job files for a list of MIMS classes.
 
