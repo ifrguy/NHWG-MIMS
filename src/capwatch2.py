@@ -79,7 +79,10 @@ def download():
         return r.status_code
         if ( opts.v ): print("HTTP request returned status code:", r.status_code )
     if ( r.status_code == 200 ):
-        if ( opts.v ): print( 'Request OK downloading to:', opts.outfile )
+        if ( opts.v ):
+            print( 'Request Code:{} downloading to: {}'.format(
+                   r.status_code,
+                   opts.outfile ))
         with open( opts.outfile , 'wb' ) as f:
             f.write( r.content )
         if ( opts.v ): print( 'Download Complete.' )
