@@ -31,6 +31,12 @@ CAPWATCH once in a 24 hour period.
 # 14Jan18 MEG Created.
 #
 
+# Default values
+# Number of attempts to download CAPWATCH file
+TRIES = 5
+# Max connection time out in seconds
+TIMEOUT = 120
+
 # build an argument parser, set options and defaults
 parser = argparse.ArgumentParser()
 parser.add_argument( '-i', default=ID, metavar='user',
