@@ -97,6 +97,11 @@ done
 
 # create indices for collections
 echo "Index CAPWATCH collection"
-mongo --quiet --authenticationDatabase=$DB --username=$MONGOUID \
+if [ -f $INDEXSCRIPT ]; then
+    mongo --quiet --authenticationDatabase=$DB --username=$MONGOUID \
       --password=$MONGOPASS $INDEXSCRIPT
+else
+    echo "WARNING: Indexing script: $INDEXSCRIPT not found."
+    echo "Indexing not performed."
+fi
 echo "Done."

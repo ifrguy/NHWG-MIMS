@@ -103,6 +103,11 @@ fi
 
 # index Google collection
 echo "Indexing Google"
-mongo  --quiet --host $HOST --authenticationDatabase=$DB --username=$MONGOUID \
+if [ -f $INDEXSCRIPT ]; then
+    mongo  --quiet --host $HOST --authenticationDatabase=$DB --username=$MONGOUID \
        --password=$MONGOPASS $INDEXSCRIPT
+else
+    echo "WARNING:Indexing script: $INDEXSCRIPT not found."
+    echo "Indexing not performed."
+fi
 echo "Done."
