@@ -31,9 +31,6 @@
 # Archiver
 ARC=unzip
 
-# remove old csv files
-/bin/rm -f *.csv
-
 # Default Zip file
 ZIP=$HOME/downloads/NHWG.zip
 if [ ! -f $ZIP ]; then
@@ -70,6 +67,11 @@ shift $(( $OPTIND - 1 ))
 if [ $# -ge 1 ]; then
     TABLES=$@
 fi
+
+# remove old csv files
+for f in $TABLES; do
+    rm -f $f.csv
+done
 
 # Extract each table, strip header line,
 # convert dates to MicroSoft SQL format and write to a csv file
