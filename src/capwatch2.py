@@ -27,6 +27,7 @@ use the API, or web.  Also note that you are restricted to downloading
 CAPWATCH once in a 24 hour period.
 """
 # History:
+# 24Aug18 MEG Added catch requests Read time out exception
 # 10Aug18 MEG Auto retries on failure up to TRIES times.
 # 14Jan18 MEG Created.
 #
@@ -74,6 +75,10 @@ def download():
     if ( opts.v ): print( 'Requesting CAPWATCH for OrgID:', opts.o )
     try:
         r = requests.get( uri, auth=( opts.i, opts.p), timeout=opts.t ) 
+    except requests.exceptions.ReadTimeout as e:
+        print('Read: download orgid:', str( opts.o ), 'timed out.')
+        print( e, r.status_code, r.reason )
+        return r.status_code
     except requests.execptions.HTTPError as e:
         print( e, r.status_code, r.reason )
         return r.status_code
