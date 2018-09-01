@@ -15,13 +15,19 @@
 
 
 #
-# Import CAPWATCH tables into MongoDB. User may change the database or
+# Import/upsert CAPWATCH tables into MongoDB. User may change the database or
 # provide a list of substitute tables to import.
 # Note 1: Subsitute tables must have a companion .types file for mongoimport
 # Note 2: Files must have been preprocessed with getTables before importing
 #         or similar to convert dates to MicroSoft SQL date format.
+# Note 3: If indexing you must supply the appropriate MongoDB JavaScript
+#         for each collection to preform the indexing operation.
+#         Index script naming convention:
+#          <table name>-index.js
 #
 # History:
+# 30Aug18 MEG Indexing now on per collection basis.
+# 29Aug18 MEG Option to update or import with collection drop.
 # 12Aug18 MEG Index script config variable added
 # 20Jul18 MEG Index CAPWATCH collections.
 # 24Jun18 MEG Check for missing import files.
@@ -40,11 +46,18 @@ DB=NHWG
 # Mongo import tool
 IMPORT=mongoimport
 
-# MongoDB script to index CAPWATCH collections
-INDEXSCRIPT="./indexCAPWATCH.js"
-
 # CAPWATCH tables to import
 TABLES="Commanders Member MbrContact MbrAddresses MbrAchievements DutyPosition"
+
+# Upsert fields for each table
+# Fields to look at when updating records
+declare -A UPFIELDS
+UPFIELDS[Commanders]='ORGID'
+UPFIELDS[Member]='CAPID'
+UPFIELDS[MbrContact]='CAPID,Type,Priority'
+UPFIELDS[MbrAddresses]='CAPID,Type,Priority'
+UPFIELDS[MbrAchievements]='CAPID,AchvID,Status'
+UPFIELDS[DutyPosition]='Duty,FunctArea,Lvl,Asst,ORGID'
 
 # Path to column type def's for each table
 TYPEPATH=$HOME/work/NHWG/MIMS
@@ -52,20 +65,49 @@ TYPEPATH=$HOME/work/NHWG/MIMS
 # load Mongo MIMS importer credentials
 . $CREDS
 
-# Command options
-OPTS="d:t:h?"
+# Index collections YES|NO
+INDEX="NO"
+
+# Default function to call to load CAPWATCH data into MongoDB
+CALL="drop"
 
 # Help text
 USAGE="Usage: $(basename $0) [$OPTS] [table table...] \n
-\tImport CAPWATCH tables into MongoDB. \n
+\tOverwrite or update CAPWATCH collection(s) in $DB MongoDB. \n
 \td - database ($DB)\n
+\ti - Call index script to index collections ($INDEX)\n
 \th|? - help \n
 \tt - path to .type files ($TYPEPATH)\n
+\tu - Update collections rather than overwrite ($CALL)\n
 \tTABLES=$TABLES\n"
+
+# Drops collection and imports them fresh.
+# All data for the collection including indices are removed
+# prior to importing the new data.
+function drop() {
+    $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
+--password=$MONGOPASS --collection $t --drop --type csv --columnsHaveTypes \
+	--fieldFile $TYPEPATH/$1.types --file $t.csv
+
+}
+
+# Updates collection inserting new records if required.  No indexing
+# of collections.  Collections are assumed to already have appropriate
+# indexes.
+function upsert() {
+    $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
+--password=$MONGOPASS --collection $t --type csv --columnsHaveTypes \
+	--fieldFile $TYPEPATH/$1.types --upsertFields ${UPFIELDS[$t]} --file $t.csv
+}
+
+# Command options
+OPTS="d:it:h?u"
 
 while getopts $OPTS o; do
     case $o in
 	d) DB=$OPTARG;;
+	i) INDEX="yes";;
+	u) CALL="upsert";;
 	t) TYPEPATH=$OPTARG;;
 	h|?) echo -e $USAGE;exit 1;;
 	*) echo -e $USAGE;exit 1;;
@@ -89,19 +131,22 @@ for t in $TABLES; do
 	touch IMPORTFAILED
 	continue
     fi
-    $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
---password=$MONGOPASS --collection $t --drop --type csv --columnsHaveTypes \
-	--fieldFile $TYPEPATH/$t.types --file $t.csv
+    $CALL $t
 done
 
-
-# create indices for collections
-echo "Index CAPWATCH collection"
-if [ -f $INDEXSCRIPT ]; then
-    mongo --quiet --authenticationDatabase=$DB --username=$MONGOUID \
-      --password=$MONGOPASS $INDEXSCRIPT
-else
-    echo "WARNING: Indexing script: $INDEXSCRIPT not found."
-    echo "Indexing not performed."
+if [ $(echo $INDEX|tr a-z A-Z) == "YES" ]; then
+    echo "Indexing collections."
+    for t in $TABLES; do
+	INDEXSCRIPT=$t-index.js
+	if [ -f $INDEXSCRIPT ]; then
+	    mongo --quiet --authenticationDatabase=$DB --username=$MONGOUID \
+		--password=$MONGOPASS $INDEXSCRIPT
+	else
+	    echo "WARNING: Indexing script: $INDEXSCRIPT not found."
+	    echo "WARNING: Indexing for table: $t not performed."
+	fi
+    done
+    echo "Done indexing."
 fi
+
 echo "Done."
