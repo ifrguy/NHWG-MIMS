@@ -56,7 +56,6 @@ History:
 28May17 MEG Created.
 """
 import os, sys, string, random
-import datetime
 import logging
 import pymongo
 from datetime import date, timedelta, datetime, timezone
@@ -473,7 +472,8 @@ class PurgeMembers( Manager ):
         Google download anyway. It's just cleaner to remove the documents for
         subsequent runs.
         """
-
+# purge accounts expired earlier than lookback
+        lookback = datetime.utcnow() - timedelta( days=90 )
         l = []  # list of members to remove
         n = 0 # Number of memeber accounts removed
         #Scan all Google users
@@ -493,13 +493,16 @@ class PurgeMembers( Manager ):
                 continue
 
             m = self.DB().Member.find_one({'CAPID':capid})
-            if m == None: # member nolonger on rolls
+            if (( m == None ) or ( m['Expiration'] <= lookback )):
                 n += 1
                 l.append( i['primaryEmail'] )
                 logging.info( "%s: %d %s", "Remove",
                               capid,
                               i['name']['fullName'])
-                # delete user document from DB
+                if ( m != None ): # mark member as exmember
+                    self.DB().Member.update_one( { '_id' : m['_id']},
+                                                  {'$set': {'MbrStatus': 'EXMEMBER' }})
+                 # delete user document from DB
                 if ( DELETE_PURGED ):
                     print("Delete document:", "self.DB().Google.delete_one({'_id':",
                           id,"})" )
@@ -533,7 +536,6 @@ class Expired( Manager ):
         Google account.  Only accounts that have expired more than LOOKBACK
         days are considered for suspension.  The account is NOT deleted
         and may be reactivated by any sys admin.
-        Also prints a list of files owned by member.
         """
         gamcmdfmt = "gam {} user {}"
         cur = self.DB().Member.find( self.query ).sort('CAPID',
@@ -654,7 +656,7 @@ class UnSuspend( Manager ):
 
                     # check to see if we should update the local Google collection
                     if UPDATE_SUSPEND :
-                        result = self.DB().Google.update( { 'primaryEmail' : g['primaryEmail']},
+                        result = self.DB().Google.update_one( { 'primaryEmail' : g['primaryEmail']},
                                        { '$set' : { 'suspended' : False,
                                                     'suspensionReason': '' }} )
                         if ( result[ 'nModified' ] == 0 ) :
