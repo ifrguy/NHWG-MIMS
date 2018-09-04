@@ -3,11 +3,8 @@
 # holdMember/unholdMember places a member on hold to prevent their 
 # Google account from being removed, or removes the hold so the
 # member account can be removed or reinstated.
-# If called as holdMember inserts CAPID in Holds collection.
-# If callded as unholdMember removes CAPID from Holds collection.
-# If called as onHold lists members or a specifided member on hold.
-#
-# To use the unholdMember and onHolds feature create symlinks to holdMember.py
+# If called as holdMember inserts CAPID in NHWG.Holds.
+# If callded as unholdMember removes CAPID from NHWG.Holds
 
 # History:
 # 09Aug18 MEG Added on hold checking
@@ -47,16 +44,18 @@ def hold( db ):
     try:
         capid = int( sys.argv[1] )
     except IndexError:
+        print("No CAPID found.")
         print( HELP[ PROG ] )
         sys.exit( 1 )
     except ValueError:
+        print("CAPID to int failed:",sys.argv[1])
         print( HELP[ PROG ] )
         sys.exit( 1 )
     try:
         comment = sys.argv[ 2 ]
     except:
         comment = ""
-    db.Holds.insert( { "CAPID": capid, "Comment" : comment } )
+    db.Holds.insert_one( { "CAPID": capid, "Comment" : comment } )
     return
 
 def unhold( db ):
