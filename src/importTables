@@ -126,6 +126,7 @@ if [ -f "IMPORTFAILED" ]; then
 fi
 
 for t in $TABLES; do
+    echo "Importing table: $t"
     if [ ! -f "$t.csv" ]; then
 	echo "ERROR: file not found: $t.csv"
 	touch IMPORTFAILED
