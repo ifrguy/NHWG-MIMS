@@ -433,7 +433,7 @@ class PurgeMembers( Manager ):
     def __init__(self):
         super().__init__()
         self.outfileName = JobFilePath + 'hold-' + self.name() + self.TS() + ".job"
-        self.query = { 'externalIds':{'$elemMatch':{'value':{'$gt':100000}}}}
+        self.query = { 'MbrStatus' : 'EXPIRED' }
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
@@ -465,51 +465,43 @@ class PurgeMembers( Manager ):
 
     def run(self):
         """
-        Runs the MongoDB query to find all members in Google not currently
-        on the CAP rolls and produces a batch file to remove those member
-        accounts from Google accounts using the GAM utility, deletes users
-        record from Google MongoDB, although they will be gone after the next
-        Google download anyway. It's just cleaner to remove the documents for
-        subsequent runs.
+        Pulls all members marked as EXPIRED.  If membership has been
+        expired for 90 days or more the account is removed and the member
+        is marked as a ex-member.  The resulting gam purge job is placed in the
+        hold state until released by the operator.  In addition a gam job
+        to list all files own by users is produced. Users placed on HOLD
+        are skipped.
         """
-# purge accounts expired earlier than lookback
+        # look back period
         lookback = datetime.utcnow() - timedelta( days=90 )
         l = []  # list of members to remove
-        n = 0 # Number of memeber accounts removed
-        #Scan all Google users
-        g = self.DB().Google.find( self.query )
-        for i in g:
-            id = i['_id']
-            capid = i['externalIds'][0]['value']
-            if capid == None: continue
-            # Check to see if member account is on Hold list and skip.
-            # This done since Nat'l removes members on suspension from
-            # The CAPWATCH download.
-            if ( self.checkHolds( capid ) ):
-                logging.warn("Member on permanent hold CAPID: %d, Account: %s not removed.",
-                             capid,
-                             i['primaryEmail'],
-                             )
-                continue
-
-            m = self.DB().Member.find_one({'CAPID':capid})
-            if (( m == None ) or ( m['Expiration'] <= lookback )):
-                n += 1
-                l.append( i['primaryEmail'] )
-                logging.info( "%s: %d %s", "Remove",
-                              capid,
+        #Scan all expired members
+        cur = self.DB().Member.find( self.query )
+        for m in cur:
+            capid = m['CAPID']
+            if ( m['Expiration'] <= lookback ):
+#                g = self.DB().Google.find_one( { 'externalIds':{'$elemMatch':{'value':{'$eq': m['CAPID']}}}})
+# Note this query may fail if there is more than one record in externalIds
+                g = self.DB().Google.find_one({'externalIds.value': m['CAPID']})
+                if ( g == None ): continue
+                if ( self.checkHolds( capid )):
+                     logging.info('HOLD: %d %s, account: %s',
+                                  capid, g['fullName'],
+                                  g['primaryEmail'] )
+                     continue
+                l.append( g['primaryEmail'] )
+                logging.info( "Remove: %d %s", capid,
                               i['name']['fullName'])
-                if ( m != None ): # mark member as exmember
-                    self.DB().Member.update_one( { '_id' : m['_id']},
-                                                  {'$set': {'MbrStatus': 'EXMEMBER' }})
-                 # delete user document from DB
+# Mark member as Ex-member
+                self.DB().Member.update_one( { '_id' : m['_id']},
+                                             {'$set': {'MbrStatus': 'EXMEMBER' }})
+                # delete Google user record from Google collection
                 if ( DELETE_PURGED ):
-                    print("Delete document:", "self.DB().Google.delete_one({'_id':",
-                          id,"})" )
+                    self.DB().Google.delete_one({'_id': g['_id']})
         l.sort()
         # generate the purge job
         self.writePurge( l )
-        logging.info( "Accounts purged: %d", n)
+        logging.info( "Accounts purged: %d", len( l ))
         # generate job to list purged members files for examination
         self.writeGetFiles( l )
         return
