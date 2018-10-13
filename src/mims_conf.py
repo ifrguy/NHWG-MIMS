@@ -26,6 +26,9 @@ CREATE_CADET_ACCOUNTS = True
 # Minimun age at which Cadets are premitted to have accounts
 MIN_CADET_AGE = 18
 
+# Domain to use creating, deleteing, updating accounts or groups
+DOMAIN ='example.com'
+
 # Look Back period - how many days back to start considering expired members
 # for suspend
 LOOKBACK = 45
