@@ -47,4 +47,6 @@ JobFilePath = "./job/"
 UPDATE_SUSPEND = False
 
 # Welcome message template file path relaitve to ./job
+# May also include a flag to tell gam this is a HTML file by adding "html true"
+# to the tail of file spec.
 WELCOMEMSG = "./email-template.txt"
