@@ -191,7 +191,7 @@ class NewMembers( Manager ):
         # GAM group add member command
         self.gamgroupfmt = 'gam update group {}@nhwg.cap.gov add member {}'
         # GAM command to email notification to new member
-        self.gamnotifyfmt = ' notify {} subject "{}" message file "{}"'
+        self.gamnotifyfmt = ' notify {} subject "{}" message file {}'
         # Group to add member to
         self.group = None
         self.outfile = None
