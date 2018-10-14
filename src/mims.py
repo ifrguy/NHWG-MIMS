@@ -183,13 +183,13 @@ class NewMembers( Manager ):
     """
     def __init__(self):
         super().__init__()
-        self.domain = 'nhwg.cap.gov'
+        self.domain = DOMAIN
         # MongoDB query to find members
         self.query = None
         # GAM account creation command
         self.gamaccountfmt = 'gam create user {} externalid organization {:d} givenname "{}" familyname "{}" organizations department {} description {} primary orgunitpath "{}" password \'{}\' changepassword true'
         # GAM group add member command
-        self.gamgroupfmt = 'gam update group {}@nhwg.cap.gov add member {}'
+        self.gamgroupfmt = 'gam update group {}@' + self.domain + ' add member {}'
         # GAM command to email notification to new member
         self.gamnotifyfmt = ' notify {} subject "{}" message file {}'
         # Group to add member to
