@@ -37,6 +37,7 @@ Note: Studio 3T is free for non-commercial use.
 * importTables - Load CAPWATCH tables into mongoDB, index collections script included (bash script)
 * jsonfix.sed - sed (Stream Editor) script used by importGoogle.
 * MIMSJobsGen - bash convinence script to generate GAM job files for a list of MIMS classes.
+* mongodb-seed - Monogo shell script to create empty database and base collections.
 
 * Note: bash script utilities have not been ported to the Windows environment yet. They work with cygwin bash shell.
 
