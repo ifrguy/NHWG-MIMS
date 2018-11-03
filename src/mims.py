@@ -491,7 +491,7 @@ class PurgeMembers( Manager ):
                      continue
                 l.append( g['primaryEmail'] )
                 logging.info( "Remove: %d %s", capid,
-                              i['name']['fullName'])
+                              g['name']['fullName'])
 # Mark member as Ex-member
                 self.DB().Member.update_one( { '_id' : m['_id']},
                                              {'$set': {'MbrStatus': 'EXMEMBER' }})
