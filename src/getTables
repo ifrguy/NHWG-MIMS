@@ -32,7 +32,7 @@
 ARC=unzip
 
 # remove old download failure flag
-/bin/rm CAPWATCHFAILED
+/bin/rm -f CAPWATCHFAILED
 
 # Default Zip file
 ZIP=$HOME/downloads/NHWG.zip
