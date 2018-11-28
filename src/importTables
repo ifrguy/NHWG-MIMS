@@ -26,6 +26,7 @@
 #          <table name>-index.js
 #
 # History:
+# 28Nov18 MEG Abort import if CAPWATCH download failed.
 # 30Aug18 MEG Indexing now on per collection basis.
 # 29Aug18 MEG Option to update or import with collection drop.
 # 12Aug18 MEG Index script config variable added
@@ -36,6 +37,12 @@
 # 13Jul17 MEG User option to change database and substitute tables.
 # 03Jul17 MEG Created.
 #
+
+# Check to see if download was successful
+if [ -f CAPWATCHFAILED ]; then
+    echo "ERROR: CAPWATCH download failed not importing tables!"
+    exit 1
+fi
 
 # MongoDB login credentials file path
 CREDS=./importercreds
@@ -78,7 +85,7 @@ USAGE="Usage: $(basename $0) [$OPTS] [table table...] \n
 \ti - Call index script to index collections ($INDEX)\n
 \th|? - help \n
 \tt - path to .type files ($TYPEPATH)\n
-\tu - Update collections rather than overwrite ($CALL)\n
+\tu - Update/upsert collections ($CALL)\n
 \tTABLES=$TABLES\n"
 
 # Drops collection and imports them fresh.
@@ -86,8 +93,8 @@ USAGE="Usage: $(basename $0) [$OPTS] [table table...] \n
 # prior to importing the new data.
 function drop() {
     $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
---password=$MONGOPASS --collection $t --drop --type csv --columnsHaveTypes \
-	--fieldFile $TYPEPATH/$1.types --file $t.csv
+--password=$MONGOPASS --collection $1 --drop --type csv --columnsHaveTypes \
+	--fieldFile $TYPEPATH/$1.types --file $1.csv
 
 }
 
@@ -97,7 +104,7 @@ function drop() {
 function upsert() {
     $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
 --password=$MONGOPASS --collection $t --type csv --columnsHaveTypes \
-	--fieldFile $TYPEPATH/$1.types --upsertFields ${UPFIELDS[$t]} --file $t.csv
+	--fieldFile $TYPEPATH/$1.types --upsertFields ${UPFIELDS[$t]} --file $1.csv
 }
 
 # Command options

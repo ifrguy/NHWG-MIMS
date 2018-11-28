@@ -31,10 +31,14 @@
 # Archiver
 ARC=unzip
 
+# remove old download failure flag
+/bin/rm CAPWATCHFAILED
+
 # Default Zip file
 ZIP=$HOME/downloads/NHWG.zip
 if [ ! -f $ZIP ]; then
     echo "ERROR: file not found: $ZIP"
+    touch CAPWATCHFAILED
     exit 1
 fi
 
