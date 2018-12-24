@@ -388,7 +388,10 @@ class NewSeniors( NewMembers ):
 class NewCadets( NewMembers ):
     """
     Scans the Member table for Cadet members not having Google accounts.
-    Makes a new account if the member is active and is 18 years of age or over.    """
+    Makes a new account if the member is active and is 18 years of age or over.
+    Setting MIN_CADET_AGE to zero effectively enables creation of accounts
+    for all cadets.
+    """
     def __init__( self ):
         super().__init__()
         self.group = None
