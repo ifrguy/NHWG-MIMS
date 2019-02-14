@@ -19,7 +19,7 @@ ORGID = None
 # Number of attempts to download CAPWATCH file                                                                                                                  
 TRIES = 5                                                                       
                                                                                 
-# Time to wait between retries in seconts                                       
+# Time to wait between retries in seconds                                       
 RETRY_DELAY_TIME = 30                                                           
                                                                                 
 # Max time to wait for TCP connection to time out in seconds                    
