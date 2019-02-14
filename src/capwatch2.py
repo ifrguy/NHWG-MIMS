@@ -27,16 +27,12 @@ use the API, or web.  Also note that you are restricted to downloading
 CAPWATCH once in a 24 hour period.
 """
 # History:
+# 14Feb19 MEG Moved retry control var's to conf file.
+# 28Nov18 MEG download() timeout throws error, no request packet returned.
 # 24Aug18 MEG Added catch requests Read time out exception
 # 10Aug18 MEG Auto retries on failure up to TRIES times.
 # 14Jan18 MEG Created.
 #
-
-# Default values
-# Number of attempts to download CAPWATCH file
-TRIES = 5
-# Max connection time out in seconds
-TIMEOUT = 120
 
 # build an argument parser, set options and defaults
 parser = argparse.ArgumentParser()
@@ -76,9 +72,13 @@ def download():
     try:
         r = requests.get( uri, auth=( opts.i, opts.p), timeout=opts.t ) 
     except requests.exceptions.ReadTimeout as e:
+# Note: if the requests times out, i.e. no connection, "requests.get" returns
+# no value.  The return variable is "unbound".  Attempting to access any
+# of the atts of the request package with throw an UnboundLocalVarilable error.# So we force the return of an HTTP 408 Timeout Error, so we can try again.
         print('Read: download orgid:', str( opts.o ), 'timed out.')
-        print( e, r.status_code, r.reason )
-        return r.status_code
+        print( "Error: ", e )
+        print( "HTTP Error 408 - Timeout Error" )
+        return 408
     except requests.execptions.HTTPError as e:
         print( e, r.status_code, r.reason )
         return r.status_code
@@ -87,8 +87,9 @@ def download():
         return r.status_code
     except requests.exceptions.RequestException as e:
         print( e, r.status_code, r.reason )
-        return r.status_code
         if ( opts.v ): print("HTTP request returned status code:", r.status_code )
+        return r.status_code
+
     if ( r.status_code == 200 ):
         if ( opts.v ):
             print( 'Request Code:{} downloading to: {}'.format(
@@ -107,7 +108,7 @@ for i in range( 1, TRIES ):
     ret = download()
     if ret == 200:
         break
-    time.sleep( 30 )
+    time.sleep( RETRY_DELAY_TIME )
 
 if ( opts.v ): print( 'Done.' )
 sys.exit( ret )
