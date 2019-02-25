@@ -1,0 +1,26 @@
+#!/bin/bash -e
+# Prepare new mailing list of commanders, deputies and personnel officers
+# for use is distribution of the reports
+
+# History:
+# 27Nov18 MEG Added mailinglist.include file.
+# 20Oct18 MEG Remove names with pattern file.
+# 05Oct18 MEG Created.
+#
+
+WORKDIR=$HOME/work/NHWG/Reports
+cd $WORKDIR
+
+# Report generator MongoDB login credentials
+CREDS=./reporter-creds
+. $CREDS
+
+# target database
+DB=NHWG
+echo "Preparing New mailing list"
+mongo --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB CmdrsEmails.js
+
+# export mailing list, add mailing list include file
+mongoexport --db $DB -u $USERID -p $PASSWD --authenticationDatabase $DB -c reportEmailList --type csv -f primaryEmail|tail -n +2|cat - mailinglist.include|sort|uniq|grep -v -f mailing-list-exclude.pat >mailinglist
+echo Total email addresses selected: $(cat mailinglist|wc -l)
+echo Done.

@@ -1,0 +1,74 @@
+#!/bin/bash -e
+# Prepare expiration reports for command staff.
+# Then mail to the command staff mailing list.
+
+# History:
+# 25Nov18 MEG Added options to change mailing list and message.
+# 24Oct18 MEG Added option to skip sending emails.
+# 02Oct18 MEG Added Home Phone to report.
+# 01Oct18 MEG Created.
+#
+
+# Message text or message file template
+MESSAGE="file monthly-expiration-report.html html true"
+
+WORKDIR=$HOME/work/NHWG/Reports
+cd $WORKDIR
+
+# Report generator MongoDB login credentials
+CREDS=./reporter-creds
+. $CREDS
+
+# target database
+DB=NHWG
+
+# Default mailing list file
+MAILINGLIST=./mailinglist
+
+# cmd line options
+OPTS="h?l:m:n"
+
+USAGE="Usage: $(basename $0) [$OPTS]\n
+\tCreate and mail member expiration reports\n
+\th|? - this help\n
+\tl - mailing list filename ($MAILINGLIST)\n
+\tm - new message or message file ($MESSAGE)\n
+\tn - No email - skip sending report to mailing list\n
+"
+
+while getopts $OPTS o; do
+    case $o in
+	h|?) echo -e $USAGE;exit 1;;
+	l) MAILINGLIST=OPTARG;;
+	m) MESSAGE=OPTARG;;
+	n) NOEMAIL="true";;
+	*) echo -e $USAGE;exit 1;;
+    esac
+done
+shift $(($OPTIND - 1))
+
+
+echo "Preparing expired membership report"
+# Prepare Expired collection for report
+mongo --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB expired.js
+
+# Pull the collected data into a CSV for mailing
+mongoexport --quiet --db $DB -u $USERID -p $PASSWD --authenticationDatabase $DB \
+	    -c Expired --type csv  --sort '{Unit:1,NameLast:1}' \
+	    -f "CAPID,NameLast,NameFirst,Type,Unit,Expiration,EMAIL,HomePhone" >expired-report.csv
+
+# Prepare 30 day outlook expiration report
+echo "Preparing 30 day expiration outlook report"
+mongo --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB Expiring30Days.js >30DayExpiration-Report.csv
+
+# Prepare 60 day outlook expiration report
+echo "Preparing 60 day expiration outlook report"
+mongo --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB Expiring60Days.js >60DayExpiration-Report.csv
+
+# If -n switch don't send reports
+[[ -v NOEMAIL ]] && exit 1
+
+echo "Sending reports."
+# Use GAM to email reports to commanders mailing list
+gam sendemail file $MAILINGLIST subject "NHWG:Monthly Expiration Reports" message $MESSAGE  attach expired-report.csv attach 30DayExpiration-Report.csv attach 60DayExpiration-Report.csv
+echo Done.

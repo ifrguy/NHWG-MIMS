@@ -1,0 +1,63 @@
+#!/bin/bash -e
+# Prepare new member report for command staff.
+# Then mail to the command staff mailing list.
+
+# History:
+# 25Nov18 MEG Added options to change mailing list and message
+# 24Oct18 MEG Added option to skip sending emails
+# 02Oct18 MEG Created.
+#
+
+WORKDIR=$HOME/work/NHWG/Reports
+cd $WORKDIR
+
+# Report generator MongoDB login credentials
+CREDS=./reporter-creds
+. $CREDS
+
+/bin/rm -f NewMembers-Report.csv
+
+# target database
+DB=NHWG
+
+# Default mailing list file
+MAILINGLIST=./mailinglist
+
+# Message text or message file template
+MESSAGE="file ./weekly-new-members.html html true"
+
+# cmd line options
+OPTS="h?l:m:n"
+
+USAGE="Usage: $(basename $0) [$OPTS]\n
+\tCreate and mail new member report\n
+\th|? - this help\n
+\tl - mailing list ($MAILINGLIST)\n
+\tm - new message or message file ($MESSAGE)\n
+\tn - No email - skip sending report to mailing list\n
+"
+
+while getopts $OPTS o; do
+    case $o in
+	h|?) echo -e $USAGE;exit 1;;
+	l) MAILINGLIST=OPTARG;;
+	m) MESAGE=OPTARG;;
+	n) NOEMAIL="true";;
+	*) echo -e $USAGE;exit 1;;
+    esac
+done
+shift $(($OPTIND - 1))
+
+echo "Preparing New members report"
+mongo --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB NewMembersLastWeek.js >NewMembers-Report.csv
+
+
+# if NOEMAIL is set skip sending report
+[[ -v NOEMAIL ]] && exit 1
+
+# Use GAM to email reports to commanders mailing list
+if [ -s NewMembers-Report.csv ]; then
+    echo "Sent emails to list"
+    gam sendemail file $MAILINGLIST subject "NHWG:Weekly New Members Report" message $MESSAGE attach NewMembers-Report.csv
+fi
+echo Done.
