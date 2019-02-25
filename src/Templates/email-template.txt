@@ -1,0 +1,37 @@
+Welcome #givenname# #familyname# to your new NH Wing email account. An
+account has been created for you because you are listed in the CAP
+National database as a member of the NH Wing, Civil Air Patrol.
+
+Your new NH Wing email account is: #user#
+Your temporary password is: #password#
+You will be prompted to change your password when you login to your account.
+
+This account will allow you to receive messages and notifications
+from NH Wing, as well as access the user portal at http://nhwg.cap.gov
+You may start using your account by signing in at:
+https://www.google.com/accounts/AccountChooser?Email=#user#&continue=https://apps.google.com/user/hub
+
+If you prefer to use OutLook, Thunderbird or a different email client please use the following link for instructions on setting up your client.
+
+https://support.google.com/mail/answer/7126229?authuser=1&visit_id=1-636469171631663641-2012628328&hl=en&rd=1
+
+*********************************************************
+******** W A R N I N G    L E G A L    S T U F F ********
+******** = = = = = = =    = = = = =    = = = = = ********
+*********************************************************
+
+This email account is provided to you strictly for the purposes of
+conducting NH Wing and Civil Air Patrol business per the provisions of
+CAPR 120-1 (October 2017).  All sections apply but in particular you
+should familiarize yourself with sections: 5 - Acceptable Use,
+6 - Unacceptable Use, and 12 - Email Policy.
+
+Welcome to NH Wing, Civil Air Patrol.
+
+If you have any problems or questions send an email to: support@nhwg.cap.gov
+
+
+Welcome to CAP,
+Capt Marshall E Giguere, CAP
+NH Wing Assistant Director of IT
+U.S. Air Force Auxiliary
