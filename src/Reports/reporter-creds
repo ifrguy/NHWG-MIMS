@@ -1,0 +1,4 @@
+# Report generator credentials for MongoDB
+# Add the credentials for the Mongo user that does reports
+USERID=""
+PASSWD=""
