@@ -1,0 +1,22 @@
+Command
+CustomKey
+FirstName
+LastName
+Groups
+Tags
+HomePhone
+WorkPhone
+CellPhone
+OtherPhone
+TextNumber
+MobileProvider
+HomeEmail
+WorkEmail
+OtherEmail
+Street Address
+City
+State
+Zip
+Zip4
+PreferredLanguage
+ContactId
