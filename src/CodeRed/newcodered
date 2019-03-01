@@ -8,6 +8,7 @@
 # designated receiver (EMAILTO).
 # 
 # History:
+# 09Jan19 MEG NEW flag moved from Command field to Status(not exported) field.
 # 01Dec18 MEG Added option to do export only without updating.
 # 24Nov18 MEG Added options to skip email and change receiver email addr.
 # 23Nov18 MEG Created.
@@ -21,6 +22,7 @@ DB=NHWG
 
 # Receiver for the CSV files
 EMAILTO=pblais@nhwg.cap.gov
+#EMAILTO=mgiguere@nhwg.cap.gov
 
 # Update Code Red Collection (the default)
 UPDATE=true
@@ -60,7 +62,7 @@ do
     fi
 # Export the new CodeRed records as a csv file
    mongoexport --quiet --db $DB --collection $t --authenticationDatabase $DB \
-	--username $USER --password $PASSWD --query '{Command : /new/i}' \
+	--username $USER --password $PASSWD --query '{Status : /new/i}' \
 	--fieldFile ./CodeRedFields.txt --type csv --out ./$t-new.csv
 # Export the deleted CodeRed records as a csv file
      mongoexport --quiet --db $DB --collection $t"Prev" --authenticationDatabase $DB \
