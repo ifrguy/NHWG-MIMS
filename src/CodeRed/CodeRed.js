@@ -1,3 +1,8 @@
+// CodeRed - Scans CodeRed collections from new and expired members.
+//
+// History:
+// 09Jan19 MEG moved "NEW" flag to Status field from Command.
+//j
 // The database
 var DB = db.getSiblingDB( 'NHWG' );
 
@@ -165,17 +170,15 @@ function init( collection ) {
 // Initialize the Code Red collections for processing.
 // Save old collection for diff, create new collection.
 // Do housekeeping chores, etc.
-    try {
-	 DB.getCollection( collection ).renameCollection( collection + "Prev", true );
-    } finally {
-	DB.createCollection( collection,
-			     { collation:
-			       { locale:'en_US',
-				 strength:NumberInt(1),
-				 caseLevel:false,
-			       }
-			     });
-    }
+    DB.getCollection( collection + "Prev" ).drop();
+    DB.getCollection( collection ).renameCollection( collection + "Prev", true );
+    DB.createCollection( collection,
+			 { collation:
+			   { locale:'en_US',
+			     strength:NumberInt(1),
+			     caseLevel:false,
+			   }
+			 });
 }
 
 function CodeRedMember( member, group ) {
@@ -240,7 +243,7 @@ function markNew( coll ) {
 	if ( !rec ) {
 	    DB.getCollection( newCollection ).update( { _id: mbr._id },
 						       { $set: {
-							   Command: 'NEW'}
+							   Status: 'NEW'}
 						       });
 	};
     };
