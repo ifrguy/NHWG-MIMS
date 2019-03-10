@@ -3,6 +3,7 @@
 # Then mail to the command staff mailing list.
 
 # History:
+# 10Mar19 MEG Fixed options order parsing.
 # 25Nov18 MEG Added options to change mailing list and message
 # 24Oct18 MEG Added option to skip sending emails
 # 02Oct18 MEG Created.
@@ -39,10 +40,10 @@ USAGE="Usage: $(basename $0) [$OPTS]\n
 
 while getopts $OPTS o; do
     case $o in
-	h|?) echo -e $USAGE;exit 1;;
 	l) MAILINGLIST=OPTARG;;
-	m) MESAGE=OPTARG;;
+	m) MESSAGE=OPTARG;;
 	n) NOEMAIL="true";;
+	h|?) echo -e $USAGE;exit 1;;
 	*) echo -e $USAGE;exit 1;;
     esac
 done
