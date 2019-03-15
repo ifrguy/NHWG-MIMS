@@ -18,7 +18,7 @@
 
 USAGE="Usage: $(basename $0) args\n
 Build a gam command to create a Google account\n
----You must have gamadv-x installed and have a Google application key---\n
+---You must have gamadv-xtd installed and have a Google application key---\n
 \tARGS:\n
 \t\$1 - new account base name\n
 \t\$2 - CAPID\n
