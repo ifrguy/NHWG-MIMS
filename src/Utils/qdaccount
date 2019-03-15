@@ -12,9 +12,8 @@
 # $4 - last name
 # $5 - Unit number 
 # $6 - Member Type: CADET|SENIOR
-# $7 - UNIT: 000-999
-# $8 - Password
-# $9 - Notification email address
+# $7 - Password
+# $8 - Notification email address
 # OUTPUT: appropriate gam command to create an account
 
 USAGE="Usage: $(basename $0) args\n
