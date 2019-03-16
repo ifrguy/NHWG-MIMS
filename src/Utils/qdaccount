@@ -16,6 +16,10 @@
 # $8 - Notification email address
 # OUTPUT: appropriate gam command to create an account
 
+# Path to email message template
+EMAIL_TEMPLATE=$HOME/work/NHWG/Templates/new-user-email-template.html
+
+# Help message
 USAGE="Usage: $(basename $0) args\n
 Build a gam command to create a Google account\n
 ---You must have gamadv-xtd installed and have a Google application key---\n
@@ -49,4 +53,4 @@ if (( $# < 8 )); then
     exit 1
 fi
 
-echo gam create user $1@nhwg.cap.gov externalid organization $2 givenname "\"$3"\" familyname \""$4"\" organizations department $5 description $6 primary orgunitpath \""${ORGUNIT[$5]}"\" password $7 changepassword true notify "$8" subject "\"Welcome to your NH Wing account\"" message file ~/work/NHWG/Templates/new-user-email-template.html
+echo gam create user $1@nhwg.cap.gov externalid organization $2 givenname "\"$3"\" familyname \""$4"\" organizations department $5 description $6 primary orgunitpath \""${ORGUNIT[$5]}"\" password $7 changepassword true notify "$8" subject "\"Welcome to your NH Wing account\"" message file $EMAIL_TEMPLATE
