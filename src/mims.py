@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env /usr/bin/python3
 ## Copyright 2017 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,6 +40,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+05Apr19 MEG PurgeMembers now checks for expired and exmembers.
 07Aug18 MEG Create accounts for Cadets >= 18 years.
 03Jun18 MEG Mongo now requires regexs to be packaged in bson
 26May18 MEG Expired.run(), skip already suspended members.
@@ -388,10 +389,7 @@ class NewSeniors( NewMembers ):
 class NewCadets( NewMembers ):
     """
     Scans the Member table for Cadet members not having Google accounts.
-    Makes a new account if the member is active and is 18 years of age or over.
-    Setting MIN_CADET_AGE to zero effectively enables creation of accounts
-    for all cadets.
-    """
+    Makes a new account if the member is active and is 18 years of age or over.    """
     def __init__( self ):
         super().__init__()
         self.group = None
@@ -436,7 +434,7 @@ class PurgeMembers( Manager ):
     def __init__(self):
         super().__init__()
         self.outfileName = JobFilePath + 'hold-' + self.name() + self.TS() + ".job"
-        self.query = { 'MbrStatus' : 'EXPIRED' }
+        self.query =  { '$or': [ { "MbrStatus": "EXMEMBER" }, { "MbrStatus": "EXPIRED" } ] }
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
