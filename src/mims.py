@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,2,1)
+version_tuple = (1,3,0)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -24,6 +24,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+11Apr19 MEG Each class now includes brief description of each job for help.
 11Apr19 MEG Moved orgUnitPath map to mims_conf.
 10Apr19 MEG Added SweepExipred class to clean expired but unremoved members.
 05Apr19 MEG PurgeMembers now checks for expired and exmembers.
@@ -62,6 +63,8 @@ class Manager(object):
     actually do the work, like adding new members to the rolls, or removing
     members that have fallen off the rolls.
     """
+    helpMsg = 'Top level'
+
     __client = MongoClient( host=MIMS_HOST, port=MIMS_PORT,
                             username=MIMSUSER, password=MIMSPASS,
                             authSource=MIMS_DB)
@@ -81,7 +84,7 @@ class Manager(object):
         """
         allsubs = []
         for sub in cls.__subclasses__():
-            allsubs.append( sub.__name__ )
+            allsubs.append( sub )
             allsubs.extend( self.allSubClasses( sub ))
         return allsubs
 
@@ -141,6 +144,8 @@ class help( Manager ):
     """
     Prints a help screen.
     """
+    helpMsg = 'Prints this message.'
+
     def __init__( self ):
         super().__init__()
 
@@ -151,7 +156,9 @@ class help( Manager ):
         print("Summary:")
         print( sys.argv[0], " <job>" )
         print( 'Version:', VERSION )
-        print( "Available Jobs:",MIMS.jobs() )
+        print( 'Available jobs:' )
+        for job in MIMS.jobs():
+            print( job.__name__, '-', job.helpMsg )
 
         
 class NewMembers( Manager ):
@@ -168,6 +175,8 @@ class NewMembers( Manager ):
     In rare cases with special requirements a subclass may need to
     override the run method.
     """
+    helpMsg = 'Abastract class does nothing, holds machinery for sub-jobs'
+
     def __init__(self):
         super().__init__()
         self.domain = DOMAIN
@@ -363,6 +372,8 @@ class NewSeniors( NewMembers ):
     Make a new account if the senior member is active, add to senior mailing
     list.
     """
+    helpMsg = 'Create wing accounts for new Senior members.'
+
     def __init__( self ):
         super().__init__()
         self.group = 'seniors'
@@ -376,6 +387,8 @@ class NewCadets( NewMembers ):
     """
     Scans the Member table for Cadet members not having Google accounts.
     Makes a new account if the member is active and is 18 years of age or over.    """
+    helpMsg = 'Create wing accounts for Cadet members 18 yrs or older.'
+
     def __init__( self ):
         super().__init__()
         self.group = None
@@ -417,6 +430,9 @@ class PurgeMembers( Manager ):
     appropriate member using the gam user <old user> transfer drive <new user>
     command.  The admin must take the purge job off of hold status and run it.
     """
+
+    helpMsg = "Remove accounts of members no longer on CAP rolls,\n job placed on hold for review, creates file listing job."
+
     def __init__(self):
         super().__init__()
         self.outfileName = JobFilePath + 'hold-' + self.name() + self.TS() + ".job"
@@ -499,6 +515,9 @@ class Expired( Manager ):
     has expired LOOKBACK or more days ago and issues a GAM command
     to suspend the users Wing account.
     """
+
+    helpMsg = 'Suspend member wing accounts of expired members.'
+
     def __init__( self ):
         super().__init__()
         today = datetime.today()
@@ -554,6 +573,9 @@ class ListManager( Manager ):
     This is just a base class doesn't do anything, subclasses
     are the real actors.
     """
+
+    helpMsg = 'Abastract class does nothing. Top level for list management.'
+
     def __init__(self):
         super().__init__()
 
@@ -578,6 +600,9 @@ class SeniorListChecker( ListManager ):
     Scan Google users for senior members, check to see if they are on the
     senior mailing list, if not add them.
     """
+
+    helpMsg = 'Maintenance check that all seniors are on senior mailing list.'
+
     def __init__( self ):
         self.super().__init__()
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
@@ -605,6 +630,9 @@ class UnSuspend( Manager ):
     them against the Member document to see if the member has re-upped and is
     ACTIVE again, if so the account is unsuspended.
     """
+
+    helpMsg = 'Reactivate wing accounts for re-upped members.'
+
     def __init__( self ):
         super().__init__()
         self.query = { 'suspended' : True }
@@ -662,6 +690,9 @@ class SweepExpired( Manager ):
     SweepExpired does not create a job file as it works directly on the local
     database.
     """
+
+    helpMsg = 'Maintenance job clean out expired members not already removed.'
+
     def __init__( self ):
         super().__init__()
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
