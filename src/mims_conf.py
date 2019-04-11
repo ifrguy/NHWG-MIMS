@@ -21,14 +21,30 @@ MIMS_HOST = 'localhost'
 MIMS_PORT = 27017
 MIMS_DB = 'NHWG'
 
+# Maps CAP operational squadron/unit to Google organization path
+orgUnitPath = {
+    '000':"/000 - New Hampshire Wing",
+    '001':"/001 - New Hampshire Wing",
+    '010':"/010 - Portsmouth Squadron",
+    '014':"/014 - Lebanon Squadron",
+    '016':"/016 - Nashua Squadron",
+    '032':"/032 - Concord Squadron",
+    '037':"/037 - Highlanders Squadron - Rochester",
+    '053':"/053 - Monadnock Squadron - Keene",
+    '054':"/054 - Manchester Squadron",
+    '056':"/056 - Hawk Squadron - Laconia",
+    '075':"/075 - Whitefield",
+    '801':"/801 - 801 - Humphrey Squadron - ASD Nashua Cadets",
+    '999':"/999 - State Legislators",
+}
+
 # Cadet account creation control
 CREATE_CADET_ACCOUNTS = True
-# Minimun age at which Cadets are premitted to have accounts.
-# Set to zero to enable accounts for all cadets.
+# Minimun age at which Cadets are premitted to have accounts
 MIN_CADET_AGE = 18
 
-# Domain to use creating, deleteing, updating accounts or groups
-DOMAIN ='example.com'
+# Domain to be used when creating, deleting accounts or groups
+DOMAIN = 'nhwg.cap.gov'
 
 # Look Back period - how many days back to start considering expired members
 # for suspend
@@ -37,11 +53,11 @@ LOOKBACK = 45
 # Default action for Expired members
 EXPIRED_ACTION = 'suspend'
 
-# Default action for ex-members, no longer on eSerives rolls
+# Default action for ex-members, no longer on eServices rolls
 PURGE_ACTION = 'delete'
 
 # Flag to remove purged members from NHWG.Google collection
-DELETE_PURGED=False
+DELETE_PURGED=True
 
 # Where to save output
 LogFilePath = "./log/"
@@ -53,4 +69,4 @@ UPDATE_SUSPEND = False
 # Welcome message template file path relaitve to ./job
 # May also include a flag to tell gam this is a HTML file by adding "html true"
 # to the tail of file spec.
-WELCOMEMSG = "./email-template.txt"
+WELCOMEMSG = "./new-user-email-template.html html true"
