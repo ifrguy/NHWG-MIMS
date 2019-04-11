@@ -14,24 +14,8 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,2,0)
+version_tuple = (1,2,1)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
-# Maps CAP operational squadron/unit to Google organization path
-orgUnitPath = {
-    '000':"/000 - New Hampshire Wing",
-    '001':"/001 - New Hampshire Wing",
-    '010':"/010 - Portsmouth Squadron",
-    '014':"/014 - Lebanon Squadron",
-    '016':"/016 - Nashua Squadron",
-    '032':"/032 - Concord Squadron",
-    '037':"/037 - Highlanders Squadron - Rochester",
-    '053':"/053 - Monadnock Squadron - Keene",
-    '054':"/054 - Manchester Squadron",
-    '056':"/056 - Hawk Squadron - Laconia",
-    '075':"/075 - Whitefield",
-    '801':"/801 - 801 - Humphrey Squadron - ASD Nashua Cadets",
-    '999':"/999 - State Legislators",
-}
 
 """
 MIMS - Member Information Management System.
@@ -40,6 +24,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+11Apr19 MEG Moved orgUnitPath map to mims_conf.
 10Apr19 MEG Added SweepExipred class to clean expired but unremoved members.
 05Apr19 MEG PurgeMembers now checks for expired and exmembers.
 07Aug18 MEG Create accounts for Cadets >= 18 years.
@@ -152,7 +137,7 @@ class Manager(object):
             print('Available Jobs:', self.myJobs )
             sys.exit( 1 )
 
-class help( Manager):
+class help( Manager ):
     """
     Prints a help screen.
     """
