@@ -6,6 +6,7 @@
 #        plus optional first name.
 #
 # History:
+# 15Apr19 MEG Added expiration date.
 # 14May18 MEG Created.
 #
 import os, sys
@@ -40,7 +41,6 @@ pipeline = [
       { u"NameLast": { u"$regex":  Regex( pat, u"i") }}
     },
     {
-#       u"$sort": {'CAPID':1}
        u"$sort": SON( [ (u"CAPID", 1 ) ] ) # key order preserved
     },
     {
@@ -88,12 +88,13 @@ f5 = "\t{0}: {1}"
 cur = DB.Member.aggregate( pipeline, allowDiskUse = False )
 # unwind it all
 for m in cur:
-    print( f1.format(m['CAPID'], m['NameLast'], m['NameFirst'],
-                     m['NameSuffix'], m['Type']))
+    print( f1.format( m['CAPID'], m['NameLast'], m['NameFirst'],
+                      m['NameSuffix'], m['Type']))
     print( f5.format( 'Status', m['MbrStatus'] ))
-    print( "\tRank:", m['Rank'] )
+    print( f5.format( "Rank", m['Rank'] ))
     u = DB.Squadrons.find_one( { 'Unit' : int( m['Unit'] ) } )
-    print("\tUnit:", m['Unit'], u['SquadName'] )
+    print( f5.format( "Unit", m['Unit'] + " " +u['SquadName'] ))
+    print( f5.format( "Expiration", m['Expiration'] ))
     print( "\tMember Contacts:" )
     g = DB.Google.find_one( {'externalIds.value' : m['CAPID']} )
     if g :
