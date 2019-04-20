@@ -69,7 +69,7 @@ for q in $QUALS; do
 	--fieldFile ./$q.fields.txt --type csv --out ./$q.csv
 
 # Skip sending email reports if -n switch
-   [[ -v NOEMAIL ]] && exit 1
+   [[ -v NOEMAIL ]] && continue
 
 # Send files to contact
    gam sendemail $EMAILTO subject "OPS Quals Updates: $q" message "OPS Quals Updates: $q attached." attach $q.csv
