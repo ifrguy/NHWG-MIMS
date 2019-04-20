@@ -72,6 +72,6 @@ for q in $QUALS; do
    [[ -v NOEMAIL ]] && exit 1
 
 # Send files to contact
-   gam sendemail $EMAILTO subject "OPS Quals Updates" message "OPS Quals Updates: $q attached." attach $q.csv
+   gam sendemail $EMAILTO subject "OPS Quals Updates: $q" message "OPS Quals Updates: $q attached." attach $q.csv
 done
 echo Done.
