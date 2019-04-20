@@ -1,0 +1,77 @@
+#!/bin/bash -e
+#
+# Dumb script to handle all the processing to generate OPS Quals csv file(s)
+#
+# Here's the outline:
+# The All_OPSQuals_<type>.js script updates the MongoDB All_OPSQual_<type>
+# collection. The collection is then dumped to a CSV file and emailed to the 
+# designated receiver (EMAILTO).
+# 
+# Notes:
+# 1. Each OPS Quals JS script must have an associated <quals name>.fields.txt
+# file list all the fields to output and in the desired order.
+# Example: All_OPSQuals_Seniors.js field file: All_OPSQuals_Seniors.fields.txt
+# 2. Each OPS Quals JS script basename must be listed in the QUALS variable.
+#
+# History:
+# 20Apr19 MEG Created.
+
+# import MongoDB security credentials
+
+. ./codered.creds
+
+# Update All_OPSQuals Collection (the default)
+UPDATE=true
+
+# the Wing database and authentication database
+DB=NHWG
+
+# List of Qual script names
+QUALS="All_OPSQuals_Senior"
+
+# Receiver for the CSV files
+EMAILTO=
+
+
+
+# commandline options
+OPTS="eh?nx"
+
+USAGE="Usage: $(basename $0) [$OPTS]\n
+\tGenerate new OPS Quals collection(s) & csv file(s), email to receiver\n
+\tQuals: $QUALS\n
+\te - where to send email default ($EMAILTO)\n
+\th? - help - this message\n
+\tn - do not send email, generate csv files only\n
+\tx - Export CSV data only, do not update collection\n
+"
+
+while getopts $OPTS o; do
+    case $o in
+	e) EMAILTO=$o;;
+	h?) echo -e $USAGE;exit 1;;
+	n) NOEMAIL=1;;
+	x) unset UPDATE;;
+	*) echo -e $USAGE;exit 1;;
+    esac
+done
+shift $(($OPTIND - 1 ))
+
+# Update the OPS Quals
+for q in $QUALS; do
+    if [[ -v UPDATE ]]; then
+	mongo  --quiet --host localhost --authenticationDatabase=$DB \
+	    --username $USER --password $PASSWD $DB $q.js
+    fi
+# Export the new OPS Quals records as a csv file
+   mongoexport  --db $DB --collection $q --authenticationDatabase $DB \
+	--username $USER --password $PASSWD \
+	--fieldFile ./$q.fields.txt --type csv --out ./$q.csv
+
+# Skip sending email reports if -n switch
+   [[ -v NOEMAIL ]] && exit 1
+
+# Send files to contact
+   gam sendemail $EMAILTO subject "OPS Quals Updates" message "OPS Quals Updates attached." attach $q.csv
+done
+echo Done.
