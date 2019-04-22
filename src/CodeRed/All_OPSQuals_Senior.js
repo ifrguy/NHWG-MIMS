@@ -20,7 +20,7 @@ db.getCollection("Member").aggregate(
 			{
 			    from: "MbrAchievements",
 			    let: { capid: "$CAPID" },
-			    pipeline: [ { $match: { $expr: { $and:[ { $eq:[ "$CAPID", "$$capid"] },{ $in: ["$AchvID",[55,57,61,63,67,68,69,70,71,75,76,81,124,125,126,127,128,189,190,193,]]}]}}},
+			    pipeline: [ { $match: { $expr: { $and:[ { $eq:[ "$CAPID", "$$capid"] },{ $in: ["$AchvID",[55,56,57,61,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,124,125,126,127,128,186,189,190,193,248,]]}]}}},
 			        { $match: { $expr: {
 			            $or:[ { $eq:[ "$Status", "ACTIVE" ]},
 			            { $eq: [ "$Status", "TRAINING"]}]
