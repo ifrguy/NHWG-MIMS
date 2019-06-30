@@ -59,6 +59,6 @@ mongo --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB NewMembersLastW
 # Use GAM to email reports to commanders mailing list
 if [ -s NewMembers-Report.csv ]; then
     echo "Sent emails to list"
-    gam sendemail file $MAILINGLIST subject "NHWG:Weekly New Members Report" message $MESSAGE attach NewMembers-Report.csv
+    gam sendemail file $MAILINGLIST subject "NHWG:Weekly New Members Report" file $MESSAGE attach NewMembers-Report.csv
 fi
 echo Done.
