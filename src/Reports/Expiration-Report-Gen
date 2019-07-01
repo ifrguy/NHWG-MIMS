@@ -70,5 +70,5 @@ mongo --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB Expiring60Days.
 
 echo "Sending reports."
 # Use GAM to email reports to commanders mailing list
-gam sendemail file $MAILINGLIST subject "NHWG:Monthly Expiration Reports" file $MESSAGE  attach expired-report.csv attach 30DayExpiration-Report.csv attach 60DayExpiration-Report.csv
+gam sendemail file $MAILINGLIST subject "NHWG:Monthly Expiration Reports" $MESSAGE  attach expired-report.csv attach 30DayExpiration-Report.csv attach 60DayExpiration-Report.csv
 echo Done.
