@@ -24,6 +24,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+06Jul19 MEG Remove "message" from sendemail syntax update.
 11Apr19 MEG Each class now includes brief description of each job for help.
 11Apr19 MEG Moved orgUnitPath map to mims_conf.
 10Apr19 MEG Added SweepExipred class to clean expired but unremoved members.
@@ -187,7 +188,7 @@ class NewMembers( Manager ):
         # GAM group add member command
         self.gamgroupfmt = 'gam update group {}@' + self.domain + ' add member {}'
         # GAM command to email notification to new member
-        self.gamnotifyfmt = ' notify {} subject "{}" message file {}'
+        self.gamnotifyfmt = ' notify {} subject "{}" file {}'
         # Group to add member to
         self.group = None
         self.outfile = None
