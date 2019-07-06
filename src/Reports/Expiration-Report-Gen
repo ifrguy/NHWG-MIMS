@@ -3,13 +3,14 @@
 # Then mail to the command staff mailing list.
 
 # History:
+# 06Jul19 MEG Correct sendemail message syntax.
 # 25Nov18 MEG Added options to change mailing list and message.
 # 24Oct18 MEG Added option to skip sending emails.
 # 02Oct18 MEG Added Home Phone to report.
 # 01Oct18 MEG Created.
 #
 
-# Message text or message file template
+# Message option text or message file template
 MESSAGE="file monthly-expiration-report.html html true"
 
 WORKDIR=$HOME/work/NHWG/Reports

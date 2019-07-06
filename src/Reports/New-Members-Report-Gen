@@ -3,6 +3,7 @@
 # Then mail to the command staff mailing list.
 
 # History:
+# 06Jul19 MEG Correct sendemail message file syntax.
 # 10Mar19 MEG Fixed options order parsing.
 # 25Nov18 MEG Added options to change mailing list and message
 # 24Oct18 MEG Added option to skip sending emails
@@ -57,8 +58,11 @@ mongo --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB NewMembersLastW
 [[ -v NOEMAIL ]] && exit 1
 
 # Use GAM to email reports to commanders mailing list
-if [ -s NewMembers-Report.csv ]; then
+if [ $( find ./NewMembers-Report.csv -type f -size +41c 2>/dev/null ) ]; then
+#if [ -s NewMembers-Report.csv ]; then
     echo "Sent emails to list"
-    gam sendemail file $MAILINGLIST subject "NHWG:Weekly New Members Report" file $MESSAGE attach NewMembers-Report.csv
+    gam sendemail file $MAILINGLIST subject "NHWG:Weekly New Members Report" $MESSAGE attach NewMembers-Report.csv
+else
+    echo "No report to send."
 fi
 echo Done.
