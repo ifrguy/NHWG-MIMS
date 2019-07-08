@@ -19,12 +19,14 @@ VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2
 
 """
 MIMS - Member Information Management System.
+
        Google account synchronization between National and NH Wing.
        MIMS uses a combintation of MongoDB, Python, and the GAMADV-X
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
-06Jul19 MEG Remove "message" from sendemail syntax update.
+08Jul19 MEG Removed mimetype from filelist for purged member.
+06Jul19 MEG Removed "message" from sendemail syntax update.
 11Apr19 MEG Each class now includes brief description of each job for help.
 11Apr19 MEG Moved orgUnitPath map to mims_conf.
 10Apr19 MEG Added SweepExipred class to clean expired but unremoved members.
@@ -459,7 +461,7 @@ class PurgeMembers( Manager ):
         the member.
         """
         if len( list ) == 0 : return # if empty skip making file
-        gamcmdfmt = 'gam user {} print filelist fields "title,mimetype"'
+        gamcmdfmt = 'gam user {} print filelist fields "title"'
         filename = JobFilePath + 'FileList' + self.TS() + '.job'
         with open( filename, 'w' ) as ofile:
             for j in list:
