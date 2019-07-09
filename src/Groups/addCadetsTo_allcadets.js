@@ -79,11 +79,8 @@ while ( contact.hasNext() ) {
     var email = m.email.toLowerCase();
     var rx = new RegExp( email, 'i' );
     var g = db.getCollection("Groups").findOne( {Group: googleGroup, Members: rx });
-    if ( g ) {
-        continue;
-    }
-    else {
-        print( '#Info:', m.CAPID, m.NameLast, m.NameFirst, m.NameSuffix );
-        print("gam update group", googleGroup, "add member", email );
-    }
+    if ( g ) { continue; }
+// Print gam command to add new member
+    print( '#Info:', m.CAPID, m.NameLast, m.NameFirst, m.NameSuffix );
+    print("gam update group", googleGroup, "add member", email );
 }
