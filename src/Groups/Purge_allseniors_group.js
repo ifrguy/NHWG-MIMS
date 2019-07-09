@@ -1,8 +1,13 @@
 // compare the target Google group to the active member emails, remove email addresses
 // that are not found in the MbrContacts collection.
 
+ 
 //Declarations:
 var db = db.getSiblingDB('NHWG');
+// import date math functions
+load( db.ENV.findOne( {name:'DATEFNS'} ).value );
+// look past 30 days expired
+var lookbackdate = dateFns.subDays( new Date(), 30 );
 // Google group address
 var groupAddress = 'allseniors@nhwg.cap.gov';
 // Membership type of interest
@@ -41,10 +46,9 @@ while ( m.hasNext() ) {
 	while ( r.hasNext() ) {
 	    var t = r.next();
 	    var a = db.getCollection( 'Member' ).findOne( { CAPID: t.CAPID, Type: mbrType } );
-	    if ( a == null || a.MbrStatus == 'ACTIVE' ) {
-	        continue;
-	    }
-   		else {
+	    if ( a == null || a.MbrStatus == 'ACTIVE' ) { continue; }
+   		
+   		if ( a.Expiration < lookbackdate ) {
    		    print( '#INFO:', t.CAPID, a.NameLast, a.NameFirst, a.NameSuffix, 'Expiration:', a.Expiration );
    	    	print( 'gam update group', groupAddress, 'delete member', e );
    		}
