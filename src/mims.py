@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,3,0)
+version_tuple = (1,4,0)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+21Jul19 MEG Added custom schema: Member.CAPID,Member.Unit,Member.Type to NewMembers 
 08Jul19 MEG Removed mimetype from filelist for purged member.
 06Jul19 MEG Removed "message" from sendemail syntax update.
 11Apr19 MEG Each class now includes brief description of each job for help.
@@ -186,7 +187,7 @@ class NewMembers( Manager ):
         # MongoDB query to find members
         self.query = None
         # GAM account creation command
-        self.gamaccountfmt = 'gam create user {} externalid organization {:d} givenname "{}" familyname "{}" organizations department {} description {} primary orgunitpath "{}" password \'{}\' changepassword true'
+        self.gamaccountfmt = 'gam create user {} externalid organization {:d} givenname "{}" familyname "{}" organizations department {} description {} primary orgunitpath "{}" password \'{}\' changepassword true Member.CAPID {:d} Member.Unit {} Member.Type {}'
         # GAM group add member command
         self.gamgroupfmt = 'gam update group {}@' + self.domain + ' add member {}'
         # GAM command to email notification to new member
@@ -291,7 +292,8 @@ class NewMembers( Manager ):
                                 m['Unit'],
                                 m['Type'],
                                 orgUnitPath[ m['Unit'] ],
-                                self.mkpasswd() )
+                                self.mkpasswd(),
+                                m[ 'CAPID' ], m['Unit'], m['Type'])
         # check for primary email to notify member
         contact = self.getContact( m['CAPID'],
                                    'EMAIL',
