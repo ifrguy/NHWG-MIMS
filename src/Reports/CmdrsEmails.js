@@ -1,7 +1,3 @@
-// Create a collection with the latest list of unit commanders,
-// deputies, personnel officers and recruiting. Excludes suspended accounts.
-// Used for mailing of member reports.
-db = db.getSiblingDB("NHWG");
 db.getCollection("DutyPosition").aggregate(
 
 	// Pipeline
@@ -20,14 +16,14 @@ db.getCollection("DutyPosition").aggregate(
 			        {
 			            Duty : /^Personnel Off.*$/i
 			        },
-				{
-                                    Duty : /^recruiting.*$/i
-                                }
+			    {
+			                        Duty : /^recruiting.*$/i
+			                    }
 			    ]
 			}
 		},
 
-		// Stage 2 - Join
+		// Stage 2
 		{
 			$lookup: {
 			    "from" : "Google",
@@ -37,7 +33,7 @@ db.getCollection("DutyPosition").aggregate(
 			}
 		},
 
-		// Stage 3 - Flatten google array
+		// Stage 3
 		{
 			$unwind: {
 			    "path" : "$google", 
@@ -48,7 +44,7 @@ db.getCollection("DutyPosition").aggregate(
 		// Stage 4
 		{
 			$match: {
-				"google.suspended": false,
+			    "google.suspended": false,
 			}
 		},
 
@@ -61,6 +57,7 @@ db.getCollection("DutyPosition").aggregate(
 			    "primaryEmail" : "$google.primaryEmail",
 			    "Name" : "$google.name.fullName",
 			    "ORGID" : 1,
+			    "Unit" : "$google.customSchemas.Member.Unit",
 			}
 		},
 
