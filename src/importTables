@@ -26,6 +26,7 @@
 #          <table name>-index.js
 #
 # History:
+# 29Jul19 MEG Added per and post import javascript per collection eval.
 # 28Nov18 MEG Abort import if CAPWATCH download failed.
 # 30Aug18 MEG Indexing now on per collection basis.
 # 29Aug18 MEG Option to update or import with collection drop.
@@ -107,6 +108,18 @@ function upsert() {
 	--fieldFile $TYPEPATH/$1.types --upsertFields ${UPFIELDS[$t]} --file $1.csv
 }
 
+# ops - runs the supplied JavaScript program either before,
+# or after the import of a collection.  The scripts can do 
+# anything within the privileges of the user: create, drop, remove, index...
+# collection, as complicated as you want.
+# Collections may have pre and post scripts identified by:
+# <collectionName>-[pre|post].js.
+function ops() {
+    [ ! -f $1 ] && return
+    mongo --quiet --authenticationDatabase=$DB --username=$MONGOUID \
+		--password=$MONGOPASS $1
+}
+
 # Command options
 OPTS="d:it:h?u"
 
@@ -139,7 +152,11 @@ for t in $TABLES; do
 	touch IMPORTFAILED
 	continue
     fi
+    # run pre import script if one exists
+    ops $t"-pre.js"
     $CALL $t
+    # run post import script if one exists
+    ops $t"-post.js"
 done
 
 if [ $(echo $INDEX|tr a-z A-Z) == "YES" ]; then
