@@ -10,7 +10,7 @@ MIMS is intended to synchronize member accounts between National database and Wi
 The use of Google custom schemas has been introduced to more easily track some membership information like CAPID, Unit and member Type.  This has been done as it is not possible to update individual entries in the Google "organizations" schema, you must update the entire package or lose data not supplied.  Custom schemas allow individual attributes to be updated without disturbing existing information.
 
 **importTables** allows execution of pre & post MongoDB JS scripts on a per-collection basis. Script naming convention is
-<TableName>-[pre|post].js, e.g. "DutyPosition-pre.js".  If a script is found it is automatically run, if no script is found no pre/post ops are preformed and the table is imported directly.  Scripts must be located in the same directory as importTables.
+TableName-[pre|post].js, e.g. "DutyPosition-pre.js".  If a script is found it is automatically run, if no script is found no pre/post ops are preformed and the table is imported directly.  Scripts must be located in the same directory as importTables.
 
 #### Requirements:
 * O/S: Linux, Windows 7 or above*
