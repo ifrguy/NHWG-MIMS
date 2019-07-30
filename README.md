@@ -9,9 +9,6 @@ MIMS is intended to synchronize member accounts between National database and Wi
 
 The use of Google custom schemas has been introduced to more easily track some membership information like CAPID, Unit and member Type.  This has been done as it is not possible to update individual entries in the Google "organizations" schema, you must update the entire package or lose data not supplied.  Custom schemas allow individual attributes to be updated without disturbing existing information.
 
-**importTables** allows execution of pre & post MongoDB JS scripts on a per-collection basis. Script naming convention is
-TableName-[pre|post].js, e.g. "DutyPosition-pre.js".  If a script is found it is automatically run, if no script is found no pre/post ops are preformed and the table is imported directly.  Scripts must be located in the same directory as importTables.
-
 #### Requirements:
 * O/S: Linux, Windows 7 or above*
 * Python 3.0>
@@ -39,7 +36,8 @@ Note: Studio 3T is free for non-commercial use.
 * getTables - Unpack CAPWATCH tables and filter for import into MongoDB (bash script)
 * holdMember - put member accounts on hold to prevent removal by MIMS, remove or list held accounts.
 * importGoogle - Google data downloader and mongoDB import, index collection script included (bash script)
-* importTables - Load CAPWATCH tables into mongoDB, index collections script included (bash script)
+* importTables - Load CAPWATCH tables into mongoDB, index collections script included (bash script). Allows execution of pre & post MongoDB JS scripts on a per-collection basis. Script naming convention is
+TableName-[pre|post].js, e.g. "DutyPosition-pre.js".  If a script is found it is automatically run, if no script is found no pre/post ops are preformed and the table is imported directly.  Scripts must be located in the same directory as importTables.
 * jsonfix.sed - sed (Stream Editor) script used by importGoogle.
 * MIMSJobsGen - bash convinence script to generate GAM job files for a list of MIMS classes.
 * mongodb-seed - Mongo shell script to create empty database and base collections.
