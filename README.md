@@ -55,5 +55,8 @@ prior to running MIMS.  At minimum before you can run MIMS you must install and 
 
 The above modules may be installed using Python pip: pip install module_name
 
+## Additional JavaScript libs
+* [Date-fns](https://date-fns.org/docs/Getting-Started) - JavaScript date calculations library.
+
 ## NOTES:
 **capwatch.py** is deprecated and is no longer supported. It is retained only as an example of using the selenium webdriver tool. It will probably be removed from the repository at some time in the future.
