@@ -1,6 +1,7 @@
 // CodeRed - Scans CodeRed collections from new and expired members.
 //
 // History:
+// 03May19 MEG added new group type for UAO's
 // 09Jan19 MEG moved "NEW" flag to Status field from Command.
 //j
 // The database
@@ -48,21 +49,25 @@ function Code_Red_Obj( quals, grp, suffix ) {
 // Array of all the Code Red groups and quals to process.
 // To add a new group add a new Code_Red_Obj to the array.
 var code_red_groups = [
-    new Code_Red_Obj( [ 55,57,81,193 ],
+    new Code_Red_Obj( [ 55,57,81,193 ], //Aircrew
 		       'CAP-AIR',
 		       'A'
 		    ),
-    new Code_Red_Obj( [75,76],
+    new Code_Red_Obj( [75,76], // Communications
 		      'CAP-COMM',
 		      'C'
 		    ),
-    new Code_Red_Obj( [68,69,70,71,126,127],
+    new Code_Red_Obj( [68,69,70,71,126,127], // Ground Team
 		      'CAP-GT',
 		      'G'
 		    ),
-    new Code_Red_Obj( [61,63,64,67,68,75,125,128,189,190],
+    new Code_Red_Obj( [61,63,64,67,68,75,125,128,189], // Incident Management
 		      'CAP-IMT',
 		      'I'
+		    ),
+    new Code_Red_Obj( [190], // Unit Alert
+		      'CAP-UAO',
+		      'U'
 		    ),
 ];
 
@@ -83,7 +88,7 @@ function getQualifiedMembers( db, quals ) {
 	[
             { 
 		"$match" : {
-                    "Status" : "active", 
+                    "Status" : "ACTIVE", 
                     "AchvID" : {
 			"$in" : quals
                     }
