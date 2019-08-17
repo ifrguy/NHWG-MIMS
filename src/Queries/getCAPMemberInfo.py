@@ -6,6 +6,7 @@
 #        plus optional first name.
 #
 # History:
+# 17Aug19 MEG Made parseable for data extraction by other scripts
 # 15Apr19 MEG Added expiration date.
 # 14May18 MEG Created.
 #
@@ -78,7 +79,7 @@ except pymongo.errors.OperationFailure as e:
     exit( 1 )
 
 # print format templates
-f1 = '{0}: {1}, {2} {3} - {4}:'
+f1 = '{0}: {1}, {2} {3}:'
 f2 = "\t\t{0}: {1}, Priority: {2}"
 f3 = "\t\t{0}: {1}"
 f4 = '\t\tGoogle account: {0}'
@@ -88,8 +89,10 @@ f5 = "\t{0}: {1}"
 cur = DB.Member.aggregate( pipeline, allowDiskUse = False )
 # unwind it all
 for m in cur:
-    print( f1.format( m['CAPID'], m['NameLast'], m['NameFirst'],
-                      m['NameSuffix'], m['Type']))
+    print( f1.format( 'Member', m['NameLast'], m['NameFirst'],
+                      m['NameSuffix'] ))
+    print( f5.format( 'CAPID', m['CAPID'] ))
+    print( f5.format( 'Type', m['Type'] ))
     print( f5.format( 'Status', m['MbrStatus'] ))
     print( f5.format( "Rank", m['Rank'] ))
     u = DB.Squadrons.find_one( { 'Unit' : int( m['Unit'] ) } )
