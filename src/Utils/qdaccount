@@ -3,6 +3,7 @@
 # Outputs a the appropriate gam command to create an account
 
 # History:
+# 17Aug19 MEG Included custom schema att's.
 # 15Mar19 MEG Rationalized arg handling, added help message.
 # 01Mar19 MEG Created.
 # INPUT:
@@ -45,7 +46,6 @@ ORGUNIT[053]="/053 - Monadnock Squadron - Keene"
 ORGUNIT[054]="/054 - Manchester Squadron"
 ORGUNIT[056]="/056 - Hawk Squadron - Laconia"
 ORGUNIT[075]="/075 - Whitefield"
-ORGUNIT[801]="/801 - 801 - Humphrey Squadron - ASD Nashua Cadets"
 ORGUNIT[999]="/999 - State Legislators"
 
 if (( $# < 8 )); then
@@ -53,4 +53,4 @@ if (( $# < 8 )); then
     exit 1
 fi
 
-echo gam create user $1@nhwg.cap.gov externalid organization $2 givenname "\"$3"\" familyname \""$4"\" organizations department $5 description $6 primary orgunitpath \""${ORGUNIT[$5]}"\" password $7 changepassword true notify "$8" subject "\"Welcome to your NH Wing account\"" message file $EMAIL_TEMPLATE
+echo gam create user $1@nhwg.cap.gov externalid organization $2 givenname "\"$3"\" familyname \""$4"\" organizations department $5 description $6 primary orgunitpath \""${ORGUNIT[$5]}"\" Member.CAPID $2 Member.Type $6 Member.Unit $5 password $7 changepassword true notify "$8" subject "\"Welcome to your NH Wing account\"" file $EMAIL_TEMPLATE html true
