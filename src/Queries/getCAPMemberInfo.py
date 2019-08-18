@@ -2,10 +2,11 @@
 #
 # Find a member or members and print all contacts
 #
-# Input: first letters of last name to search for,
+# Input: CAPID or first letters of last name to search for,
 #        plus optional first name.
 #
 # History:
+# 18Aug19 MEG Search by CAPID, better agg pipeline handling.
 # 17Aug19 MEG Made parseable for data extraction by other scripts
 # 15Apr19 MEG Added expiration date.
 # 14May18 MEG Created.
@@ -17,53 +18,53 @@ from pymongo import MongoClient
 from query_creds import *
 from query_conf import *
 
+# Aggregation pipeline
+pipeline = []
+
 try:
-    pat = u'^' + sys.argv[1]
+    pat = sys.argv[1]
 except IndexError:
-    print( 'Usage:', sys.argv[0], 'lastname', '[firstname]' )
-    print( "\tlastname - first letters, partial string, case insensitive" ) 
+    print( 'Usage:', sys.argv[0], 'CAPID|[lastname', '[firstname]]' )
+    print( 'Look-up a member by CAPID or lastname and optional firstname')
+    print( "\tCAPID - CAPID number" ) 
+    print( "\tlastname - first letters, partial string, case insensitive" )
     print( "\tfirstname - first letters, partial string, case insensitive" ) 
-    sys.exit( 0 )
+    sys.exit( 1 )
 
-pat2 = None
-FIRSTNAME = None
+# either we go a capid or a lastname
+try:
+    pipeline.append( {'$match': {u'CAPID': int( pat ) }} )
+except ValueError:
+    pat = u'^' + pat
+    pipeline.append( { u"$match": { u"NameLast": { u"$regex":  Regex( pat, u"i") }}} )
+    try: 
+        pat2 = u'^' + sys.argv[2]
+        pipeline.append( { u"$match":{ u'NameFirst': { u"$regex": Regex( pat2, u"i" ) }}} )
+    except IndexError:
+        pass
 
-try: 
-    pat2 = u'^' + sys.argv[2]
-except IndexError:
-    pass
-# if we got a first name build an agg pipeline match object
-if ( pat2 ):
-    FirstName = { u"$match":{ u'NameFirst': { u"$regex": Regex( pat2, u"i" ) }}}
-
-# Mongo aggregations pipeline
-pipeline = [
-    { u"$match":
-      { u"NameLast": { u"$regex":  Regex( pat, u"i") }}
-    },
-    {
-       u"$sort": SON( [ (u"CAPID", 1 ) ] ) # key order preserved
-    },
-    {
-        u"$lookup": {
-            u"from": u"MbrContact",
+# Append additional operations to the pipeline
+# Sort
+pipeline.append( { u"$sort": SON( [ (u"CAPID", 1 ) ] ) } )
+# Lookup phone and email contacts
+pipeline.append( { u"$lookup": {
+    u"from": u"MbrContact",
             u"localField": u"CAPID",
             u"foreignField": u"CAPID",
             u"as": u"Contacts"
-            }
-    },
-    {
-        u"$lookup": {
+            }} )
+# Lookup postal addresses
+pipeline.append( { u"$lookup": {
             u"from": u"MbrAddresses",
             u"localField": u"CAPID",
             u"foreignField": u"CAPID",
             u"as": u"Addresses"
-            }
-    }
-]
+            }} )
 
-if ( pat2 ): pipeline[1]=FirstName
-
+#print( len( pipeline ))
+#for i in pipeline:
+#    print( i )
+#exit(1)
 # setup db connection
 client = MongoClient( host=Q_HOST, port=Q_PORT,
                       username=USER, password=PASS,
@@ -76,10 +77,10 @@ try:
     client.admin.command( 'ismaster' )
 except pymongo.errors.OperationFailure as e:
     print( 'MongoDB error:', e )
-    exit( 1 )
+    sys.exit( 1 )
 
 # print format templates
-f1 = '{0}: {1}, {2} {3}:'
+heading = '{0}: {1}, {2} {3} {4}'
 f2 = "\t\t{0}: {1}, Priority: {2}"
 f3 = "\t\t{0}: {1}"
 f4 = '\t\tGoogle account: {0}'
@@ -89,8 +90,8 @@ f5 = "\t{0}: {1}"
 cur = DB.Member.aggregate( pipeline, allowDiskUse = False )
 # unwind it all
 for m in cur:
-    print( f1.format( 'Member', m['NameLast'], m['NameFirst'],
-                      m['NameSuffix'] ))
+    print( heading.format( 'Member', m['NameLast'], m['NameFirst'],
+                        m['NameMiddle'], m['NameSuffix'] ))
     print( f5.format( 'CAPID', m['CAPID'] ))
     print( f5.format( 'Type', m['Type'] ))
     print( f5.format( 'Status', m['MbrStatus'] ))
@@ -117,3 +118,4 @@ for m in cur:
 
 DB.logout()
 client.close()
+sys.exit( 0 )
