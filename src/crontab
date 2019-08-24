@@ -1,0 +1,38 @@
+#
+# For more information see the manual pages of crontab(5) and cron(8)
+#
+# MIMS Sample crontab - daily, weekly, monthly jobs
+# use right out of the box or modify to taste
+# 
+SHELL=/bin/bash
+MAILTO=meg
+PATH=/home/mims/bin:/home/mims/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+
+REPORTHOME=/home/mims/work/NHWG/Reports
+MIMSHOME=/home/mims/work/NHWG/MIMS
+NHWGHOME=/home/mims/work/NHWG
+CODEREDHOME=/home/mims/work/NHWG/CodeRed
+
+# m h  dom mon dow   command
+# Run jobexec to process MIMS batch files
+0 3 * * * cd $MIMSHOME;./jobexec
+# Download CAPWATCH
+0 0 * * * cd $MIMSHOME;./capwatch2.py -v
+# Download and import Google accounts
+0 0 * * * cd $MIMSHOME;./importGoogle -Du
+# Extract and filter CAPWATCH and import tables
+30 0 * * * cd $MIMSHOME;./getTables;./importTables -u;/bin/rm -f $HOME/downloads/NHWG.zip
+# Create MIMS batch job files for Google account update
+0 6 * * 5 cd $MIMSHOME;./MIMSJobsGen
+# Import all Wing Google groups
+0 2 * * * echo "Importing Groups";cd $MIMSHOME;./importGroups
+# Code Red Monthly
+0 12 1 * * echo Monthly Code Red;cd $NHWGHOME/CodeRed;./codered;echo Done.
+# Gen commanders mailing list
+0 5 * * * echo Mailing list Gen;cd $REPORTHOME;./Mailing-List-Gen
+# Weekly New Member report
+05 5 * * 7 echo Weekly New Member Report;cd $REPORTHOME;./New-Members-Report-Gen;echo Done.
+# Monthly expiration reports
+10 5 1 * * echo Monthly Expiration Reports;cd $REPORTHOME;./Expiration-Report-Gen;echo Done.
+# Monthly ES OPS Quals Report
+0 17 15 * * cd $CODEREDHOME;./allOPSQuals
