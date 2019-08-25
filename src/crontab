@@ -5,7 +5,7 @@
 # use right out of the box or modify to taste
 # 
 SHELL=/bin/bash
-MAILTO=meg
+MAILTO=mims
 PATH=/home/mims/bin:/home/mims/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 
 REPORTHOME=/home/mims/work/NHWG/Reports
