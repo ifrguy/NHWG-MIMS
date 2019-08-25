@@ -12,7 +12,7 @@ The use of Google custom schemas has been introduced to more easily track some m
 #### Requirements:
 * O/S: Linux, Windows 7 or above*
 * Python 3.0>
-* [GAMADV-XTD](https://github.com/taers232c/GAMADV-XTD) Ross Scroggs excellent fork of the [GAM](https://github.com/jay0lee/GAM) tool.
+* [GAMADV-XTD3](https://github.com/taers232c/GAMADV-XTD3) Ross Scroggs excellent fork of the [GAM](https://github.com/jay0lee/GAM) tool.
 * [MongoDB](https://www.mongodb.com/download-center#community) document database manager 3.4>
 * Google G-Suite admin account.
 
@@ -46,7 +46,7 @@ TableName-[pre|post].js, e.g. "DutyPosition-pre.js".  If a script is found it is
 
 ## Installation
 Each component comes with either a companion configuration file, or the script header contains variables that must be set
-prior to running MIMS.  At minimum before you can run MIMS you must install and configure GAMADV-XTD, Python3 and MongoDB. There is no installer for MIMS. Copy all of the MIMS components into a directory under your workspace, MIMS is a good name for it.  Once installed you will need to update the configuation files, credential files and bash shell scripts with defaults appropriate to your installation.  Config vars for the bash scripts are located at the top of each script. Python files will have a conf file and possibly a credentials file, e.g. capwatch2.py includes capwatch2_creds.py and capwatch2_conf.py.
+prior to running MIMS.  At minimum before you can run MIMS you must install and configure GAMADV-XTD3, Python3 and MongoDB. There is no installer for MIMS. Copy all of the MIMS components into a directory under your workspace, MIMS is a good name for it.  Once installed you will need to update the configuation files, credential files and bash shell scripts with defaults appropriate to your installation.  Config vars for the bash scripts are located at the top of each script. Python files will have a conf file and possibly a credentials file, e.g. capwatch2.py includes capwatch2_creds.py and capwatch2_conf.py.
 
 ## Additional Python modules required:
 * argparse
