@@ -13,7 +13,7 @@ The use of Google custom schemas has been introduced to more easily track some m
 * O/S: Linux, Windows 7 or above*
 * Python 3.0>
 * [GAMADV-XTD3](https://github.com/taers232c/GAMADV-XTD3) Ross Scroggs excellent fork of the [GAM](https://github.com/jay0lee/GAM) tool.
-* [MongoDB](https://www.mongodb.com/download-center#community) document database manager 3.4>
+* [MongoDB](https://www.mongodb.com/download-center#community) document database manager 3.6>
 * Google G-Suite admin account.
 
 #### Windows additional requirements (includes all of the above)
