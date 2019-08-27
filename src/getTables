@@ -45,9 +45,6 @@ fi
 # Options
 OPTS="h?z:"
 
-# List of Tables to extract
-TABLES="Commanders Member MbrContact MbrAddresses MbrAchievements DutyPosition"
-
 # Help message
 USAGE="Usage: $(basename $0) [$OPTS] [table table...]\n
 \tExtract tables from CAPWATCH archive and filter.\n
