@@ -26,6 +26,7 @@
 #          <table name>-index.js
 #
 # History:
+# 26Aug19 MEG Moved configurable options to a conf file.
 # 29Jul19 MEG Added per and post import javascript per collection eval.
 # 28Nov18 MEG Abort import if CAPWATCH download failed.
 # 30Aug18 MEG Indexing now on per collection basis.
@@ -39,54 +40,43 @@
 # 03Jul17 MEG Created.
 #
 
+## Internal variables
+# Index collections after import YES|NO
+INDEX="NO"
+
+# Function to call to load CAPWATCH data into MongoDB (drop|upsert)
+CALL="drop"
+
 # Check to see if download was successful
 if [ -f CAPWATCHFAILED ]; then
     echo "ERROR: CAPWATCH download failed not importing tables!"
     exit 1
 fi
 
-# MongoDB login credentials file path
-CREDS=./importercreds
-
-# Database to connect to
-DB=NHWG
-
-# Mongo import tool
-IMPORT=mongoimport
-
-# CAPWATCH tables to import
-TABLES="Commanders Member MbrContact MbrAddresses MbrAchievements DutyPosition"
-
-# Upsert fields for each table
-# Fields to look at when updating records
-declare -A UPFIELDS
-UPFIELDS[Commanders]='ORGID'
-UPFIELDS[Member]='CAPID'
-UPFIELDS[MbrContact]='CAPID,Type,Priority'
-UPFIELDS[MbrAddresses]='CAPID,Type,Priority'
-UPFIELDS[MbrAchievements]='CAPID,AchvID,Status'
-UPFIELDS[DutyPosition]='Duty,FunctArea,Lvl,Asst,ORGID'
-
-# Path to column type def's for each table
-TYPEPATH=$HOME/work/NHWG/MIMS
+# Load configurations options
+# Note conf file must be in the same directory as this script.
+CONF=./$(basename $0).conf
+if [[ -f $CONF ]]; then
+    . $CONF
+else
+    echo "Error: configuration file: $CONF not found."
+    exit 1
+fi
 
 # load Mongo MIMS importer credentials
 . $CREDS
 
-# Index collections YES|NO
-INDEX="NO"
-
-# Default function to call to load CAPWATCH data into MongoDB
-CALL="drop"
+# Command options
+OPTS="d:it:h?u"
 
 # Help text
 USAGE="Usage: $(basename $0) [$OPTS] [table table...] \n
-\tOverwrite or update CAPWATCH collection(s) in $DB MongoDB. \n
+\tReplace or update CAPWATCH collection(s) in $DB MongoDB. \n
 \td - database ($DB)\n
-\ti - Call index script to index collections ($INDEX)\n
-\th|? - help \n
+\ti - Call script to index collections post import ($INDEX)\n
+\th|? - help, this message.\n
 \tt - path to .type files ($TYPEPATH)\n
-\tu - Update/upsert collections ($CALL)\n
+\tu - Update collections instead of replace\n
 \tTABLES=$TABLES\n"
 
 # Drops collection and imports them fresh.
@@ -120,8 +110,6 @@ function ops() {
 		--password=$MONGOPASS $1
 }
 
-# Command options
-OPTS="d:it:h?u"
 
 while getopts $OPTS o; do
     case $o in
