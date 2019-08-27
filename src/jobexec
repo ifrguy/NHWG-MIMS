@@ -28,8 +28,6 @@
 # 07Jul17 MEG Created.
 #
 
-cd $HOME/work/NHWG/MIMS
-
 # Location of config file
 CONF=./jobexec.conf
 
