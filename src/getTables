@@ -42,13 +42,6 @@ fi
 # remove old download failure flag
 /bin/rm -f CAPWATCHFAILED
 
-# Check for archive Zip file
-if [ ! -f $ZIP ]; then
-    echo "ERROR: file not found: $ZIP"
-    touch CAPWATCHFAILED
-    exit 1
-fi
-
 # Options
 OPTS="h?z:"
 
@@ -70,6 +63,13 @@ while getopts $OPTS o; do
     esac
 done
 shift $(( $OPTIND - 1 ))
+
+# Check for archive Zip file
+if [ ! -f $ZIP ]; then
+    echo "ERROR: file not found: $ZIP"
+    touch CAPWATCHFAILED
+    exit 1
+fi
 
 # Check for substituted list of tables
 if [ $# -ge 1 ]; then
