@@ -20,6 +20,7 @@
 # substitute tables to be extracted.
 #
 # History:
+# 26Aug19 MEG Moved config options to external configuration file.
 # 24Jun18 MEG Remove old csv files, check for missing CAPWATCH download.
 # 25Mar18 MEG Extract Commanders table.
 # 18Jul17 MEG Removed option to change archiver.
@@ -28,22 +29,25 @@
 # 03Jul17 MEG Convert date fields to Oracle UTC format.
 # 23Jun17 MEG Created.
 #
-# Archiver
-ARC=unzip
+
+# load configuration options
+CONF=./$(basename $0).conf
+if [ -f  $CONF ]; then
+    . $CONF
+else
+    echo "Error: missing configuration file: $CONF"
+    exit 1
+fi
 
 # remove old download failure flag
 /bin/rm -f CAPWATCHFAILED
 
-# Default Zip file
-ZIP=$HOME/downloads/NHWG.zip
+# Check for archive Zip file
 if [ ! -f $ZIP ]; then
     echo "ERROR: file not found: $ZIP"
     touch CAPWATCHFAILED
     exit 1
 fi
-
-# Default DB
-DB=NHWG
 
 # Options
 OPTS="h?z:"
@@ -54,7 +58,7 @@ TABLES="Commanders Member MbrContact MbrAddresses MbrAchievements DutyPosition"
 # Help message
 USAGE="Usage: $(basename $0) [$OPTS] [table table...]\n
 \tExtract tables from CAPWATCH archive and filter.\n
-\t-z - zip file ($ZIP)\n
+\t-z - CAPWATCH zip file ($ZIP)\n
 \tTABLES - $TABLES"
 
 # Process options
