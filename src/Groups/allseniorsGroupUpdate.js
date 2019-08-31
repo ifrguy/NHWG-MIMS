@@ -143,7 +143,7 @@ function removeMembers( collection, pipeline, options, group ) {
     	    if ( a == null || a.MbrStatus == 'ACTIVE' ) { continue; }   		
        		if ( a.Expiration < lookbackdate ) {
        		    print( '#INFO:', t.CAPID, a.NameLast, a.NameFirst, a.NameSuffix, 'Expiration:', a.Expiration );
-       	    	print( 'gam update group', groupAddress, 'delete member', e );
+       	    	print( 'gam update group', googleGroup, 'delete member', e );
        		}
     	}
     }
