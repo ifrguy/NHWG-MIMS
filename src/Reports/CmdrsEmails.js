@@ -1,3 +1,4 @@
+db = db.getSiblingDB("NHWG");
 db.getCollection("DutyPosition").aggregate(
 
 	// Pipeline
