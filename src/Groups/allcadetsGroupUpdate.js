@@ -8,6 +8,7 @@ var db = db.getSiblingDB( 'NHWG');
 // Google Group of intereste
 var baseGroupName = 'allcadets';
 var googleGroup = baseGroupName + '@nhwg.cap.gov';
+var groupsCollection = 'GoogleGroups';
 // Member type of interest
 var memberType = 'CADET';
 // import date math functions
@@ -85,18 +86,12 @@ var groupMemberPipeline =
     [
         { 
             "$match" : {
-                "Group" : googleGroup
-            }
-        }, 
-        { 
-            "$unwind" : {
-                "path" : "$Members", 
-                "preserveNullAndEmptyArrays" : false
+                "group" : googleGroup
             }
         }, 
         { 
             "$project" : {
-                "Email" : "$Members"
+                "Email" : "$email"
             }
         }
     ];
@@ -104,29 +99,35 @@ var groupMemberPipeline =
 // pipeline options
 var options =  { "allowDiskUse" : false };
 
+function isActiveMember( capid ) {
+    // Check to see if member is active.
+    // This function needs to be changed for each group depending
+    // on what constitutes "active".
+    var m = db.getCollection( "Member").findOne( { "CAPID": capid, "MbrStatus": "ACTIVE" } );
+    if ( m == null ) { return false; }
+    return true;
+					       
+}
+
+
+function isGroupMember( group, email ) {
+    // Check if email is already in the group
+    var email = email.toLowerCase();
+    var rx = new RegExp( email, 'i' );
+    return db.getCollection( groupsCollection ).findOne( { 'group': group, 'email': rx } );
+}
+
 function addMembers( collection, pipeline, options, group ) {
     // Scans  looking for active members
     // if member is not currently on the mailing list generate gam command to add member.
     var cursor = db.getCollection( collection ).aggregate( pipeline, options );
     while ( cursor.hasNext() ) {
-        var m = cursor.next();
-        var email = m.email.toLowerCase();
-        var rx = new RegExp( email, 'i' );
-        var g = db.getCollection("Groups").findOne( { Group: group, Members: rx } );
-        if ( g ) { continue; }
-    // Print gam command to add new member
-        print("gam update group", googleGroup, "add member", email );
+        var m = cursor.next();  
+        if ( ! isActiveMember( m.CAPID ) ) { continue; }
+        if ( isGroupMember( googleGroup, m.email ) ) { continue; }
+        // Print gam command to add new member
+        print("gam update group", googleGroup, "add member", m.email );
     } 
-}
-
-function isActiveMember( capid ) {
-    // Check to see if member is active.
-    // This function needs to be changed for each group depending
-    // on what constitutes "active".
-    var m = db.getCollection( "Member").findOne( { "CAPID": capid, "Status": "ACTIVE" } );
-    if ( m == null ) { return false; }
-    return true;
-					       
 }
 
 function removeMembers( collection, pipeline, options, group ) {
@@ -136,16 +137,20 @@ function removeMembers( collection, pipeline, options, group ) {
     while ( m.hasNext() ) {
        	var e = m.next().Email;
        	var rgx = new RegExp( e, "i" );
-       	var r = db.getCollection( 'MbrContact' ).find( { Type: 'EMAIL', Priority: 'PRIMARY', Contact: rgx } );
-    	while ( r.hasNext() ) {
-    	    var t = r.next();
-    	    var a = db.getCollection( 'Member' ).findOne( { CAPID: t.CAPID, Type: memberType } );
-    	    if ( a == null || a.MbrStatus == 'ACTIVE' ) { continue; }   		
+       	var r = db.getCollection( 'MbrContact' ).findOne( { Type: 'EMAIL', Priority: 'PRIMARY', Contact: rgx } );
+       	if ( r ) {
+    	    var a = db.getCollection( 'Member' ).findOne( { CAPID: r.CAPID, Type: memberType } );
+    	    if ( a == null || isActiveMember( r.CAPID ) ) { continue; }   		
        		if ( a.Expiration < lookbackdate ) {
-       		    print( '#INFO:', t.CAPID, a.NameLast, a.NameFirst, a.NameSuffix, 'Expiration:', a.Expiration );
+       		    print( '#INFO:', a.CAPID, a.NameLast, a.NameFirst, a.NameSuffix, 'Expiration:', a.Expiration );
        	    	print( 'gam update group', googleGroup, 'delete member', e );
        		}
     	}
+    	else {
+       		    print( '#INFO: Unknown email:', e, 'removed' );
+       	    	print( 'gam update group', googleGroup, 'delete member', e );
+    	}
+    	    
     }
 }
 
