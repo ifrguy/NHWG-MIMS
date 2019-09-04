@@ -1,0 +1,45 @@
+#!/bin/bash -e
+
+# Purpose: Download all NHWG groups and group members as a CSV
+# convert to JSON and import into MongoDB.
+#
+# History:
+# 04Sep19 MEG Simplified moved to flat csv file group collection.
+# 27Jun19 MEG Download option added.
+# 09May18 MEG Created.
+
+# MongoDB credentials
+CREDS=./importercreds
+
+# Database to connect to
+DB=NHWG
+
+# Mongo import tool
+IMPORT=mongoimport
+
+. $CREDS
+
+OPTS='Dh'
+
+USAGE="USAGE $(basename $0) [$OPTS]\n
+\tImport Google Groups file Groups.json\n
+\tD - Download before importing\n
+\th|? - this help message\n"
+
+while getopts $OPTS o; do
+    case $o in
+	D) D="yes";;
+	h|?) echo -e $USAGE;exit 1;;
+    esac
+done
+shift $(($OPTIND - 1))
+
+if [ "$D" = "yes" ]; then
+# Download Google groups as CSV from Google
+    gam redirect csv ./GoogleGroups.csv print group-members members managers owners &>/dev/null
+fi
+
+# import groups into MongoDB
+$IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
+	--password=$MONGOPASS --collection GoogleGroups --drop --type csv \
+	--headerline --file ./GoogleGroups.csv
