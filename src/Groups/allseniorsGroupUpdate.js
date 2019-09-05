@@ -160,4 +160,4 @@ print("# Update group:", googleGroup );
 print("# Add new members");
 addMembers( "Member", memberPipeline, options, googleGroup );
 print( "# Remove inactive members") ;
-removeMembers( "Groups", groupMemberPipeline, options, googleGroup );
+removeMembers( groupsCollection, groupMemberPipeline, options, googleGroup );
