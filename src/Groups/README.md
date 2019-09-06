@@ -1,4 +1,6 @@
 This contains a collection of scripts to manage groups for various member sets.
+The scripts here are intended to be run as batch jobs, but can be run directly
+from the command line if desired.
 
 A dump of all Wing G Suite groups is pulled regularly and saved in the GoogleGroups
 collection.  The bash script reads a Mongo shell javascript script and produces
