@@ -1,0 +1,28 @@
+#!/bin/bash -e
+# Runs a MongoShell script given on the command line to update
+# a Google group membership.  Each script is unique to a particular
+# group.
+#
+# Input:
+# MongoShell script. By convention the script name is the base name of the group.
+# example: group: allseniors@nhwg.cap.gov -> script name: allseniors.js
+# Output:
+# a MIMS type job file in the job queue
+# History:
+# 05Sep19 MEG Created.
+#
+
+# import config var's
+. ./$(basename $0).conf
+
+# get credentials
+. $CREDS
+
+USAGE="Usage: $(basename $0) <mongo_script_file.js> "
+[[ $# > 1 ]] && (echo $USAGE;exit 1 )
+
+# Output Job filename
+JOB=${1%.js}$(date +%Y%b%d).job
+
+# Run the script
+mongo --quiet -u "$USERID" -p "$PASSWD" --authenticationDatabase $DB $1 >$JOBQ/$JOB
