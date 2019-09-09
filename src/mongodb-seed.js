@@ -13,7 +13,7 @@ var collections = [ 'Achievements',
 		  ];
 
 for ( var i = 0; i < collections.length; i++ ) {
-    db.createCollection( collections[i], { collation: { 'locale': 'en_US_POSIX', 'caseLevel': false, strength: 1 }});
+    db.createCollection( collections[i], { collation: { 'locale': 'en_US', 'caseLevel': false, strength: 1 }});
 }
 
 
