@@ -4,12 +4,11 @@ var collections = [ 'Achievements',
 		    'Commanders',
 		    'DutyPosition',
 		    'Google',
-		    'Groups',
+		    'GoogleGroups',
 		    'MbrAchievements',
 		    'MbrAddresses',
 		    'MbrContact',
 		    'Member',
-		    'Organization',
 		  ];
 
 for ( var i = 0; i < collections.length; i++ ) {
