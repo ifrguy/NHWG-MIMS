@@ -633,7 +633,8 @@ class UnSuspend( Manager ):
     """
     UnSuspend scans Google documents for suspended accounts and checks
     them against the Member document to see if the member has re-upped and is
-    ACTIVE again, if so the account is unsuspended.
+    ACTIVE again, if so the account is unsuspended. Members in the Hold
+    collection are ignored.
     """
 
     helpMsg = 'Reactivate wing accounts for re-upped members.'
