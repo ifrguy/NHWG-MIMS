@@ -474,21 +474,21 @@ class PurgeMembers( Manager ):
     def run(self):
         """
         Pulls all members marked as EXPIRED.  If membership has been
-        expired for 90 days or more the account is removed and the member
-        is marked as a ex-member.  The resulting gam purge job is placed in the
+        expired for more than GRACE beyond LOOKBACK 
+        days or more the account is removed and the member
+        is marked as an EXMEMBER.  The resulting gam purge job is placed in the
         hold state until released by the operator.  In addition a gam job
-        to list all files own by users is produced. Users placed on HOLD
-        are skipped.
+        to list all files owned by users is produced.  Checks to see if 
+        member is on the Holds list before issuing purge.
         """
         # look back period
-        lookback = datetime.utcnow() - timedelta( days=90 )
+        lookback = datetime.utcnow() - timedelta( days=LOOKBACK + GRACE )
         l = []  # list of members to remove
         #Scan all expired members
         cur = self.DB().Member.find( self.query )
         for m in cur:
             capid = m['CAPID']
             if ( m['Expiration'] <= lookback ):
-#                g = self.DB().Google.find_one( { 'externalIds':{'$elemMatch':{'value':{'$eq': m['CAPID']}}}})
 # Note this query may fail if there is more than one record in externalIds
                 g = self.DB().Google.find_one({'externalIds.value': m['CAPID']})
                 if ( g == None ): continue

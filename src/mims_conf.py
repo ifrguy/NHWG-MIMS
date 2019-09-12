@@ -46,9 +46,13 @@ MIN_CADET_AGE = 18
 # Domain to be used when creating, deleting accounts or groups
 DOMAIN = 'nhwg.cap.gov'
 
+# Grace period. The number of days beyond the LOOKBACK after which member
+# accounts will be purged
+GRACE = 30
+
 # Look Back period - how many days back to start considering expired members
 # for suspend
-LOOKBACK = 45
+LOOKBACK = 31
 
 # Default action for Expired members
 EXPIRED_ACTION = 'suspend'
