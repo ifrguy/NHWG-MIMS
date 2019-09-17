@@ -19,7 +19,10 @@
 . $CREDS
 
 USAGE="Usage: $(basename $0) <mongo_script_file.js> "
-[[ $# > 1 ]] && (echo $USAGE;exit 1 )
+if [ $# -lt 1 ]; then
+    echo $USAGE
+    exit 1
+fi
 
 # Output Job filename
 JOB=${1%.js}$(date +%Y%b%d).job
