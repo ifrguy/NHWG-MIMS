@@ -490,27 +490,29 @@ class PurgeMembers( Manager ):
         #Scan all expired members
         cur = self.DB().Member.find( self.query )
         for m in cur:
+            try:
+                if ( m['NHWGStatus'] == 'EXMEMBER') : continue
+            except KeyError as e:
+                pass
             capid = m['CAPID']
-            if ( m['Expiration'] <= self.lookback ):
-
-                g = self.DB().Google.find_one(
-                    {'customSchemas.Member.CAPID': capid } )
-                if ( g == None ): continue
-                if ( self.checkHolds( capid )):
-                     logging.info('HOLD: %d %s, account: %s',
-                                  capid, g['name']['fullName'],
-                                  g['primaryEmail'] )
-                     continue
-                l.append( g['primaryEmail'] )
-                logging.info( "Remove: %d %s", capid,
-                              g['name']['fullName'])
-                # Mark member as Ex-member
-                self.DB().Member.update_one( { '_id' : m['_id']},
-                                        {'$set': {'MbrStatus':'EXMEMBER'},
-                                         '$set': {'NHWGStatus':'EXMEMBER'}})
-                # delete Google user record from Google collection
-                if ( DELETE_PURGED ):
-                    self.DB().Google.delete_one({'_id': g['_id']})
+            g = self.DB().Google.find_one(
+                {'customSchemas.Member.CAPID': capid } )
+            if ( g == None ): continue
+            if ( self.checkHolds( capid )):
+                logging.info('HOLD: %d %s, account: %s',
+                             capid, g['name']['fullName'],
+                             g['primaryEmail'] )
+                continue
+            l.append( g['primaryEmail'] )
+            logging.info( "Remove: %d %s", capid,
+                          g['name']['fullName'])
+            # Mark member as Ex-member
+            self.DB().Member.update_one( { '_id' : m['_id']},
+                                             {'$set': {'MbrStatus':'EXMEMBER'},
+                                              '$set': {'NHWGStatus':'EXMEMBER'}})
+            # delete Google user record from Google collection
+            if ( DELETE_PURGED ):
+                self.DB().Google.delete_one({'_id': g['_id']})
 
         l.sort()
         # generate the purge job
