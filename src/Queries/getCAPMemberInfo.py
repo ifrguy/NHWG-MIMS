@@ -6,6 +6,7 @@
 #        plus optional first name.
 #
 # History:
+# 10Oct19 MEG pymongo.Database.logout() Depracated.
 # 18Aug19 MEG Search by CAPID, better agg pipeline handling.
 # 17Aug19 MEG Made parseable for data extraction by other scripts
 # 15Apr19 MEG Added expiration date.
@@ -81,7 +82,7 @@ except pymongo.errors.OperationFailure as e:
 
 # print format templates
 heading = '{0}: {1}, {2} {3} {4}'
-f2 = "\t\t{0}: {1}, Priority: {2}"
+f2 = "\t\t{0}: {1} Priority: {2}"
 f3 = "\t\t{0}: {1}"
 f4 = '\t\tGoogle account: {0}'
 f5 = "\t{0}: {1}"
@@ -116,6 +117,5 @@ for m in cur:
         print( f3.format( 'State', k['State'] ))
         print( f3.format( 'Zipcode', k['Zip'] ))
 
-DB.logout()
 client.close()
 sys.exit( 0 )
