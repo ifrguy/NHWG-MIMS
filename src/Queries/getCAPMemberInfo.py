@@ -6,7 +6,7 @@
 #        plus optional first name.
 #
 # History:
-# 10Oct19 MEG pymongo.Database.logout() Depracated.
+# 10Oct19 MEG pymongo.Database.logout() Deprecated.
 # 18Aug19 MEG Search by CAPID, better agg pipeline handling.
 # 17Aug19 MEG Made parseable for data extraction by other scripts
 # 15Apr19 MEG Added expiration date.
