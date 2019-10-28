@@ -22,6 +22,7 @@
 # Note: You will need to update the variables to point to the utilities.
 #
 # History:
+# 28Oct19 MEG Added clear collection option, moved variables to config file.
 # 12Aug18 MEG Added index Google collection script config variable.
 # 20Jul18 MEG Index Google collection.
 # 26May18 MEG Added "nolicenses" option to gam command.
@@ -32,53 +33,72 @@
 # 09Jul17 MEG Created.
 #
 
-# MongoDB importer credentials file
-CREDS="./importercreds"
+# load config variables
+. ./$(basename $0).conf
+
+# Default operation to use to import collection
+CALL=drop
 
 # Download Google json
 D=NO
 
-# Database
-DB=NHWG
-
-# Host
-HOST=localhost
+# Index the collection
+INDEX=no
 
 # Collection in DB to import into
 COLL=Google
 
-# GAM command
-GAM=/usr/local/bin/gam
-
-# Import command
-IMP=/usr/bin/mongoimport
-
-# JSON Google G-Suite data file
-JSON=./$COLL.json
-
-# Log file
-LOG=./log/GAM.log
-# MongoDB Google index collection script
-INDEXSCRIPT="./indexGoogle.js"
-
 # Load MongoDB login creds
 . $CREDS
 
+# Drops collection and imports them fresh.
+# All data for the collection including indices are removed
+# prior to importing the new data.
+function drop() {
+    $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
+	--password=$MONGOPASS --collection $1 --drop --type json --file $1.json
+
+}
+
+# Updates collection inserting new records if required.  No indexing
+# of collections.  Collections are assumed to already have appropriate
+# indexes.
+function upsert() {
+    $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
+--password=$MONGOPASS --collection $1 --type json --mode upsert --upsertFields primaryEmail --file $1.json
+}
+
+# Updates collection. Collection is first cleared this preserves indexes
+# and collation.
+function clear() {
+   mongo --quiet -u $MONGOUID -p $MONGOPASS --authenticationDatabase=$DB <<EOJS
+use $DB;
+db.$COLL.remove( {} );
+exit
+EOJS
+    $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
+--password=$MONGOPASS --collection $1 --type json --mode upsert --upsertFields primaryEmail --file $1.json
+}
+
 # options
-OPTS="c:Dd:h?"
+OPTS="cDd:hiu?"
 
 USAGE="Usage: $(basename $0) [$OPTS]\n
 \tImport Google G-Suite member data\n
-\tc - collection name ($COLL)\n
+\tc - Clear collection then import\n
 \tD - Download G-Suite members from Google first ($D)\n
 \td - database ($DB)\n
+\ti - index the collection ($INDEX)\n
+\tu - update/upsert collection default is: ($CALL)\n
 \th|? - this help\n"
 
 while getopts $OPTS o; do
     case $o in
-	c) COLL=$OPTARG;;
+	c) CALL="clear";;
 	D) D="yes";;
 	d) DB=$OPTARG;;
+	i) INDEX="yes";;
+	u) CALL="upsert";;
 	h|?) echo -e $USAGE;exit 1;;
 	*) echo -e $USAGE;exit 1;;
     esac
@@ -92,9 +112,8 @@ if [ $D = "yes" ]; then
 fi
 
 if [ -f $COLL.json ]; then
-    echo "Importing members into MongoDB NHWG"
-    $IMP --host $HOST --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
---password=$MONGOPASS --collection $COLL --drop --type json --file $JSON
+    echo Executing $CALL on $COLL
+    $CALL $COLL
     echo "Done."
 else
     echo "Error: unable to open JSON file: $COLL.json"
@@ -102,12 +121,15 @@ else
 fi
 
 # index Google collection
-echo "Indexing Google"
-if [ -f $INDEXSCRIPT ]; then
-    mongo  --quiet --host $HOST --authenticationDatabase=$DB --username=$MONGOUID \
-       --password=$MONGOPASS $INDEXSCRIPT
-else
-    echo "WARNING:Indexing script: $INDEXSCRIPT not found."
-    echo "Indexing not performed."
+if [ $INDEX == "yes" ]; then
+    echo "Indexing Google"
+    if [ -f $INDEXSCRIPT ]; then
+	mongo  --quiet --host $HOST --authenticationDatabase=$DB --username=$MONGOUID \
+       --password=$MONGOPASS $COLL-index.js
+	echo "Done."
+    else
+	echo "WARNING:Indexing script: $INDEXSCRIPT not found."
+	echo "Indexing not performed."
+    fi
 fi
-echo "Done."
+
