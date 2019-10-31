@@ -614,10 +614,10 @@ class SeniorListChecker( ListManager ):
     helpMsg = 'Maintenance check that all seniors are on senior mailing list.'
 
     def __init__( self ):
-        self.super().__init__()
+        super().__init__()
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
-        self.query = {'organizations':{'$elemMatch':{'description':"SENIOR"}}}
+        self.query = { 'customSchemas.Member.Type' : "SENIOR" }
 
     def run( self ):
         """
@@ -630,7 +630,7 @@ class SeniorListChecker( ListManager ):
                 primaryEmail = m['primaryEmail']
                 if not self.isGroupMember( m['groups'], "seniors@nhwg.cap.gov"):
                     logging.info( "%s %s", "Senior mailing list Add:", primaryEmail ) 
-                    print( gamcmdfnt.format( primaryEmail,
+                    print( gamcmdfmt.format( primaryEmail,
                            "seniors@nhwg.cap.gov"),
                            file = outfile )
 
