@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,4,2)
+version_tuple = (1,4,3)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+31Oct19 MEG SweepExpired updated, only uses expiration date and offset.
 03Oct19 MEG PurgeMembers only tracks expiration date and GRACE.
 03Oct19 MEG Expired now tracks expiration date only, not MbrStatus.
 21Jul19 MEG Added custom schema: Member.CAPID,Member.Unit,Member.Type to NewMembers 
@@ -117,6 +118,13 @@ class Manager(object):
         """
         return self.myJobs
 
+    def markEXMEMBER( self, capid ):
+        """
+        Marks the Member record for  capid as an EXMEMBER.
+        """
+        self.DB().Member.update_one( { 'CAPID' : capid },
+                                     { '$set' : { 'MbrStatus' : 'EXMEMBER',
+                                                  'NHWGStatus' : 'EXMEMBER' }})
     def name( self ):
         """
         Returns the name of the class.
@@ -507,9 +515,7 @@ class PurgeMembers( Manager ):
             logging.info( "Remove: %d %s", capid,
                           g['name']['fullName'])
             # Mark member as Ex-member
-            self.DB().Member.update_one( { '_id' : m['_id']},
-                                             {'$set': {'MbrStatus':'EXMEMBER'},
-                                              '$set': {'NHWGStatus':'EXMEMBER'}})
+            self.markEXMEMBER( m['CAPID'] )
             # delete Google user record from Google collection
             if ( DELETE_PURGED ):
                 self.DB().Google.delete_one({'_id': g['_id']})
@@ -693,16 +699,17 @@ class SweepExpired( Manager ):
     """
     SweepExpired is intended as a maintenance function.  It's purpose is to
     scan the Member collection for old memberships that have expired, but not
-    been removed or marked as EXMEMBER and to so mark them, records are purged
+    been removed or marked as EXMEMBER and mark them, records are purged
     from the Google collection depending on the state of the DELETE_PURGED
-    configuration option. The default lookback period is 100 days
-    unless argv[2] contains an integer value.
+    configuration option. The default lookback period is 30 days beyond
+    LOOKBACK + GRACE unless argv[2] contains an integer value.
 
-    SweepExpired does not create a job file as it works directly on the local
-    database.
+    SweepExpired creates a job file to delete any accounts found in the Google
+    collection as a precaution.  This may fail if the account has already
+    been deleted, but it's a small price to pay for security.
     """
 
-    helpMsg = 'Maintenance job clean out expired members not already removed.'
+    helpMsg = 'Maintenance: purge expired members not already removed, args: [lookback days].'
 
     def __init__( self ):
         super().__init__()
@@ -712,12 +719,12 @@ class SweepExpired( Manager ):
         try:
             look_back_days = int( sys.argv[ 2 ] )
         except ( IndexError, ValueError ) as e:
-            look_back_days = 100
+            look_back_days = LOOKBACK + GRACE + 30
         # compute look back date
         today = datetime.today()
+        # number of days beyond which to consider account removal
         start_date = today - timedelta( days = look_back_days )
-        self.query = { 'MbrStatus' : 'EXPIRED',
-                       'Expiration' : { '$lte' : start_date }}
+        self.query = {'Expiration' : { '$lte' : start_date }}
 
     def run( self ):
         """
@@ -725,17 +732,20 @@ class SweepExpired( Manager ):
         select documents as EXMEMBERs.
         """
         cursor = self.DB().Member.find( self.query )
-        for member in cursor:
-            self.DB().Member.update_one( { 'CAPID' : member[ 'CAPID' ] },
-                                         { '$set' : { 'MbrStatus' : 'EXMEMBER' }})
-            # delete Google account record if one exists
-            g = self.DB().Google.find_one({'externalIds.value': member['CAPID']})
-            if ( g and DELETE_PURGED ):
-                    self.DB().Google.delete_one( { '_id': g[ '_id' ] } )
-            logging.info( "Member: %d marked EXMEMBER, Purged from Google: %s",
+        with open( self.outfileName, 'w' ) as outfile:
+            for member in cursor:
+                self.markEXMEMBER( member[ 'CAPID' ] )
+                # delete Google account record if one exists
+                g = self.DB().Google.find_one(
+                    { 'customSchemas.Member.CAPID' : member['CAPID'] } )
+                if ( g ):
+                    print( 'gam delete user {}'.format(
+                           g['primaryEmail']), file = outfile )
+                    if ( DELETE_PURGED ):
+                        self.DB().Google.delete_one( { '_id': g[ '_id' ] } )
+                    logging.info( "Member: %d marked EXMEMBER, Purge from Google: %s",
                           member[ 'CAPID' ],
                           DELETE_PURGED )
-        
 
 # Create the base object for all jobs
 # MIMS is the factory base class object
