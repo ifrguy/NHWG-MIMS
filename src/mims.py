@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,4,3)
+version_tuple = (1,4,4)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+11Nov19 MEG NewMember.mkNewAccount add placeholder record to Google for new accounts.
 31Oct19 MEG SweepExpired updated, only uses expiration date and offset.
 03Oct19 MEG PurgeMembers only tracks expiration date and GRACE.
 03Oct19 MEG Expired now tracks expiration date only, not MbrStatus.
@@ -286,7 +287,8 @@ class NewMembers( Manager ):
         Make a new member account
         Input member record.
         Output GAM member creation command to job file.
-        Returns Gmail address
+        Returns Gmail address, adds placeholder record to Google
+        to prevent duplication of new email addresses.
         Note this function never fails any failures are recorded in the log.
         """
         logging.info( "New User: %d %s %s %s Unit: %s",
@@ -304,6 +306,9 @@ class NewMembers( Manager ):
                                 orgUnitPath[ m['Unit'] ],
                                 self.mkpasswd(),
                                 m[ 'CAPID' ], m['Unit'], m['Type'])
+        # Write a placeholder to Google to record the new account
+        # so we don't try to create a duplicate address.
+        self.DB().Google.insert( { 'primaryEmail': email } )
         # check for primary email to notify member
         contact = self.getContact( m['CAPID'],
                                    'EMAIL',
