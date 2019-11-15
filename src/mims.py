@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,4,4)
+version_tuple = (1,4,5)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+15Nov19 MEG SweepExpired - log member status change to db.
 11Nov19 MEG NewMember.mkNewAccount add placeholder record to Google for new accounts.
 31Oct19 MEG SweepExpired updated, only uses expiration date and offset.
 03Oct19 MEG PurgeMembers only tracks expiration date and GRACE.
@@ -739,7 +740,10 @@ class SweepExpired( Manager ):
         cursor = self.DB().Member.find( self.query )
         with open( self.outfileName, 'w' ) as outfile:
             for member in cursor:
-                self.markEXMEMBER( member[ 'CAPID' ] )
+                if ( member[ 'MbrStatus' ] != 'EXMEMBER' ):
+                    self.markEXMEMBER( member[ 'CAPID' ] )
+                    logging.info("Member: %d marked EXMEMBER in database.",
+                                  member[ 'CAPID' ] )
                 # delete Google account record if one exists
                 g = self.DB().Google.find_one(
                     { 'customSchemas.Member.CAPID' : member['CAPID'] } )
@@ -748,7 +752,7 @@ class SweepExpired( Manager ):
                            g['primaryEmail']), file = outfile )
                     if ( DELETE_PURGED ):
                         self.DB().Google.delete_one( { '_id': g[ '_id' ] } )
-                    logging.info( "Member: %d marked EXMEMBER, Purge from Google: %s",
+                    logging.info( "Member: %d Purged from Google: %s",
                           member[ 'CAPID' ],
                           DELETE_PURGED )
 
