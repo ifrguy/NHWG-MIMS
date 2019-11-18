@@ -1,6 +1,7 @@
 //MongoDB scrip to Update allcadets group
 //This should really be replaced by a new Class in mims.py
 //History:
+// 18Nov19 MEG Change temporal ordering of add and remove to fix Google issue.
 // 19Aug19 MEG Created.
 
 var db = db.getSiblingDB( 'NHWG');
@@ -156,8 +157,10 @@ function removeMembers( collection, pipeline, options, group ) {
 
 
 // Main here
+// Do NOT change the temporal order or remove and add operations.
+// Google plays games with "." in user id's
 print("# Update group:", googleGroup );
-print("# Add new members");
-addMembers( "Member", memberPipeline, options, googleGroup );
 print( "# Remove inactive members") ;
 removeMembers( groupsCollection, groupMemberPipeline, options, googleGroup );
+print("# Add new members");
+addMembers( "Member", memberPipeline, options, googleGroup );
