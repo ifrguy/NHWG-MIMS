@@ -104,12 +104,12 @@ def download():
     return r.status_code
 
 # Make download request and save results, if fail try for opts.r+1 times.
-for i in range( 0, opts.r ):
-    if ( opts.v ): print( 'Try #:', i+1 )
+for i in range( 1, opts.r + 1 ):
+    if ( opts.v ): print( 'Try #:', i )
     ret = download()
     if ret == 200:
         break
-    if i + 1 < opts.r:
+    if i < opts.r:
         time.sleep( RETRY_DELAY_TIME )
 
 if ( opts.v ): print( 'Done.' )
