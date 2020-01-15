@@ -27,6 +27,7 @@ use the API, or web.  Also note that you are restricted to downloading
 CAPWATCH once in a 24 hour period.
 """
 # History:
+# 15Jan20 MEG fixed retry count down error.
 # 14Feb19 MEG Moved retry control var's to conf file.
 # 28Nov18 MEG download() timeout throws error, no request packet returned.
 # 24Aug18 MEG Added catch requests Read time out exception
@@ -108,7 +109,7 @@ for i in range( 0, opts.r ):
     ret = download()
     if ret == 200:
         break
-    if i < opts.r:
+    if i + 1 < opts.r:
         time.sleep( RETRY_DELAY_TIME )
 
 if ( opts.v ): print( 'Done.' )
