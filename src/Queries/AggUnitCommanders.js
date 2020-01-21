@@ -5,8 +5,8 @@ db.getCollection("DutyPosition").aggregate(
 		// Stage 1
 		{
 			$match: {
-				Duty:'Commander',
-				Lvl:'UNIT'
+			    Duty:/Commander/,
+			    Lvl:'UNIT'
 			}
 		},
 
@@ -57,6 +57,7 @@ db.getCollection("DutyPosition").aggregate(
 			    Unit : "$squadron.SquadIDStr",
 			    Squadron : "$squadron.SquadName",
 			    Commander : "$cmdr.name.fullName",
+			    Duty: 1,
 			//    NameFirst : "$cmdr.name.givenName",
 			//    NameLast : "$cmdr.name.familyName",
 			    Email : "$cmdr.primaryEmail",
