@@ -1,5 +1,5 @@
 #!/usr/bin/env /usr/bin/python3
-## Copyright 2017 Marshall E. Giguere
+## Copyright 2020 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,4,5)
+version_tuple = (1,4,6)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+24Jan20 MEG NewMembers do not create user account if no eServices primary email.
 15Nov19 MEG SweepExpired - log member status change to db.
 11Nov19 MEG NewMember.mkNewAccount add placeholder record to Google for new accounts.
 31Oct19 MEG SweepExpired updated, only uses expiration date and offset.
@@ -286,44 +287,50 @@ class NewMembers( Manager ):
     def mkNewAccount( self, m ):
         """
         Make a new member account
-        Input member record.
+        Input m: eServices Member record.
         Output GAM member creation command to job file.
         Returns Gmail address, adds placeholder record to Google
         to prevent duplication of new email addresses.
-        Note this function never fails any failures are recorded in the log.
+        NOTE: if the member does not have a PRIMARY EMAIL no account is created
+        and None is returned.
         """
-        logging.info( "New User: %d %s %s %s Unit: %s",
-                      m['CAPID'],m['NameFirst'],
-                      m['NameLast'],
-                      m['NameSuffix'],
-                      orgUnitPath[ m[ 'Unit' ]] )
-        email = self.mkEmailAddress( m )
-        cmd = self.gamaccountfmt.format( email,
-                                m['CAPID'],
-                                self.givenName( m ),
-                                self.familyName( m ),
-                                m['Unit'],
-                                m['Type'],
-                                orgUnitPath[ m['Unit'] ],
-                                self.mkpasswd(),
-                                m[ 'CAPID' ], m['Unit'], m['Type'])
-        # Write a placeholder to Google to record the new account
-        # so we don't try to create a duplicate address.
-        self.DB().Google.insert( { 'primaryEmail': email } )
-        # check for primary email to notify member
         contact = self.getContact( m['CAPID'],
                                    'EMAIL',
                                    'PRIMARY')
+        email = None
         if contact:
+            email = self.mkEmailAddress( m )
+            cmd = self.gamaccountfmt.format( email,
+                                             m['CAPID'],
+                                             self.givenName( m ),
+                                             self.familyName( m ),
+                                             m['Unit'],
+                                             m['Type'],
+                                             orgUnitPath[ m['Unit'] ],
+                                             self.mkpasswd(),
+                                             m[ 'CAPID' ], m['Unit'], m['Type'])
+            # Write a placeholder to Google to record the new account
+            # so we don't try to create a duplicate address.
+            self.DB().Google.insert( { 'primaryEmail': email } )
+            # check for primary email to notify member
             cmd = cmd + self.gamnotifyfmt.format( contact,
                                              "Welcome to your NH Wing account",
                                              WELCOMEMSG )
             print( cmd, file = self.outfile )
+            logging.info( "New User: %d %s %s %s Unit: %s",
+                          m['CAPID'],m['NameFirst'],
+                          m['NameLast'],
+                          m['NameSuffix'],
+                          orgUnitPath[ m[ 'Unit' ]] )
         else: # do not issue account
-            logging.warn( "Member: %d %s %s %s does not have a primary email address.",
+            logging.warn( "%d %s %s %s no primary email, no account created .",
                           m['CAPID'],m['NameFirst'],
                           m['NameLast'],
                           m['NameSuffix'] )
+            print( "# WARNING:" + str(m['CAPID']) + ": " + m['NameFirst'] +
+                   " " + m['NameLast'] + " " + m['NameSuffix'] +
+                   ", NO Primary Email, no account created.",
+                   file = self.outfile )
         return email
 
     def addToGroup( self, email ):
@@ -333,14 +340,13 @@ class NewMembers( Manager ):
         Output GAM command to add member to a mailing list/group.
         Note: this function always succeeds.
         """
-        if self.group:
+        if ( self.group and email ):
             groupcmd = self.gamgroupfmt.format( self.group, email  )
             logging.info( 'Member: %s added to %s mailing list.',
                           email,
                           self.group )
             print( groupcmd, file = self.outfile )
-        return True
-        
+        return email
         
     def mkpasswd( self, max=12 ):
         """
@@ -377,13 +383,15 @@ class NewMembers( Manager ):
                                   m['Unit'], m['CAPID'] )
                     continue
                 # see if member has Google account
-                g = self.DB().Google.find_one( {'externalIds':{'$elemMatch':{'value':m['CAPID']}}} )
-                if ( g == None ): # if user does not exist make new account
+                g = self.DB().Google.find_one( {
+                    'customSchemas.Member.CAPID': m['CAPID']
+                } )
+                if ( g == None ): # if user does not exist try to make an account
                     email = self.mkNewAccount( m )
-                    # add member to group mailing list if one exists
-                    self.addToGroup( email )
-                    n += 1
-
+                    if email:
+                        # add member to group mailing list if one exists
+                        self.addToGroup( email )
+                        n += 1
         logging.info( "New accounts created: %d", n)
         return
 
