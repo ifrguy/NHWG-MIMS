@@ -5,7 +5,7 @@ db.getCollection("DutyPosition").aggregate(
 		// Stage 1
 		{
 			$match: {
-			    Duty:/Commander/,
+			    Duty:/^(Commander|Deputy Commander)/i,
 			    Lvl:'UNIT'
 			}
 		},
@@ -65,6 +65,14 @@ db.getCollection("DutyPosition").aggregate(
 		},
 
 		// Stage 7
+		{
+			$sort: {
+			    Unit:1,
+			    Duty:1,
+			}
+		},
+
+		// Stage 8
 		{
 			$out: "UnitCommanders"
 		},
