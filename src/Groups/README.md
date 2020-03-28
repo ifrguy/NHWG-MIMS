@@ -13,5 +13,6 @@ an output file containing a series of GAM commands to update the specified group
 * allcadets.js - updates the all cadets group
 * allseniors.js - updates the all seniors group
 * aps.js - updates the airborne photographers group.
+* aircrew.js - update the aircrew group.
 * commanders.js - update the wing/unit commanders group
 
