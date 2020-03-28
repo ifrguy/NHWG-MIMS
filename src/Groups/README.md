@@ -23,7 +23,8 @@ update the senior members group weekly in cron using the entry:
 
 `* 12 * * 7 echo "Weekly all seniors list update";cd $GROUPS;./updateGroup allseniors.js`
 
-Do the above for each group to be updated.
+This will run the update for the allseniors group at noon on the
+seventh day of eack week. Do the above for each group to be updated.
 
 #### Scripts:
 * updateGroup - bash group update job generator
