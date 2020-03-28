@@ -19,7 +19,7 @@ In operation each group to be updated must have it's update script(s)
 called as a cron job on whatever schedule is desired.  As an example I
 update the senior members group weekly in cron using the entry:
 
->* 12 * * 7 echo "Weekly all seniors list update";cd $GROUPS;./updateGroup allseniors.js
+`* 12 * * 7 echo "Weekly all seniors list update";cd $GROUPS;./updateGroup allseniors.js`
 
 Do the above for each group to be updated.
 
