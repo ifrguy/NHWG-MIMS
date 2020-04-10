@@ -1,0 +1,23 @@
+#!/bin/bash -e
+# Issue a GAM command to reset a users password
+#
+# History:
+# 10Apr20 MEG Created.
+
+# Path to email message template
+EMAIL_TEMPLATE=$HOME/work/NHWG/Templates/Password_reset_template.html
+
+USAGE="Usage: $basename $0 user newpass notify\n
+\tuser - The domain user account\n
+\tnewpass - new password for account\n
+\tnotify- The email address to recevie the reset notification\n
+NOTE: You must have admin privileges on G Suite to run this command.\n
+"
+
+if (( $# < 3 )); then
+   echo -e $USAGE
+   exit 1
+fi
+
+# issue gam password reset command
+gam update user $1 $2 changepassword true notify $3 subject \"Password reset notification\" file $EMAIL_TEMPLATE html true
