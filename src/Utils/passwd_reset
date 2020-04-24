@@ -2,6 +2,7 @@
 # Issue a GAM command to reset a users password
 #
 # History:
+# 24Apr20 MEG Fixed quoting bug in email subject
 # 10Apr20 MEG Created.
 
 # Path to email message template
@@ -20,4 +21,4 @@ if (( $# < 3 )); then
 fi
 
 # issue gam password reset command
-gam update user $1 $2 changepassword true notify $3 subject \"Password reset notification\" file $EMAIL_TEMPLATE html true
+gam update user $1 password $2 changepassword true notify $3 subject "\"Password reset notification\"" file $EMAIL_TEMPLATE html true
