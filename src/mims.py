@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,4,6)
+version_tuple = (1,4,7)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+02May20 MEG Expired do not suspend member if on hold status
 24Jan20 MEG NewMembers do not create user account if no eServices primary email.
 15Nov19 MEG SweepExpired - log member status change to db.
 11Nov19 MEG NewMember.mkNewAccount add placeholder record to Google for new accounts.
@@ -574,6 +575,8 @@ class Expired( Manager ):
 
         with open( self.outfileName, 'w' ) as outfile:
             for m in cur:
+                # Check if member is on hold status
+                if ( self.checkHolds( m['CAPID'] ): continue
                 # Check if member is already an EXMEMBER
                 try:
                     if ( m['NHWGStatus'] == "EXMEMBER" ): continue
