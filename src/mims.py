@@ -576,7 +576,7 @@ class Expired( Manager ):
         with open( self.outfileName, 'w' ) as outfile:
             for m in cur:
                 # Check if member is on hold status
-                if ( self.checkHolds( m['CAPID'] ): continue
+                if ( self.checkHolds( m['CAPID'] )): continue
                 # Check if member is already an EXMEMBER
                 try:
                     if ( m['NHWGStatus'] == "EXMEMBER" ): continue
