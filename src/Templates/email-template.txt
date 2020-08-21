@@ -32,6 +32,6 @@ If you have any problems or questions send an email to: support@nhwg.cap.gov
 
 
 Welcome to CAP,
-Capt Marshall E Giguere, CAP
-NH Wing Assistant Director of IT
+<your rank and name here>
+<your title>
 U.S. Air Force Auxiliary
