@@ -15,35 +15,17 @@ var groupsCollection = 'GoogleGroups';
 var memberPipeline = 
     [
         { 
-            "$match" : {
-                "Asst" : NumberInt(0), 
-                "$or" : [
-                    {
-                        "Duty" : "Commander"
-                    }, 
-                    {
-                        "Duty" : /^Deputy Commander$/i
-                    }, 
-                    {
-                        "Duty" : /^vice comm.*$/i
-                    }, 
-                    {
-                        "Duty" : /^director of oper.*$/i
-                    }, 
-                    {
-                        "Duty" : /^chief of staff/i
-                    }, 
-                    {
-                        "Duty" : /^inspector gen/i
-                    }
-                ]
+            "$match" : { 
+                "Duty" : /^(Commander|vice commander|Deputy Commander|Chief of staff|Director of op|inspector general)/i,
+//                "Asst" : 0,
+//               "Lvl" : "UNIT"
             }
         }, 
         { 
             "$lookup" : {
                 "from" : "Google", 
                 "localField" : "CAPID", 
-                "foreignField" : "externalIds.value", 
+                "foreignField" : "customSchemas.Member.CAPID", 
                 "as" : "google"
             }
         }, 
@@ -94,11 +76,14 @@ var memberPipeline =
 ]
 
 // Aggregate a list of all emails for the Google group of interest
+// Exlcuding MANAGER & OWNER roles, no group aristocrats
+
 var groupMemberPipeline =
     [
         { 
             "$match" : {
-                "group" : googleGroup
+                "group" : googleGroup,
+		"role" : 'MEMBER',
             }
         }, 
         { 
@@ -134,6 +119,7 @@ function addMembers( collection, pipeline, options, group ) {
     // if member is not currently on the mailing list generate gam command to add member.
     // returns a list of members qualified to be on the list regardless of inclusion.
     var list = [];
+    // Get the list of all qualified potential members for the list
     var cursor = db.getCollection( collection ).aggregate( pipeline, options );
     while ( cursor.hasNext() ) {
         var m = cursor.next();  
