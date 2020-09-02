@@ -3,10 +3,11 @@
 //Note: does not include assistants.
 //History:
 // 05Sep19 MEG Created.
+var DEBUG = false;
 
 var db = db.getSiblingDB( 'NHWG');
 
-// Google Group of intereste
+// Google Group of interest
 var baseGroupName = 'commanders';
 var googleGroup = baseGroupName + '@nhwg.cap.gov';
 var groupsCollection = 'GoogleGroups';
@@ -17,7 +18,7 @@ var memberPipeline =
         { 
             "$match" : { 
                 "Duty" : /^(Commander|vice commander|Deputy Commander|Chief of staff|Director of op|inspector general)/i,
-//                "Asst" : 0,
+                "Asst" : 0,
 //               "Lvl" : "UNIT"
             }
         }, 
@@ -83,12 +84,12 @@ var groupMemberPipeline =
         { 
             "$match" : {
                 "group" : googleGroup,
-		"role" : 'MEMBER',
+		        "role" : 'MEMBER',
             }
         }, 
         { 
             "$project" : {
-                "email" : "$email"
+            "email" : "$email"
             }
         }
     ];
@@ -133,19 +134,24 @@ function addMembers( collection, pipeline, options, group ) {
 }
 
 function removeMembers( collection, pipeline, options, group, authMembers ) {
-    // for each member of the group against the authList
+    // compare each member of the group against the authList
     // check active status, if not generate a gam command to remove member.
+    // collection - name of collection holding all Google Group info
+    // pipeline - array containing the pipeline to extract members of the target group
+    // options - options for ag
     var m = db.getCollection( collection ).aggregate( pipeline, options );
     while ( m.hasNext() ) {
        	var e = m.next().email;
+       	DEBUG && print("DEBUG::removeMembers::email",e);
        	var rgx = new RegExp( e, "i" );
        	if ( authMembers.includes( e ) ) { continue; }
         var r = db.getCollection( 'MbrContact' ).findOne( { Type: 'EMAIL', Priority: 'PRIMARY', Contact: rgx } );
        	if ( r ) {
     	    var a = db.getCollection( 'Member' ).findOne( { CAPID: r.CAPID } );
-       	}
-       	a == null || print( '#INFO:', a.CAPID, a.NameLast, a.NameFirst, a.NameSuffix );       	
-        print( 'gam update group', googleGroup, 'delete member', e );
+    	    DEBUG && print("DEBUG::removeMembers::Member.CAPID",a.CAPID,"NameLast:",a.NameLast,"NameFirst:",a.NameFirst);
+       	    a == null || print( '#INFO:', a.CAPID, a.NameLast, a.NameFirst, a.NameSuffix );       	
+            print( 'gam update group', googleGroup, 'delete member', e );
+       }
     }
 }
 
@@ -154,5 +160,8 @@ function removeMembers( collection, pipeline, options, group, authMembers ) {
 print("# Update group:", googleGroup );
 print("# Add new members");
 var theAuthList = addMembers( "DutyPosition", memberPipeline, options, googleGroup );
+
+DEBUG == true && print("DEBUG::theAuthList:", theAuthList);
+
 print( "# Remove inactive members") ;
 removeMembers( "GoogleGroups", groupMemberPipeline, options, googleGroup, theAuthList );
