@@ -138,7 +138,7 @@ function removeMembers( collection, pipeline, options, group, authMembers ) {
     // check active status, if not generate a gam command to remove member.
     // collection - name of collection holding all Google Group info
     // pipeline - array containing the pipeline to extract members of the target group
-    // options - options for ag
+    // options - options for aggregations pipeline
     var m = db.getCollection( collection ).aggregate( pipeline, options );
     while ( m.hasNext() ) {
        	var e = m.next().email;
@@ -149,8 +149,10 @@ function removeMembers( collection, pipeline, options, group, authMembers ) {
        	if ( r ) {
     	    var a = db.getCollection( 'Member' ).findOne( { CAPID: r.CAPID } );
     	    DEBUG && print("DEBUG::removeMembers::Member.CAPID",a.CAPID,"NameLast:",a.NameLast,"NameFirst:",a.NameFirst);
-       	    a == null || print( '#INFO:', a.CAPID, a.NameLast, a.NameFirst, a.NameSuffix );       	
-            print( 'gam update group', googleGroup, 'delete member', e );
+       	    if ( a ) {
+       	        print( '#INFO:', a.CAPID, a.NameLast, a.NameFirst, a.NameSuffix );       	
+                print( 'gam update group', googleGroup, 'delete member', e );
+       	    }
        }
     }
 }
