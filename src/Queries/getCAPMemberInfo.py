@@ -6,6 +6,7 @@
 #        plus optional first name.
 #
 # History:
+# 04Sep20 MEG Added Duty Positions to output.
 # 10Oct19 MEG pymongo.Database.logout() Deprecated.
 # 18Aug19 MEG Search by CAPID, better agg pipeline handling.
 # 17Aug19 MEG Made parseable for data extraction by other scripts
@@ -61,6 +62,13 @@ pipeline.append( { u"$lookup": {
             u"foreignField": u"CAPID",
             u"as": u"Addresses"
             }} )
+# Lookup Duty positions
+pipeline.append( { u"$lookup": {
+    u"from": u"DutyPosition",
+    u"localField": u"CAPID",
+    u"foreignField": u"CAPID",
+    u"as": u"dutyPositions"
+    }} )
 
 #print( len( pipeline ))
 #for i in pipeline:
@@ -86,6 +94,7 @@ f2 = "\t\t{0}: {1} Priority: {2}"
 f3 = "\t\t{0}: {1}"
 f4 = '\t\tGoogle account: {0}'
 f5 = "\t{0}: {1}"
+f6 = "\t\tDuty: {0}, Level: {1}, Area: {2}"
 
 # run the aggregation query to find member contacts
 cur = DB.Member.aggregate( pipeline, allowDiskUse = False )
@@ -101,7 +110,7 @@ for m in cur:
     print( f5.format( "Unit", m['Unit'] + " " +u['SquadName'] ))
     print( f5.format( "Expiration", m['Expiration'] ))
     print( "\tMember Contacts:" )
-    g = DB.Google.find_one( {'externalIds.value' : m['CAPID']} )
+    g = DB.Google.find_one( {'customSchemas.Member.CAPID' : m['CAPID']} )
     if g :
         print( f4.format( g[ 'primaryEmail' ] ) )
     else:
@@ -116,6 +125,12 @@ for m in cur:
         print( f3.format( 'City', k['City'] ))
         print( f3.format( 'State', k['State'] ))
         print( f3.format( 'Zipcode', k['Zip'] ))
+    print( u"\tDuty Positions:" )
+    if ( len(m[ 'dutyPositions' ]) > 0 ):
+        for d in m[ 'dutyPositions' ]:
+            print( f6.format( d[ 'Duty' ], d[ 'Lvl' ], d[ 'FunctArea' ] ))
+    else:
+            print( "\t\tNONE" )
 
 client.close()
 sys.exit( 0 )
