@@ -33,7 +33,7 @@ except IndexError:
     print( "\tfirstname - first letters, partial string, case insensitive" ) 
     sys.exit( 1 )
 
-# either we go a capid or a lastname
+# either we got a capid or a lastname
 try:
     pipeline.append( {'$match': {u'CAPID': int( pat ) }} )
 except ValueError:
@@ -128,7 +128,10 @@ for m in cur:
     print( u"\tDuty Positions:" )
     if ( len(m[ 'dutyPositions' ]) > 0 ):
         for d in m[ 'dutyPositions' ]:
-            print( f6.format( d[ 'Duty' ], d[ 'Lvl' ], d[ 'FunctArea' ] ))
+            print( f6.format(
+                d[ 'Duty' ] if d[ 'Asst' ] == 0 else "Asst " + d [ 'Duty' ],
+                d[ 'Lvl' ],
+                d[ 'FunctArea' ] ))
     else:
             print( "\t\tNONE" )
 
