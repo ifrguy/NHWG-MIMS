@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,4,7)
+version_tuple = (1,5,1)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,8 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+11Sep20 MEG Fixed bad reference bug in UnSuspend
+05Sep20 MEG Switch to custom schema fields for Member.{CAPID,Unit,Type}
 02May20 MEG Expired do not suspend member if on hold status
 24Jan20 MEG NewMembers do not create user account if no eServices primary email.
 15Nov19 MEG SweepExpired - log member status change to db.
@@ -201,7 +203,7 @@ class NewMembers( Manager ):
         # MongoDB query to find members
         self.query = None
         # GAM account creation command
-        self.gamaccountfmt = 'gam create user {} externalid organization {:d} givenname "{}" familyname "{}" organizations department {} description {} primary orgunitpath "{}" password \'{}\' changepassword true Member.CAPID {:d} Member.Unit {} Member.Type {}'
+        self.gamaccountfmt = 'gam create user {} givenname "{}" familyname "{}" primary orgunitpath "{}" password \'{}\' changepassword true Member.CAPID {:d} Member.Unit {} Member.Type {}'
         # GAM group add member command
         self.gamgroupfmt = 'gam update group {}@' + self.domain + ' add member {}'
         # GAM command to email notification to new member
@@ -681,12 +683,15 @@ class UnSuspend( Manager ):
         """
         gamcmdfmt = 'gam unsuspend user {}'
         count = 0
-        cur = self.DB().Google.find( self.query ).sort( 'externalIds',
+        cur = self.DB().Google.find( self.query ).sort( 'customSchemas.Member.CAPID',
                                                         pymongo.ASCENDING )
         with open( self.outfileName, 'w' ) as outfile:
             for g in cur:
                 # lookup user in Member documents
-                m = self.DB().Member.find_one( { 'CAPID' : g[ 'externalIds'][0]['value'], 'MbrStatus' : 'ACTIVE' } )
+                try:
+                    m = self.DB().Member.find_one( { 'CAPID' : g[ 'customSchemas']['Member']['CAPID'], 'MbrStatus' : 'ACTIVE' } )
+                except KeyError as e:
+                    print("ERROR:Missing or corrupt customSchema in Google:",g['_id'] )
                 if ( m ) :
                     # check to see if member is on the Holds list and skip
                     if ( self.checkHolds( m['CAPID'] )):
