@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,5,1)
+version_tuple = (1,5,2)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+11Sep20 MEG SweepExpired added checkHolds check
 11Sep20 MEG Fixed bad reference bug in UnSuspend
 05Sep20 MEG Switch to custom schema fields for Member.{CAPID,Unit,Type}
 02May20 MEG Expired do not suspend member if on hold status
@@ -756,6 +757,7 @@ class SweepExpired( Manager ):
         cursor = self.DB().Member.find( self.query )
         with open( self.outfileName, 'w' ) as outfile:
             for member in cursor:
+                if ( self.checkHolds( member[ 'CAPID' ] )): continue
                 if ( member[ 'MbrStatus' ] != 'EXMEMBER' ):
                     self.markEXMEMBER( member[ 'CAPID' ] )
                     logging.info("Member: %d marked EXMEMBER in database.",
