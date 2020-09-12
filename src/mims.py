@@ -516,10 +516,6 @@ class PurgeMembers( Manager ):
         #Scan all expired members
         cur = self.DB().Member.find( self.query )
         for m in cur:
-            try:
-                if ( m['NHWGStatus'] == 'EXMEMBER') : continue
-            except KeyError as e:
-                pass
             capid = m['CAPID']
             g = self.DB().Google.find_one(
                 {'customSchemas.Member.CAPID': capid } )
