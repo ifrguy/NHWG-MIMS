@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,5,2)
+version_tuple = (1,5,3)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+18Sep20 MEG NewMembers:mkNewAccount fixed gam command arg misalignment
 11Sep20 MEG SweepExpired added checkHolds check
 11Sep20 MEG Fixed bad reference bug in UnSuspend
 05Sep20 MEG Switch to custom schema fields for Member.{CAPID,Unit,Type}
@@ -305,14 +306,13 @@ class NewMembers( Manager ):
         if contact:
             email = self.mkEmailAddress( m )
             cmd = self.gamaccountfmt.format( email,
-                                             m['CAPID'],
                                              self.givenName( m ),
                                              self.familyName( m ),
-                                             m['Unit'],
-                                             m['Type'],
-                                             orgUnitPath[ m['Unit'] ],
+                                             orgUnitPath[ m[ 'Unit' ] ],
                                              self.mkpasswd(),
-                                             m[ 'CAPID' ], m['Unit'], m['Type'])
+                                             m[ 'CAPID' ],
+                                             m[ 'Unit' ],
+                                             m[ 'Type' ])
             # Write a placeholder to Google to record the new account
             # so we don't try to create a duplicate address.
             self.DB().Google.insert( { 'primaryEmail': email } )
