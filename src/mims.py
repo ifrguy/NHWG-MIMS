@@ -205,7 +205,7 @@ class NewMembers( Manager ):
         # MongoDB query to find members
         self.query = None
         # GAM account creation command
-        self.gamaccountfmt = 'gam create user {} givenname "{}" familyname "{}" primary orgunitpath "{}" password \'{}\' changepassword true Member.CAPID {:d} Member.Unit {} Member.Type {}'
+        self.gamaccountfmt = 'gam create user {} givenname "{}" familyname "{}" orgunitpath "{}" password \'{}\' changepassword true Member.CAPID {:d} Member.Unit {} Member.Type {}'
         # GAM group add member command
         self.gamgroupfmt = 'gam update group {}@' + self.domain + ' add member {}'
         # GAM command to email notification to new member
