@@ -3,6 +3,7 @@
 # Then mail to the command staff mailing list.
 
 # History:
+# 18Sep20 MEG Uploads files to shared drive, sends only links
 # 06Jul19 MEG Correct sendemail message file syntax.
 # 10Mar19 MEG Fixed options order parsing.
 # 25Nov18 MEG Added options to change mailing list and message
@@ -10,23 +11,25 @@
 # 02Oct18 MEG Created.
 #
 
-WORKDIR=$HOME/work/NHWG/Reports
-cd $WORKDIR
+# Load config file
+CONF=./$(basename $0).conf
+if [ -f  $CONF ]; then
+    . $CONF
+else
+    echo "Error: missing configuration file: $CONF"
+    exit 1
+fi
 
 # Report generator MongoDB login credentials
-CREDS=./reporter-creds
 . $CREDS
 
-/bin/rm -f NewMembers-Report.csv
+# Make date stamp
+DATESTAMP=$(date +%Y%m%d)
 
-# target database
-DB=NHWG
+#/bin/rm -f NewMembers-Report.csv
 
-# Default mailing list file
-MAILINGLIST=./mailinglist
-
-# Message text or message file template
-MESSAGE="file ./weekly-new-members.html html true"
+# make sure we are in the proper working directory
+cd $WORKDIR
 
 # cmd line options
 OPTS="h?l:m:n"
@@ -51,17 +54,21 @@ done
 shift $(($OPTIND - 1))
 
 echo "Preparing New members report"
-mongo --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB NewMembersLastWeek.js >NewMembers-Report.csv
-
-
-# if NOEMAIL is set skip sending report
-[[ -v NOEMAIL ]] && exit 1
-
-# Use GAM to email reports to commanders mailing list
-if [ $( find ./NewMembers-Report.csv -type f -size +41c 2>/dev/null ) ]; then
-#if [ -s NewMembers-Report.csv ]; then
+fn=$DATESTAMP-NewMembers-Report.csv
+mongo --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB NewMembersLastWeek.js >$fn
+# Upload file to shared drive if there's anything to send (size gt 41 bytes)
+if [ $( find ./$fn -type f -size +41c 2>/dev/null ) ]; then
+    FILEID[$r]=$(gam user $ASUSER create drivefile \
+		 teamdriveparent "$SHAREDDRIVE" \
+		 teamdriveparentname "$DRIVEFOLDER" \
+		 drivefilename "$fn" localfile "$fn" returnidonly)
+    # clean-up
+    /bin/rm $fn
+    # if NOEMAIL is set skip sending report
+    [[ -v NOEMAIL ]] && continue
+    # Use GAM to email reports to commanders mailing list
     echo "Sent emails to list"
-    gam sendemail file $MAILINGLIST subject "NHWG:Weekly New Members Report" $MESSAGE attach NewMembers-Report.csv
+    gam sendemail file $MAILINGLIST subject "NHWG:Weekly New Members Report" $MESSAGE replace newmembers $FILEID
 else
     echo "No report to send."
 fi
