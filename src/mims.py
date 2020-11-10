@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,5,3)
+version_tuple = (1,5,4)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+09Nov20 MEG Default groups for account creation load from the config file
 18Sep20 MEG NewMembers:mkNewAccount fixed gam command arg misalignment
 11Sep20 MEG SweepExpired added checkHolds check
 11Sep20 MEG Fixed bad reference bug in UnSuspend
@@ -207,10 +208,10 @@ class NewMembers( Manager ):
         # GAM account creation command
         self.gamaccountfmt = 'gam create user {} givenname "{}" familyname "{}" orgunitpath "{}" password \'{}\' changepassword true Member.CAPID {:d} Member.Unit {} Member.Type {}'
         # GAM group add member command
-        self.gamgroupfmt = 'gam update group {}@' + self.domain + ' add member {}'
+        self.gamgroupfmt = 'gam update groups {} add member {}'
         # GAM command to email notification to new member
         self.gamnotifyfmt = ' notify {} subject "{}" file {}'
-        # Group to add member to
+        # Group or groups string, comma separted groups, to add member to
         self.group = None
         self.outfile = None
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
@@ -341,7 +342,7 @@ class NewMembers( Manager ):
         """
         Add a member to a group
         Input member Google email address
-        Output GAM command to add member to a mailing list/group.
+        Output GAM command to add member to a mailing list/groups.
         Note: this function always succeeds.
         """
         if ( self.group and email ):
@@ -409,7 +410,7 @@ class NewSeniors( NewMembers ):
 
     def __init__( self ):
         super().__init__()
-        self.group = 'seniors'
+        self.group = SENIORGROUPS
         self.query = { 'Type':'SENIOR',
                        'MbrStatus':'ACTIVE',
                        'Unit' : { '$ne' : '000' }  }
@@ -424,7 +425,7 @@ class NewCadets( NewMembers ):
 
     def __init__( self ):
         super().__init__()
-        self.group = None
+        self.group = CADETGROUPS
         y = datetime.utcnow().year - MIN_CADET_AGE
         m = datetime.utcnow().month
         qd = datetime( y, m, 1, tzinfo=timezone.utc)

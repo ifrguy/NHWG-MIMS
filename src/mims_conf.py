@@ -43,6 +43,13 @@ CREATE_CADET_ACCOUNTS = True
 # Minimun age at which Cadets are premitted to have accounts
 MIN_CADET_AGE = 18
 
+# Default group strings
+# May be a string of comma separated group email addresses, e.g. "all,cadets"
+# Default cadet groups
+CADETGROUPS = 'all'
+# Default senior member groups
+SENIORGROUPS = 'all,seniors'
+
 # Domain to be used when creating, deleting accounts or groups
 DOMAIN = 'nhwg.cap.gov'
 
