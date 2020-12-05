@@ -26,7 +26,6 @@ OPTS="d:i:l:Lh?u:"
 
 ARCH=$(uname -p)
 DLPATH=$HOME/downloads
-#GLIBCVERSION=$(ldd --version | gawk '/^ldd/ {print $NF;}')
 GLIBCVERSION=$(ldd --version|head -1|while read a b c d e;do echo $e;done)
 GAMURL="https://github.com/taers232c/GAMADV-XTD3/releases/download/v"
 INSTALLDIR="/usr/local/bin"
@@ -68,7 +67,6 @@ ARCHIVE="gamadv-xtd3-$GAMVERSION-linux-$ARCH-glibc$GLIBCVERSION.tar.xz"
 pushd $DLPATH &>/dev/null
 
 # attempt to download GAM archive
-#wget -q "$GAMURL$GAMVERSION/$ARCHIVE"
 curl -sL "$GAMURL$GAMVERSION/$ARCHIVE" --output $ARCHIVE
 
 echo "Installing: $GAMVERSION"
