@@ -2,6 +2,7 @@
 # Download and install a specified version of GAMADV-XTD3
 #
 # History:
+# 05Dec20 MEG Added install messages.
 # 04Dec20 MEG Find GAMADV latest version for download
 # 26Nov20 MEG Created.
 #
@@ -55,10 +56,12 @@ pushd $DLPATH &>/dev/null
 #wget -q "$GAMURL$GAMVERSION/$ARCHIVE"
 curl -sL "$GAMURL$GAMVERSION/$ARCHIVE" --output $ARCHIVE
 
+echo "Installing: $GAMVERSION"
 # unpack archive
-tar Jxvf $ARCHIVE
+tar Jxf $ARCHIVE
 
 # you must have access privilege to do the copy to system directories
 cp $DLPATH/gamadv-xtd3/* $INSTALLDIR
+echo "Done."
 
 popd &>/dev/null
