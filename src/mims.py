@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,5,4)
+version_tuple = (1,5,5)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+12Dec20 MEG UnSuspend.run now uses expiration date only.
 09Nov20 MEG Default groups for account creation load from the config file
 18Sep20 MEG NewMembers:mkNewAccount fixed gam command arg misalignment
 11Sep20 MEG SweepExpired added checkHolds check
@@ -676,18 +677,23 @@ class UnSuspend( Manager ):
     def run( self ):
         """
         Scans Google account documents for suspended accounts. Checks account
-        against the Member document to see if the member is ACTIVE again
-        and emits a GAM command to unsuspend the account on Google.
+        against the Member document to see if the member is active again by
+        looking at the expiration date. Emit a GAM command to unsuspend the
+        account on Google G Suite if active.
         """
         gamcmdfmt = 'gam unsuspend user {}'
         count = 0
+        today = datetime.today()
+        
         cur = self.DB().Google.find( self.query ).sort( 'customSchemas.Member.CAPID',
                                                         pymongo.ASCENDING )
         with open( self.outfileName, 'w' ) as outfile:
             for g in cur:
                 # lookup user in Member documents
                 try:
-                    m = self.DB().Member.find_one( { 'CAPID' : g[ 'customSchemas']['Member']['CAPID'], 'MbrStatus' : 'ACTIVE' } )
+                    m = self.DB().Member.find_one(
+                        { 'CAPID' : g[ 'customSchemas']['Member']['CAPID'] }
+                    )
                 except KeyError as e:
                     print("ERROR:Missing or corrupt customSchema in Google:",g['_id'] )
                 if ( m ) :
@@ -697,7 +703,9 @@ class UnSuspend( Manager ):
                                      m['CAPID'],
                                      g['primaryEmail'] )
                         continue
-
+                    # if membership is still expired skip reactivation
+                    if ( m[ 'Expiration' ] < today ):
+                        continue
                     # check to see if we should update the local Google collection
                     if UPDATE_SUSPEND :
                         result = self.DB().Google.update_one( { 'primaryEmail' : g['primaryEmail']},
