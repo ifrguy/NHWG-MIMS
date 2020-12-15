@@ -17,6 +17,8 @@
 ##   limitations under the License.
 
 # History:
+# 15Dec20 MEG added download only option.
+# 15Dec20 MEG exit if archive did not download.
 # 14Dec20 MEG Ross fixed download uri, fixed to track.
 # 14Dec20 MEG Ross changed download uri, fixed to track.
 # 05Dec20 MEG Added install messages.
@@ -24,7 +26,7 @@
 # 26Nov20 MEG Created.
 #
 
-OPTS="d:i:l:Lh?u:"
+OPTS="Dd:i:l:Lh?u:"
 
 ARCH=$(uname -p)
 DLPATH=$HOME/downloads
@@ -32,6 +34,8 @@ GLIBCVERSION=$(ldd --version|head -1|while read a b c d e;do echo $e;done)
 GAMURL="https://github.com/taers232c/GAMADV-XTD3/releases/download/v"
 INSTALLDIR="/usr/local/bin"
 USAGE="Usage: $(basename $0) [$OPTS] [\"gam-version-number\"]\n
+Download and install GAMADV-XTD3\n
+\tD - Download only, do not install\n
 \td - Download target path ($DLPATH)\n
 \ti - Installation target directory ($INSTALLDIR)\n
 \th|? - Help - this message\n
@@ -44,6 +48,7 @@ Note: you must have privileges to copy to the install directory.\n
 while getopts $OPTS o; do
     case $o in
 	d) DLPATH=$OPTARG;;
+	D) DOWNLOADONLY=1;;
 	i) INSTALLDIR=$OPTARG;;
 	l) GLIBCVERSION="$OPTARG";;
 	L) LATEST=1;;
@@ -70,6 +75,18 @@ pushd $DLPATH &>/dev/null
 
 # attempt to download GAM archive
 curl -sL "$GAMURL$GAMVERSION/$ARCHIVE" --output $ARCHIVE
+SIZE=$( wc -c < $ARCHIVE )
+if (( SIZE < 1000000 )); then
+    echo "ERROR:Download failed."
+    exit 1
+fi
+
+# Check for download only
+if [ -v DOWNLOADONLY ]; then
+    echo "Downloaded: $ARCHIVE"
+    popd &>/dev/null
+    exit 0
+fi
 
 echo "Installing: $GAMVERSION"
 # unpack archive
