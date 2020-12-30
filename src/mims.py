@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,5,5)
+version_tuple = (1,6,0)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+16Dec20 JCV Added class for checking/reconciling organization/unit 
 12Dec20 MEG UnSuspend.run now uses expiration date only.
 09Nov20 MEG Default groups for account creation load from the config file
 18Sep20 MEG NewMembers:mkNewAccount fixed gam command arg misalignment
@@ -779,6 +780,74 @@ class SweepExpired( Manager ):
                           member[ 'CAPID' ],
                           DELETE_PURGED )
 
+
+class CheckOrgUnit ( Manager ):
+    """
+    CheckOrgUnit - Class for reconciling Unit from eServices and Unit/orgUnitPath from Google
+    """
+    helpMsg = 'Compares CAPWATCH organizational unit to Google and updates Google if different'
+
+    def __init__(self):
+        super().__init__()
+        self.domain = DOMAIN
+
+        # MongoDB aggregation:
+        self.query = [
+        # Stage 0: we just care about 'ACTIVE' members and those not in the special unit 000:
+            { '$match' : { 'MbrStatus' : 'ACTIVE',
+                           'Unit' : { '$ne' : '000' }
+                         }
+            },
+
+        # Stage 1: join CAPWATCH and Google collections based on CAPID:
+            { '$lookup' : {
+                'from': "Google",
+                'localField': "CAPID",
+                'foreignField': "customSchemas.Member.CAPID",
+                'as': "tempAgg"
+                }
+            },
+
+        # Stage 2:  unwind (or flatten) the "tempAgg" element
+            { '$unwind' : {
+                'path': "$tempAgg"
+                }
+            },
+
+        # Stage 3:  limit the result to just the fields we care about
+            { '$project' : {
+                "Gid" : "$tempAgg.customSchemas.Member.CAPID",
+                "primaryEmail" : "$tempAgg.primaryEmail",
+                "orgUnit" : "$tempAgg.orgUnitPath",
+                "GUnit" : "$tempAgg.customSchemas.Member.Unit",
+                "CUnit" : "$Unit"
+                }
+            }
+        ]
+
+        # GAM update command: we'll be updating 'orgUnitPath' and 'Member.Unit' in the Google records:
+        self.gamupdate = 'gam update user {} orgUnitPath "{}" customSchemas.Member.Unit "{}"'
+        logging.basicConfig( filename = self.logfileName, filemode = 'w', level = logging.DEBUG )
+
+    def run(self):
+        # Perform a "join" to get overlap of Google and CAPWATCH entries based on CAPID
+        result = self.DB().Member.aggregate( self.query)
+
+        n = 0 # number of modifications (i.e. number of members who transferred units)
+
+        # Iterate over result and generate gam command where needed:
+        with open ( self.outfileName, 'w' ) as outfile:
+            for m in result:
+                # Act on those records for which the Member.Unit from Google does not equal the Unit from CAPWATCH:
+                if ( m[ 'GUnit' ] != m[ 'CUnit' ] ):
+                    n += 1
+                    logging.info("The Unit is different for CAPID [%d] %s versus %s", m['Gid'],m['GUnit'], m['CUnit'])
+
+                    # Here's where we add a gam command to the batch file to update the Google record
+                    print( self.gamupdate.format( m['primaryEmail'], orgUnitPath[ m[ 'CUnit' ] ], m[ 'CUnit' ]), file = outfile )
+            logging.info( "Total members who changed units: %d", n)
+
+    
 # Create the base object for all jobs
 # MIMS is the factory base class object
 MIMS = Manager()
