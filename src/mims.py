@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,6,0)
+version_tuple = (1,6,1)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+01Jan21 MEG Fixed syntax error in CheckOrgUnit custom schema update.
 16Dec20 JCV Added class for checking/reconciling organization/unit 
 12Dec20 MEG UnSuspend.run now uses expiration date only.
 09Nov20 MEG Default groups for account creation load from the config file
@@ -826,7 +827,7 @@ class CheckOrgUnit ( Manager ):
         ]
 
         # GAM update command: we'll be updating 'orgUnitPath' and 'Member.Unit' in the Google records:
-        self.gamupdate = 'gam update user {} orgUnitPath "{}" customSchemas.Member.Unit "{}"'
+        self.gamupdate = 'gam update user {} orgUnitPath "{}" Member.Unit "{}"'
         logging.basicConfig( filename = self.logfileName, filemode = 'w', level = logging.DEBUG )
 
     def run(self):
