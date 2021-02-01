@@ -13,7 +13,7 @@ var googleGroup = baseGroupName + '@nhwg.cap.gov';
 // Mongo collection that holds all wing groups
 var groupsCollection = 'GoogleGroups';
 
-// Aggregation pipeline find all wing IT Directors and Officer
+// Aggregation pipeline find all wing IT Directors and Officers
 var memberPipeline = [
     // Stage 1
     {
