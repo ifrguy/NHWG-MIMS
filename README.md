@@ -2,9 +2,9 @@
 ## NHWG Member Info Management System
 ## (WARNING THIS IS UNDER DEVELOPMENT)
 
-Author: Capt Marshall Giguere, Civil Air Patrol
+Author: Maj Marshall Giguere, Civil Air Patrol
 
-MIMS is intended to synchronize member accounts between National database and Wing accounts with the Google G-Suite platform.  Provides the following functions: Add new members, remove members no longer found on National rolls, Suspend expired member accounts until they either fall off the rolls, or renew. MIMS scans the National database and emits batch jobs to perform it's various tasks.  MIMS is intended to be platform agnostic although it is designed primarily with Linux in mind.
+MIMS is intended to synchronize member accounts between National database and Wing accounts with the Google WorkSpaces platform.  Provides the following functions: Add new members, remove members no longer found on National rolls, Suspend expired member accounts until they either fall off the rolls, or renew. MIMS scans the National database and emits batch jobs to perform it's various tasks.  MIMS is intended to be platform agnostic although it is designed primarily with Linux in mind.
 **capwatch2.py** replaces the old **capwatch.py** downloader tool.  **capwatch2.py** makes use of the recently released downloader api from eServices.  The eServices release included a PowerShell implementation, capwatch2.py is a Python 3 rewrite and platform agnostic. **NOTE:** you will need to have your WSA and wing commander authorize your use of the api, or web interface.  **capwatch2** requires these additional Python modules: argparse, requests.
 
 The use of Google custom schemas has been introduced to more easily track some membership information like CAPID, Unit and member Type.  This has been done as it is not possible to update individual entries in the Google "organizations" schema, you must update the entire package or lose data not supplied.  Custom schemas allow individual attributes to be updated without disturbing existing information.
@@ -14,7 +14,7 @@ The use of Google custom schemas has been introduced to more easily track some m
 * Python 3.0>
 * [GAMADV-XTD3](https://github.com/taers232c/GAMADV-XTD3) Ross Scroggs excellent fork of the [GAM](https://github.com/jay0lee/GAM) tool.
 * [MongoDB](https://www.mongodb.com/download-center#community) document database manager 3.6>
-* Google G-Suite admin account.
+* Google WorkSpaces admin account.
 
 #### Windows additional requirements (includes all of the above)
 * Cygwin environment
