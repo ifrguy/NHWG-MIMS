@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,6,1)
+version_tuple = (1,6,2)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+04Feb21 JCV Added class for checking/reconciling Member type
 01Jan21 MEG Fixed syntax error in CheckOrgUnit custom schema update.
 16Dec20 JCV Added class for checking/reconciling organization/unit 
 12Dec20 MEG UnSuspend.run now uses expiration date only.
@@ -848,6 +849,66 @@ class CheckOrgUnit ( Manager ):
                     print( self.gamupdate.format( m['primaryEmail'], orgUnitPath[ m[ 'CUnit' ] ], m[ 'CUnit' ]), file = outfile )
             logging.info( "Total members who changed units: %d", n)
 
+
+class CheckMemberType ( Manager ):
+    """
+    CheckMemberType - Class for reconciling Member.Type from eServices and customSchemas.Member.Type from Google
+    """
+    helpMsg = 'Compares CAPWATCH member type to Google and updates Google if different'
+
+    def __init__(self):
+        super().__init__()
+        self.domain = DOMAIN
+
+        # MongoDB aggregation:
+        self.query = [
+
+        # Stage 1: join CAPWATCH and Google collections based on CAPID:
+            { '$lookup' : {
+                'from': "Member",
+                'localField': "customSchemas.Member.CAPID",
+                'foreignField': "CAPID",
+                'as': "tempAgg"
+                }
+            },
+
+        # Stage 2:  unwind (or flatten) the "tempAgg" element
+            { '$unwind' : {
+                'path': "$tempAgg"
+                }
+            },
+
+        # Stage 3:  limit the result to just the fields we care about
+            { '$project' : {
+                "CAPID" : "$customSchemas.Member.CAPID",
+                "primaryEmail" : "$primaryEmail",
+                "mType" : "$tempAgg.Type",
+                "gType" : "$customSchemas.Member.Type"
+                }
+            }
+        ]
+
+        # GAM update command: we'll be updating 'Member.Type' in the Google records:
+        self.gamupdate = 'gam update user {} Member.Type "{}" '
+        logging.basicConfig( filename = self.logfileName, filemode = 'w', level = logging.DEBUG )
+
+    def run(self):
+        # Perform a "join" to get overlap of Google and CAPWATCH entries based on CAPID
+        result = self.DB().Google.aggregate( self.query)
+
+        n = 0 # number of modifications (i.e. number of members whose member type changed)
+
+        # Iterate over result and generate gam command where needed:
+        with open ( self.outfileName, 'w' ) as outfile:
+            for m in result:
+                # Act on those records for which the Member Type from Google does not equal that from CAPWATCH:
+                if ( m[ 'gType' ] != m[ 'mType' ] ):
+                    n += 1
+                    logging.info("The member type for CAPID [%s] has changed from %s to %s", m['CAPID'],m['gType'], m['mType'])
+
+                    # Here's where we add a gam command to the batch file to update the Google record
+                    print( self.gamupdate.format( m['primaryEmail'], m['mType']), file = outfile )
+            logging.info( "Total members who changed type of membership: %d", n)
     
 # Create the base object for all jobs
 # MIMS is the factory base class object
