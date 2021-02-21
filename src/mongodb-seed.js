@@ -1,5 +1,5 @@
 // Seed MongoDB with new wing database and starting collecions
-use NHWG;
+use MyWING;
 var collections = [ 'Achievements',
 		    'Commanders',
 		    'DutyPosition',
