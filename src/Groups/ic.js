@@ -1,5 +1,6 @@
 // Manage Incident Commander (IC) list
 // History:
+// 06Mar21 MEG Fixed problem member not actually removed from list
 // 20Apr20 MEG Created.
 
 var db = db.getSiblingDB('NHWG');
@@ -16,9 +17,9 @@ var cur = db.getCollection("MbrAchievements").aggregate(
             "$match" : { 
                 "AchvID" : { 
                     "$in" : [
-                        61.0, 
-                        125.0, 
-                        128.0
+                        61, 
+                        125, 
+                        128
                     ]
                 }, 
                 "$or" : [
@@ -75,14 +76,14 @@ var cur = db.getCollection("MbrAchievements").aggregate(
         }, 
         { 
             "$project" : { 
-                "CAPID" : 1.0, 
+                "CAPID" : 1, 
                 "NameFirst" : "$member.NameFirst", 
                 "NameLast" : "$member.NameLast", 
                 "NameSuffix" : "$member.NameSuffix", 
                 "Achievement" : "$achv.Achv", 
-                "Status" : 1.0, 
-                "AchvID" : 1.0, 
-                "Email" : "$google.primaryEmail"
+                "Status" : 1, 
+                "AchvID" : 1, 
+                "email" : "$google.primaryEmail"
             }
         }
     ], 
@@ -93,7 +94,7 @@ var cur = db.getCollection("MbrAchievements").aggregate(
 
 while ( cur.hasNext() ) { 
     var m = cur.next();
-    ics[ m.Email ] = { CAPID: m.CAPID, last: m.NameLast, first: m.NameFirst, suffix: m.NameSuffix };
+    ics[ m.email ] = { CAPID: m.CAPID, last: m.NameLast, first: m.NameFirst, suffix: m.NameSuffix };
 }
 
 // Check for new members to add to group
@@ -116,12 +117,12 @@ var cur = db.GoogleGroups.find( { group: group, role: 'MEMBER'} );
 
 while ( cur.hasNext() ) {
     var m = cur.next();
+//    print("email:", m.email );
     if ( m.email in ics ) { continue; }
     count++;
-    print( "# Remove member:", ics[ m.email ].CAPID, db.Google.findOne( { primaryEmail: m.email } ).name.fullName );
+    print( "# Remove member:", "CAPID:",
+	   db.Google.findOne( { primaryEmail: m.email } ).customSchemas.Member.CAPID,
+	   db.Google.findOne( { primaryEmail: m.email } ).name.fullName, 'email:', m.email );
+    print( "gam update group", group, "delete member", m.email );
 }
-print( "# Total members to remove:", count );
-
-
-
-
+print( "# Total members removed:", count );
