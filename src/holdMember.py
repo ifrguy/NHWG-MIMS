@@ -3,14 +3,17 @@
 # holdMember/unholdMember places a member on hold to prevent their 
 # Google account from being removed, or removes the hold so the
 # member account can be removed or reinstated.
-# If called as holdMember inserts CAPID in NHWG.Holds.
-# If callded as unholdMember removes CAPID from NHWG.Holds
+# If called as holdMember inserts CAPID in Holds, adds HOLD to Member wing status field.
+# If callded as unholdMember removes CAPID from Holds
 
 # History:
+# 08Mar21 MEG Added date stamp to hold
+# 02May20 MEG Set/unset Wing status on Member, check for duplicate holds on set
 # 09Aug18 MEG Added on hold checking
 # 15Jun18 MEG Created
 
 import os, sys
+from datetime import date, timedelta, datetime, timezone
 from pymongo import MongoClient
 from hold_credentials import *
 
@@ -55,7 +58,15 @@ def hold( db ):
         comment = sys.argv[ 2 ]
     except:
         comment = ""
-    db.Holds.insert_one( { "CAPID": capid, "Comment" : comment } )
+    if ( db.Holds.find_one( { 'CAPID' : capid } )):
+        print("ERROR: CAPID:", capid, "already on hold." )
+        return
+        
+    db.Holds.insert_one( { "CAPID": capid,
+                           "Comment" : comment,
+                           "Date" : datetime.now() } )
+    db.Member.update_one( { 'CAPID' : capid }, { '$set' : { 'NHWGStatus':
+                                                            'HOLD' }} )
     return
 
 def unhold( db ):
@@ -73,6 +84,8 @@ def unhold( db ):
     r = db.Holds.find_one( { "CAPID" : capid } )
     if ( r ):
         db.Holds.delete_one( { '_id' : r[ '_id' ] } )
+        db.Member.update_one( { 'CAPID' : capid }, { '$set' : { 'NHWGStatus' :
+                                                                None }} )
         return
     print( "Error: CAPID:", str( capid ), "not found." )
     return
@@ -81,7 +94,7 @@ def onhold( db ):
     """
     Print a list of members on hold, or check for a specific member.
     """
-    msg = 'CAPID: {} {} {}, Comment: {}'
+    msg = 'CAPID: {} {} {}, Comment: {} {}'
     try:
         capid = int(sys.argv[1])
         # do member lookup for hold
@@ -93,7 +106,8 @@ def onhold( db ):
             print( msg.format( m['CAPID'],
                                m['NameFirst'],
                                m['NameLast']+m['NameSuffix'],
-                               h['Comment']))
+                               h['Comment'],
+                               h['Date'].strftime("%Y-%m-%d:T%H%M")))
         else:
             print( 'Nothing found.')
     except IndexError:
@@ -105,16 +119,18 @@ def onhold( db ):
                 print( msg.format( m['CAPID'],
                                    m['NameFirst'],
                                    m['NameLast']+m['NameSuffix'],
-                                   h['Comment']))
+                                   h['Comment'],
+                                   h['Date'].strftime("%Y-%m-%d:T%H%M")))
             else:
                 print( msg.format( h['CAPID'], 'Unknown', 'Unknown',
-                                   h['Comment']))
+                                   h['Comment'],
+                                   h['Date'].strftime("%Y-%m-%d:T%H%M")))
     except ValueError:
         print( HELP[ PROG ] )
         sys.exit( 1 )
     return
 
-# Function lookup table
+# Function lookup table - maps executable name to function to call
 ftab = { "holdMember" : hold,
          "unholdMember": unhold,
          "onHold": onhold,
