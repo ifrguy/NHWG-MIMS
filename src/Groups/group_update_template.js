@@ -41,6 +41,11 @@ var memberCollection = '';
 // Name of the collection that holds all wing groups
 var groupsCollection = 'GoogleGroups';
 // Name of collection the contains all the holds
+// At a minimum the documents in the hold collection must include two
+// attributes:
+// email: the email address of the member in the groups to be held.
+// group: the email address of the group to which the member belongs
+// NOTE: if holdsCollection is "undefined" no check for holds will be executed
 var holdsCollection = 'GroupHolds';
 
 // Aggregation template pipeline used to find qualified members.
@@ -182,9 +187,11 @@ function removeMembers( collection, pipeline, options, group, authMembers ) {
        	DEBUG && print("DEBUG::removeMembers::email",e);
        	var rgx = new RegExp( e, "i" );
        	if ( authMembers[ e ] ) { continue; }
-	if ( isOnHold( group, e )) {
-	    print( '#INFO:', e, 'on hold status, not removed.');
-	    continue;
+	if ( holdsCollection ) {
+	    if ( isOnHold( group, e )) {
+		print( '#INFO:', e, 'on hold status, not removed.');
+		continue;
+	    }
 	}
         var r = db.getCollection( 'MbrContact' ).findOne( { Type: 'EMAIL', Priority: 'PRIMARY', Contact: rgx } );
        	if ( r ) {
