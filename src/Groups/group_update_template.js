@@ -2,9 +2,11 @@
 //This is a template JS script for MongoDB you must adapt it for your group
 // 1. Supply an aggregation pipeline for 'memberPipeline' to provide
 //    a list of member candidates for your group
-//    The following fields are MANDATORY, others as desired (see memberPipeline below)
+//    The following fields are MANDATORY, others as desired
+//
 //    CAPID - Members CAPID
 //    Email - the members wing account primaryEmail address
+//    (see memberPipeline template below as a guide)
 //
 // 2. Fill in values for the following variables:
 //    baseGroupName - the base name for the group email address
@@ -12,12 +14,16 @@
 //    memberCollection - name of the collect to use to find potential group members
 //    groupsCollection - name of the collection housing all wing groups
 //                       the default is the collection 'GoogleGroups'
+//    holdsCollection  - (OPTIONAL) name of collection that contains emails
+//                       to withhold from removal.
+//                       If null or not defined hold checking is skipped.
 //
 // 3. Once completed you can test the script by passing it as a command line
 //    arguement to the updateGroup bash shell script. If the result is what
 //    you expect then you may add a crontab job to mims crontab
 //
 //History:
+// 17Mar21 MEG Minor header documentation changes for clarity.
 // 16Mar21 MEG Added isOnHold to check for addresses not to be removed.
 // 25Feb21 MEG Added explanatory text, cleaned up variables.
 // 28Jan21 MEG Created.
