@@ -18,6 +18,7 @@
 //    you expect then you may add a crontab job to mims crontab
 //
 //History:
+// 16Mar21 MEG Added isOnHold to check for addresses not to be removed.
 // 25Feb21 MEG Added explanatory text, cleaned up variables.
 // 28Jan21 MEG Created.
 
@@ -39,6 +40,8 @@ var memberCollection = '';
 
 // Name of the collection that holds all wing groups
 var groupsCollection = 'GoogleGroups';
+// Name of collection the contains all the holds
+var holdsCollection = 'GroupHolds';
 
 // Aggregation template pipeline used to find qualified members.
 // This is an arrary of MongoDB aggregation operations to be applied
@@ -89,7 +92,7 @@ var memberPipeline = [
 	$project: {
 	    "CAPID" : 1,
 	    "Name" : "$google.name.fullName", 
-	    "Email" : "$google.primaryEmail",    
+	    "email" : "$google.primaryEmail",    
 	    // you may add other fields here
 	}
     },
@@ -126,12 +129,21 @@ function isActiveMember( capid ) {
     return true;
 }
 
-
 function isGroupMember( group, email ) {
     // Check if email is already in the group
     var email = email.toLowerCase();
     var rx = new RegExp( email, 'i' );
     return db.getCollection( groupsCollection ).findOne( { 'group': group, 'email': rx } );
+}
+
+function isOnHold( group, email ) {
+    // Checks the "GroupHolds" collection for "email" and "group"
+    // for a hold to prevent email address removal.
+    // email - the email address to check for
+    // group - the group email address
+    var r = db.getCollection( holdsCollection ).findOne(
+	{ email: email, group: group } );
+    return r;
 }
 
 function addMembers( collection, pipeline, options, group ) {
@@ -147,10 +159,10 @@ function addMembers( collection, pipeline, options, group ) {
     while ( cursor.hasNext() ) {
         var m = cursor.next();  
         if ( ! isActiveMember( m.CAPID ) ) { continue; }
-	if ( ! authList[ m.Email ] ) {  authList[ m.Email ] = true; }
-        if ( isGroupMember( googleGroup, m.Email ) ) { continue; }
+	if ( ! authList[ m.email ] ) {  authList[ m.email ] = true; }
+        if ( isGroupMember( googleGroup, m.email ) ) { continue; }
         // Print gam command to add new member
-        print("gam update group", googleGroup, "add member", m.Email );
+        print("gam update group", googleGroup, "add member", m.email );
     }
     return authList;
 }
@@ -160,6 +172,7 @@ function removeMembers( collection, pipeline, options, group, authMembers ) {
     // check active status, if not generate a gam command to remove member.
     // collection - name of collection holding all Google Group info
     // pipeline - array containing the pipeline to extract members of the target group
+    // Check hold status for potential removals
     // options - options for aggregations pipeline
     // group - group to be updated
     // authMembers - set of authorized and possible members
@@ -169,6 +182,10 @@ function removeMembers( collection, pipeline, options, group, authMembers ) {
        	DEBUG && print("DEBUG::removeMembers::email",e);
        	var rgx = new RegExp( e, "i" );
        	if ( authMembers[ e ] ) { continue; }
+	if ( isOnHold( group, e )) {
+	    print( '#INFO:', e, 'on hold status, not removed.');
+	    continue;
+	}
         var r = db.getCollection( 'MbrContact' ).findOne( { Type: 'EMAIL', Priority: 'PRIMARY', Contact: rgx } );
        	if ( r ) {
     	    var a = db.getCollection( 'Member' ).findOne( { CAPID: r.CAPID } );
