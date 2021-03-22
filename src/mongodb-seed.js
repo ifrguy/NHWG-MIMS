@@ -1,5 +1,5 @@
 // Seed MongoDB with new wing database and starting collecions
-use MyWING;
+use WING;
 var collections = [ 'Achievements',
 		    'Commanders',
 		    'DutyPosition',
@@ -9,6 +9,7 @@ var collections = [ 'Achievements',
 		    'MbrAddresses',
 		    'MbrContact',
 		    'Member',
+		    'equipment',
 		  ];
 
 for ( var i = 0; i < collections.length; i++ ) {
