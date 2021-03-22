@@ -1,5 +1,5 @@
 #!/bin/bash -e
-## Copyright 2017 Marshall E. Giguere
+## Copyright 2021 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -14,10 +14,27 @@
 ##   limitations under the License.
 
 
+# importTables: imports CAPWATCH, or any csv file, into MongoDB.
+# By default collections are "dropped" and recreated before import. You
+# may optionally select either the "i" import only, or "u" upsert
+# (insert new or update old documents).  The "i" option is useful for
+# populating newly created empty collections.  The "u" upsert option is used
+# to update existing collections.
+# By default all collections/tables listed in the "TABLES" variable are imported
+# unless you specify a different list on the command line.
+# NOTES:
+# 0. All configuration varilables are stored in "importTables.conf" in
+#    the same location as this script.
+# 1. For each csv file you MUST supply a ".types" file declaring the type of
+#    each column in the csv file. The name of the file must be the basename
+#    of the csv file with the extension ".types" and be stored in the location
+#    specified by the  TYPEPATH variable.
+# 2. For each csv file to be "upserted" you must include in the "UPFIELDS" array
+#    (see importTables.conf) the names of the fields to be used for comparison.
 #
 # Import/upsert CAPWATCH tables into MongoDB. User may change the database or
 # provide a list of substitute tables to import.
-# Note 1: Subsitute tables must have a companion .types file for mongoimport
+# Note 1: All tables must have a companion .types file for mongoimport
 # Note 2: Files must have been preprocessed with getTables before importing
 #         or similar to convert dates to MicroSoft SQL date format.
 # Note 3: If indexing you must supply the appropriate MongoDB JavaScript
@@ -26,6 +43,9 @@
 #          <table name>-index.js
 #
 # History:
+# 22Mar21 MEG Index option now call ops function to do it's work.
+# 18Mar21 MEG Added import option "i". Changed index option from "i" to "I".
+# 18Mar21 MEG changed all ".types" files date format conversion funcs.
 # 26Aug19 MEG Moved configurable options to a conf file.
 # 29Jul19 MEG Added per and post import javascript per collection eval.
 # 28Nov18 MEG Abort import if CAPWATCH download failed.
@@ -40,11 +60,7 @@
 # 03Jul17 MEG Created.
 #
 
-## Internal variables
-# Index collections after import YES|NO
-INDEX="NO"
-
-# Function to call to load CAPWATCH data into MongoDB (drop|upsert)
+# Function to call to load CAPWATCH data into MongoDB (drop|import|upsert)
 CALL="drop"
 
 # Check to see if download was successful
@@ -67,13 +83,14 @@ fi
 . $CREDS
 
 # Command options
-OPTS="d:it:h?u"
+OPTS="d:iIt:h?u"
 
 # Help text
 USAGE="Usage: $(basename $0) [$OPTS] [table table...] \n
 \tReplace or update CAPWATCH collection(s) in $DB MongoDB. \n
 \td - database ($DB)\n
-\ti - Call script to index collections post import ($INDEX)\n
+\ti - import table simply import data into table (may result in duplicates)\n
+\tI - Call script to index collections post import\n
 \th|? - help, this message.\n
 \tt - path to .type files ($TYPEPATH)\n
 \tu - Update collections instead of replace\n
@@ -85,6 +102,15 @@ USAGE="Usage: $(basename $0) [$OPTS] [table table...] \n
 function drop() {
     $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
 --password=$MONGOPASS --collection $1 --drop --type csv --columnsHaveTypes \
+	--fieldFile $TYPEPATH/$1.types --file $1.csv
+
+}
+# Imports data into the collection.
+# No checking for duplicates or other checks, simply pulls the file
+# into the collection.  Good for populating a new empty collection
+function import() {
+    $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
+--password=$MONGOPASS --collection $1 --type csv --columnsHaveTypes \
 	--fieldFile $TYPEPATH/$1.types --file $1.csv
 
 }
@@ -102,10 +128,11 @@ function upsert() {
 # or after the import of a collection.  The scripts can do 
 # anything within the privileges of the user: create, drop, remove, index...
 # collection, as complicated as you want.
-# Collections may have pre and post scripts identified by:
-# <collectionName>-[pre|post].js.
+# Collections may have index, pre and post scripts identified by:
+# <collectionName>-[index|pre|post].js.
 function ops() {
     [ ! -f $1 ] && return
+    echo "Ops: $1"
     mongo --quiet --authenticationDatabase=$DB --username=$MONGOUID \
 		--password=$MONGOPASS $1
 }
@@ -114,7 +141,8 @@ function ops() {
 while getopts $OPTS o; do
     case $o in
 	d) DB=$OPTARG;;
-	i) INDEX="yes";;
+	i) CALL="import";;
+	I) INDEX="yes";;
 	u) CALL="upsert";;
 	t) TYPEPATH=$OPTARG;;
 	h|?) echo -e $USAGE;exit 1;;
@@ -141,25 +169,18 @@ for t in $TABLES; do
 	continue
     fi
     # run pre import script if one exists
-    ops $t"-pre.js"
+    ops "$t-pre.js"
     $CALL $t
     # run post import script if one exists
-    ops $t"-post.js"
+    ops "$t-post.js"
 done
 
-if [ $(echo $INDEX|tr a-z A-Z) == "YES" ]; then
-    echo "Indexing collections."
+# Index collections
+if [ -v INDEX ]; then
     for t in $TABLES; do
-	INDEXSCRIPT=$t-index.js
-	if [ -f $INDEXSCRIPT ]; then
-	    mongo --quiet --authenticationDatabase=$DB --username=$MONGOUID \
-		--password=$MONGOPASS $INDEXSCRIPT
-	else
-	    echo "WARNING: Indexing script: $INDEXSCRIPT not found."
-	    echo "WARNING: Indexing for table: $t not performed."
-	fi
+	echo "Indexing: $t"
+	ops( "$t-index.js" )
     done
-    echo "Done indexing."
 fi
 
 echo "Done."
