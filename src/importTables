@@ -179,7 +179,7 @@ done
 if [ -v INDEX ]; then
     for t in $TABLES; do
 	echo "Indexing: $t"
-	ops( "$t-index.js" )
+	ops "$t-index.js"
     done
 fi
 
