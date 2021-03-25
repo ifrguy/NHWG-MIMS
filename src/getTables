@@ -19,8 +19,20 @@
 # in TABLES (see getTables.conf) and converts them to CSV files appropriate
 # for monogimport. The user may substitute tables to be extracted by listing them
 # on the commandline.  See importTables for further information on importing.
+# A confg variable MAX_ZIP_AGE controls how old a CAPWATCH zip file can be
+# before it is considered stale (expired) and ignored.
+# MAX_ZIP_AGE is set to the maximum number of hours old a file can be
+# before it is considered stale.  On stale, or missing CAPWATCH file
+# getTables aborts.
+#
+# Exit codes:
+# 1 - General exit.
+# 2 - Missing conf file.
+# 3 - Missing CAPWATCH archive
+# 4 - CAPWATCH older than MAX_ZIP_AGE
 #
 # History:
+# 24Mar21 MEG Added check for zip files too old.
 # 21Mar21 MEG Added T option to override TZ offset.
 # 18Mar21 MEG Detect UTC offset to properly calculate local midnight.
 # 26Aug19 MEG Moved config options to external configuration file.
@@ -33,13 +45,25 @@
 # 23Jun17 MEG Created.
 #
 
+# convert hours to seconds
+function hrs2secs () {
+    echo $(( $1*60*60 ))
+}
+
+# File age - compute the age of a file is seconds
+function fileage () {
+    local ft=$(stat -c '%Y' $1)
+    local tnow=$(date '+%s')
+    echo $(( $tnow - $ft ))
+}
+
 # load configuration options
 CONF=./$(basename $0).conf
 if [ -f  $CONF ]; then
     . $CONF
 else
     echo "Error: missing configuration file: $CONF"
-    exit 1
+    exit 2
 fi
 
 # Timezone offset from UTC to get timestamps to midnight local time
@@ -49,18 +73,21 @@ TZOFF=$(date +%z|cut -c 2-3)
 /bin/rm -f CAPWATCHFAILED
 
 # Options
-OPTS="h?T:z:"
+OPTS="A:h?T:z:"
 
 # Help message
 USAGE="Usage: $(basename $0) [$OPTS] [table table...]\n
 \tExtract tables from CAPWATCH archive and filter.\n
-\tz - CAPWATCH zip file ($ZIP)\n
+\tA - Max age in hrs of CAPWATCH archive ($MAX_ZIP_AGE)\n
 \tT - Time Zone offset from UTC ($TZOFF)\n
+\th|? - help\n
+\tz - CAPWATCH zip file ($ZIP)\n
 \tTABLES - ($TABLES)"
 
 # Process options
 while getopts $OPTS o; do
     case $o in
+	A) MAX_AGE_ZIP=$OPTARG;;
 	T) TZOFF=$OPTARG;;
 	z) ZIP=$OPTARG;;
 	h|?) echo -e $USAGE;exit 1;;
@@ -73,7 +100,14 @@ shift $(( $OPTIND - 1 ))
 if [ ! -f $ZIP ]; then
     echo "ERROR: file not found: $ZIP"
     touch CAPWATCHFAILED
-    exit 1
+    exit 3
+fi
+
+# Check to see if file CAPWATCH zip file is too old
+if [[ $( fileage $ZIP ) -gt $(hrs2secs $MAX_ZIP_AGE ) ]]; then
+    echo "ERROR: file: $ZIP older than $MAX_ZIP_AGE hours."
+    touch CAPWATCHFAILED
+    exit 4
 fi
 
 # Check for substituted list of tables
@@ -90,5 +124,4 @@ done
 # convert dates to MicroSoft SQL format and write to a csv file
 for t in $TABLES; do
     $ARC -p $ZIP $t.txt|tail -n +2|sed -r -e "s/(\")([0-9]+\/[0-9]{2}\/[0-9]{4})(\")/\2 $TZOFF:00:00/g" >$t.csv
-#        $ARC -p $ZIP $t.txt|tail -n +2 >$t.csv
 done
