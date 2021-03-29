@@ -53,6 +53,13 @@ SENIORGROUPS = 'all,seniors'
 # Domain to be used when creating, deleting accounts or groups
 DOMAIN = 'nhwg.cap.gov'
 
+# Domain calendar ID
+# This is the wing level calendar everyone should see it.
+# Put you domain wide calerdar ID (email address in this variable).
+# You will find this by looking the calendar settings for the particular
+# calendar.
+DOMAIN_CALENDAR = None
+
 # Grace period. The number of days beyond the LOOKBACK after which member
 # accounts will be purged
 GRACE = 30

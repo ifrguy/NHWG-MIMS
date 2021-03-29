@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,6,2)
+version_tuple = (1,6,3)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+29Mar21 MEG Manager, add wing calendar to new account calendars.
 04Feb21 JCV Added class for checking/reconciling Member type
 01Jan21 MEG Fixed syntax error in CheckOrgUnit custom schema update.
 16Dec20 JCV Added class for checking/reconciling organization/unit 
@@ -156,15 +157,14 @@ class Manager(object):
         Job creates the requested subclass that does a particular job.
         The caller requests a job by sending the classes name string as
         the arguement 'job'.  Job returns the appropriate subclass instance,
-        if the requested job cannot be found self is returned. This insures
-        that something runable is returned.
+        if the requested job cannot be found KEYERROR is intercepted
+        the help text is printed and the program exites.
         """
         try:
-            return globals()[ job ]()   # create subclass job 
+            return globals()[ job ]()   # create subclass job instance
         except KeyError as e:
             print('ERROR: no such job: ', e )
-            print('Usage: ', sys.argv[0], '<job>' )
-            print('Available Jobs:', self.myJobs )
+            ( help().run() )
             sys.exit( 1 )
 
 class help( Manager ):
@@ -357,6 +357,22 @@ class NewMembers( Manager ):
             print( groupcmd, file = self.outfile )
         return email
         
+    def addCalendar( self, email, calEntity ):
+        """
+        Add a calender to the users calendars.
+        Input:
+        email - user email
+        calEntity - Google calendar ID (calendars email address)
+        Output - writes gam command to output file
+
+        NOTE: no error checking is done
+        """
+        # gam calendar command template
+        calcmdfmt = 'gam user {} add calendar {} notification email eventchange,eventcancellation'
+        print( calcmdfmt.format( email, calEntity ), file = self.outfile )
+        logging.info( 'Calendar: %s add to User: %s ',
+                      email, calEntity )
+        
     def mkpasswd( self, max=12 ):
         """
         Make a random password and return it.
@@ -400,6 +416,7 @@ class NewMembers( Manager ):
                     if email:
                         # add member to group mailing list if one exists
                         self.addToGroup( email )
+                        self.addCalendar( email, DOMAIN_CALENDAR )
                         n += 1
         logging.info( "New accounts created: %d", n)
         return
