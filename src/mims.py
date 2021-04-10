@@ -1,5 +1,5 @@
 #!/usr/bin/env /usr/bin/python3
-## Copyright 2020 Marshall E. Giguere
+## Copyright 2021 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,6,3)
+version_tuple = (1,6,5)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,8 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+03Apr21 MEG Wing Calendar add moved to separate batch job file due to Google sync issue.
+03Apr21 MEG NewMember moved calendar cmd format declaration to init.
 29Mar21 MEG Manager, add wing calendar to new account calendars.
 04Feb21 JCV Added class for checking/reconciling Member type
 01Jan21 MEG Fixed syntax error in CheckOrgUnit custom schema update.
@@ -158,7 +160,7 @@ class Manager(object):
         The caller requests a job by sending the classes name string as
         the arguement 'job'.  Job returns the appropriate subclass instance,
         if the requested job cannot be found KEYERROR is intercepted
-        the help text is printed and the program exites.
+        the help text is printed and the program exits.
         """
         try:
             return globals()[ job ]()   # create subclass job instance
@@ -195,7 +197,8 @@ class NewMembers( Manager ):
     subclasses to create new Google accounts.  In most cases the new member
     creation subclass will only need to declare the query needed to find
     potential members in the Member collection, and the name of the
-    mailing list/group if any used by those members.
+    mailing list/group if any used by those members.  Eac new member
+    has the wing calendar added to their personal calendar.
 
     The run method does the work of generating the commands necessary to
     create the members Gmail account and add to the mailing list supplied.
@@ -215,9 +218,14 @@ class NewMembers( Manager ):
         self.gamgroupfmt = 'gam update groups {} add member {}'
         # GAM command to email notification to new member
         self.gamnotifyfmt = ' notify {} subject "{}" file {}'
+        # Calendar template command
+        self.calcmdfmt = 'gam user {} add calendar {} notification email eventchange,eventcancellation'
         # Group or groups string, comma separted groups, to add member to
         self.group = None
         self.outfile = None
+        self.caloutfile = None
+        # calendar add job file
+        self.caloutfileName = JobFilePath + self.name() + 'Calendar' + self.TS() + ".job"
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
@@ -360,6 +368,7 @@ class NewMembers( Manager ):
     def addCalendar( self, email, calEntity ):
         """
         Add a calender to the users calendars.
+        Skip if DOMAIN_CALENDAR is not defined.
         Input:
         email - user email
         calEntity - Google calendar ID (calendars email address)
@@ -367,11 +376,11 @@ class NewMembers( Manager ):
 
         NOTE: no error checking is done
         """
-        # gam calendar command template
-        calcmdfmt = 'gam user {} add calendar {} notification email eventchange,eventcancellation'
-        print( calcmdfmt.format( email, calEntity ), file = self.outfile )
-        logging.info( 'Calendar: %s add to User: %s ',
-                      email, calEntity )
+        if ( calEntity ):
+            print( self.calcmdfmt.format( email, calEntity ),
+                   file = self.caloutfile )
+            logging.info( 'Calendar: %s add to User: %s ',
+                          email, calEntity )
         
     def mkpasswd( self, max=12 ):
         """
@@ -402,22 +411,24 @@ class NewMembers( Manager ):
         cur = self.DB().Member.find( self.query )
         n = 0  # number of new member accounts created
         with open( self.outfileName, 'w' ) as self.outfile:
-            for m in cur:
-                if ( m['Unit'] not in orgUnitPath ):
-                    logging.error('Unknown unit: %s, CAPID: %d no account created.',
-                                  m['Unit'], m['CAPID'] )
-                    continue
-                # see if member has Google account
-                g = self.DB().Google.find_one( {
-                    'customSchemas.Member.CAPID': m['CAPID']
-                } )
-                if ( g == None ): # if user does not exist try to make an account
-                    email = self.mkNewAccount( m )
-                    if email:
-                        # add member to group mailing list if one exists
-                        self.addToGroup( email )
-                        self.addCalendar( email, DOMAIN_CALENDAR )
-                        n += 1
+            with open( self.caloutfileName, 'w' ) as self.caloutfile:
+                for m in cur:
+                    if ( m['Unit'] not in orgUnitPath ):
+                        logging.error('Unknown unit: %s, CAPID: %d no account created.',
+                                      m['Unit'],
+                                      m['CAPID'] )
+                        continue
+                    # see if member has Google account
+                    g = self.DB().Google.find_one( {
+                        'customSchemas.Member.CAPID': m['CAPID'] } )
+                    if ( g == None ): # if user does not exist make new account
+                        email = self.mkNewAccount( m )
+                        if email:
+                            # add member to group mailing list if one exists
+                            self.addToGroup( email )
+                            self.addCalendar( email, DOMAIN_CALENDAR )
+                            n += 1
+                            
         logging.info( "New accounts created: %d", n)
         return
 
@@ -493,7 +504,8 @@ class PurgeMembers( Manager ):
         # look back date
         self.lookback = datetime.utcnow() - timedelta( days=LOOKBACK + GRACE )
         self.outfileName = JobFilePath + 'hold-' + self.name() + self.TS() + ".job"
-        self.query = { 'Expiration': {'$lte': self.lookback }}
+        self.query = { 'Expiration': {'$lte': self.lookback },
+                       'CAPID' : { '$gt' : 99999 } }
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
@@ -577,7 +589,8 @@ class Expired( Manager ):
         super().__init__()
         today = datetime.today()
         expired = today - timedelta( days = LOOKBACK )
-        self.query = { 'Expiration' : { '$lte': expired } }
+        self.query = { 'Expiration' : { '$lte': expired },
+                       'CAPID' : { '$gt' : 99999 } }
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
