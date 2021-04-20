@@ -2,6 +2,7 @@
 //The list includes all Wing Level staff members
 //Note: does not include assistants.
 //History:
+// 20Apr21 MEG Added check for held members.
 // 03Sep20 MEG Created.
 var DEBUG = false;
 
@@ -11,6 +12,7 @@ var db = db.getSiblingDB( 'NHWG');
 var baseGroupName = 'wingstaff';
 var googleGroup = baseGroupName + '@nhwg.cap.gov';
 var groupsCollection = 'GoogleGroups';
+var holdsCollection = 'GroupHolds';
 
 // Aggregation pipeline find all wing staff members as 
 var memberPipeline = 
@@ -82,12 +84,21 @@ function isActiveMember( capid ) {
 					       
 }
 
-
 function isGroupMember( group, email ) {
     // Check if email is already in the group
     var email = email.toLowerCase();
     var rx = new RegExp( email, 'i' );
     return db.getCollection( groupsCollection ).findOne( { 'group': group, 'email': rx } );
+}
+
+function isOnHold( group, email ) {
+    // Checks the "GroupHolds" collection for "email" and "group"
+    // for a hold to prevent email address removal.
+    // email - the email address to check for
+    // group - the group email address
+    var r = db.getCollection( holdsCollection ).findOne(
+	{ email: email, group: group } );
+    return r;
 }
 
 function addMembers( collection, pipeline, options, group ) {
@@ -113,13 +124,23 @@ function removeMembers( collection, pipeline, options, group, authMembers ) {
     // check active status, if not generate a gam command to remove member.
     // collection - name of collection holding all Google Group info
     // pipeline - array containing the pipeline to extract members of the target group
+    // Check hold status of potential removals
     // options - options for aggregations pipeline
+    // group - group to be updated
+    // authMembers - set of authorized and possible members
+
     var m = db.getCollection( collection ).aggregate( pipeline, options );
     while ( m.hasNext() ) {
        	var e = m.next().email;
        	DEBUG && print("DEBUG::removeMembers::email",e);
        	var rgx = new RegExp( e, "i" );
        	if ( authMembers.includes( e ) ) { continue; }
+	if ( holdsCollection ) {
+	    if ( isOnHold( group, e )) {
+		print( '#INFO:', e, 'on hold status, not removed.');
+		continue;
+	    }
+	}
         var r = db.getCollection( 'MbrContact' ).findOne( { Type: 'EMAIL', Priority: 'PRIMARY', Contact: rgx } );
        	if ( r ) {
     	    var a = db.getCollection( 'Member' ).findOne( { CAPID: r.CAPID } );
