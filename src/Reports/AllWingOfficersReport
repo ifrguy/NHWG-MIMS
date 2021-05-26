@@ -1,0 +1,27 @@
+#!/bin/bash -e
+# AllWingOfficersReport - produces two csv files one for all wing
+# level officers (WingOfficers.csv) and a second for all
+# unit level officers (UnitOfficers.csv)
+# These files are then uploaded to the IT shared drive and used to
+# update the "All Wing and Unit Officers" spreadsheet which is
+# available to all wing members for viewing.
+
+# History:
+# 25May21 MEG Created.
+
+# source config file var's must be in same directory
+. ./$(basename $0).conf
+
+# source MongoDB credentials
+. $CREDS
+
+# Extract one csv file for each sheet and upload to the master spreadsheet
+for s in "${SHEETS[@]}"; do
+    echo sheet: "$s"
+    mongo --quiet -u "$USERID" -p "$PASSWD" --authenticationDatabase $DB "$s".js >"$s".csv
+    # upload sheet
+    gam user $GUID update drivefile id "$FILEID" retainname localfile ./"$s".csv gsheet "$s"
+done
+
+
+
