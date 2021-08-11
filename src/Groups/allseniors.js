@@ -1,6 +1,7 @@
-//MongoDB scrip to Update allseniors group
+//MongoDB script to Update allseniors group
 //This should really be replaced by a new Class in mims.py
 //History:
+// 11Aug21 MEG Added hold check on members to prevent removal.
 // 18Nov19 MEG Change temporal ordering of add and remove to fix Google issue.
 // 19Aug19 MEG Created.
 
@@ -12,6 +13,10 @@ var googleGroup = baseGroupName + '@nhwg.cap.gov';
 var groupsCollection = 'GoogleGroups';
 // Member type of interest
 var memberType = 'SENIOR';
+
+// Collection containing members on hold status to prevent removal
+var holdsCollection = 'GroupHolds';
+
 // import date math functions
 load( db.ENV.findOne( {name:'DATEFNS'} ).value );
 // look past 30 days expired members after this remove member from group.
@@ -110,6 +115,16 @@ function isActiveMember( capid ) {
 					       
 }
 
+function isOnHold( group, email ) {
+    // Checks the "GroupHolds" collection for "email" and "group"
+    // for a hold to prevent email address removal.
+    // email - the email address to check for
+    // group - the group email address
+    var r = db.getCollection( holdsCollection ).findOne(
+	{ email: email, group: group } );
+    return r;
+}
+
 
 function isGroupMember( group, email ) {
     // Check if email is already in the group
@@ -137,6 +152,10 @@ function removeMembers( collection, pipeline, options, group ) {
     var m = db.getCollection( collection ).aggregate( pipeline, options );
     while ( m.hasNext() ) {
        	var e = m.next().Email;
+	if ( isOnHold( googleGroup, e ) ) {
+	    print( '#INFO:', e, 'on hold status, not removed.');
+	    continue;
+	}
        	var rgx = new RegExp( e, "i" );
        	var r = db.getCollection( 'MbrContact' ).findOne( { Type: 'EMAIL', Priority: 'PRIMARY', Contact: rgx } );
        	if ( r ) {
