@@ -1,6 +1,7 @@
 //MongoDB script to Update allcadets group
 //This should really be replaced by a new Class in mims.py
 //History:
+// 16Aug21 MEG Need to remove extraneous spaces from CAP email addresses.
 // 11Aug21 MEG Added hold check on members to prevent removal.
 // 18Nov19 MEG Change temporal ordering of add and remove to fix Google issue.
 // 19Aug19 MEG Created.
@@ -127,7 +128,7 @@ function isOnHold( group, email ) {
 
 function isGroupMember( group, email ) {
     // Check if email is already in the group
-    var email = email.toLowerCase();
+    var email = email.toLowerCase().replace( / /g, "" );
     var rx = new RegExp( email, 'i' );
     return db.getCollection( groupsCollection ).findOne( { 'group': group, 'email': rx } );
 }
@@ -150,24 +151,28 @@ function removeMembers( collection, pipeline, options, group ) {
     // check active status, if not generate a gam command to remove member.
     var m = db.getCollection( collection ).aggregate( pipeline, options );
     while ( m.hasNext() ) {
-       	var e = m.next().Email;
+       	var e = m.next().Email.toLowerCase();
 	if ( isOnHold( googleGroup, e ) ) {
 	    print( '#INFO:', e, 'on hold status, not removed.');
 	    continue;
 	}
        	var rgx = new RegExp( e, "i" );
-       	var r = db.getCollection( 'MbrContact' ).findOne( { Type: 'EMAIL', Priority: 'PRIMARY', Contact: rgx } );
+       	var r = db.getCollection( 'MbrContact' ).findOne( { Type: 'EMAIL',
+							    Priority: 'PRIMARY',
+							    Contact: rgx } );
        	if ( r ) {
-    	    var a = db.getCollection( 'Member' ).findOne( { CAPID: r.CAPID, Type: memberType } );
+    	    var a = db.getCollection( 'Member' ).findOne( { CAPID: r.CAPID,
+							    Type: memberType } );
     	    if ( a == null || isActiveMember( r.CAPID ) ) { continue; }   		
        		if ( a.Expiration < lookbackdate ) {
-       		    print( '#INFO:', a.CAPID, a.NameLast, a.NameFirst, a.NameSuffix, 'Expiration:', a.Expiration );
+       		    print( '#INFO:', a.CAPID, a.NameLast, a.NameFirst,
+			   a.NameSuffix, 'Expiration:', a.Expiration );
        	    	print( 'gam update group', googleGroup, 'delete member', e );
        		}
     	}
     	else {
-       		    print( '#INFO: Unknown email:', e, 'removed' );
-       	    	print( 'gam update group', googleGroup, 'delete member', e );
+       	    print( '#INFO: Unknown email:', e, 'removed' );
+       	    print( 'gam update group', googleGroup, 'delete member', e );
     	}
     	    
     }
@@ -175,7 +180,7 @@ function removeMembers( collection, pipeline, options, group ) {
 
 
 // Main here
-// Do NOT change the temporal order or remove and add operations.
+// Do NOT change the temporal order of remove and add operations.
 // Google plays games with "." in user id's
 print("# Update group:", googleGroup );
 print( "# Remove inactive members") ;

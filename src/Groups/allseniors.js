@@ -1,6 +1,7 @@
 //MongoDB script to Update allseniors group
 //This should really be replaced by a new Class in mims.py
 //History:
+// 16Aug21 MEG Ignore spaces in member email addresses.
 // 11Aug21 MEG Added hold check on members to prevent removal.
 // 18Nov19 MEG Change temporal ordering of add and remove to fix Google issue.
 // 19Aug19 MEG Created.
@@ -128,7 +129,7 @@ function isOnHold( group, email ) {
 
 function isGroupMember( group, email ) {
     // Check if email is already in the group
-    var email = email.toLowerCase();
+    var email = email.toLowerCase().replace( / /g, "" );
     var rx = new RegExp( email, 'i' );
     return db.getCollection( groupsCollection ).findOne( { 'group': group, 'email': rx } );
 }
@@ -151,7 +152,7 @@ function removeMembers( collection, pipeline, options, group ) {
     // check active status, if not generate a gam command to remove member.
     var m = db.getCollection( collection ).aggregate( pipeline, options );
     while ( m.hasNext() ) {
-       	var e = m.next().Email;
+       	var e = m.next().Email.toLowerCase().replace( / /g, "" );
 	if ( isOnHold( googleGroup, e ) ) {
 	    print( '#INFO:', e, 'on hold status, not removed.');
 	    continue;
