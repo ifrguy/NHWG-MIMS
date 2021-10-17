@@ -4,6 +4,7 @@
 # convert to JSON and import into MongoDB.
 #
 # History:
+# 16Oct21 MEG use cigroups to get create & update time for group members
 # 04Sep19 MEG Simplified moved to flat csv file group collection.
 # 27Jun19 MEG Download option added.
 # 09May18 MEG Created.
@@ -14,6 +15,9 @@ CREDS=./importercreds
 # Database to connect to
 DB=NHWG
 
+# Google Groups file
+GROUPSFILE=./GoogleGroups.csv
+
 # Mongo import tool
 IMPORT=mongoimport
 
@@ -22,7 +26,7 @@ IMPORT=mongoimport
 OPTS='Dh'
 
 USAGE="USAGE $(basename $0) [$OPTS]\n
-\tImport Google Groups file Groups.json\n
+\tImport Google Groups file: $GROUPSFILE\n
 \tD - Download before importing\n
 \th|? - this help message\n"
 
@@ -36,10 +40,14 @@ shift $(($OPTIND - 1))
 
 if [ "$D" = "yes" ]; then
 # Download Google groups as CSV from Google
-    gam redirect csv ./GoogleGroups.csv print group-members members managers owners &>/dev/null
+    gam redirect csv $GROUPSFILE print cigroup-members &>/dev/null
 fi
 
 # import groups into MongoDB
 $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
 	--password=$MONGOPASS --collection GoogleGroups --drop --type csv \
-	--headerline --file ./GoogleGroups.csv
+	--headerline --file $GROUPSFILE
+
+# After import convert "createTime" and "updateTime" strings to ISO dates
+mongo NHWG -u $MONGOUID -p $MONGOPASS --authenticationDatabase=$DB --eval \
+      'db.getCollection("GoogleGroups").updateMany( {}, [{ $set: { createTime: { $dateFromString: { dateString: "$createTime"}}}},{ $set: { updateTime: { $dateFromString: { dateString: "$updateTime"}}}}]);'
