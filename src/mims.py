@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,6,5)
+version_tuple = (1,6,6)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+05Nov21 MEG NewMember now addes primary email to a newbie group if configured.
 03Apr21 MEG Wing Calendar add moved to separate batch job file due to Google sync issue.
 03Apr21 MEG NewMember moved calendar cmd format declaration to init.
 29Mar21 MEG Manager, add wing calendar to new account calendars.
@@ -222,6 +223,9 @@ class NewMembers( Manager ):
         self.calcmdfmt = 'gam user {} add calendar {} notification email eventchange,eventcancellation'
         # Group or groups string, comma separted groups, to add member to
         self.group = None
+        # Add members to the newbies group
+        self.newbies = False
+        self.newbieGroup = None
         self.outfile = None
         self.caloutfile = None
         # calendar add job file
@@ -350,18 +354,18 @@ class NewMembers( Manager ):
                    file = self.outfile )
         return email
 
-    def addToGroup( self, email ):
+    def addToGroup( self, group, email ):
         """
         Add a member to a group
         Input member Google email address
         Output GAM command to add member to a mailing list/groups.
         Note: this function always succeeds.
         """
-        if ( self.group and email ):
-            groupcmd = self.gamgroupfmt.format( self.group, email  )
+        if ( group and email ):
+            groupcmd = self.gamgroupfmt.format( group, email  )
             logging.info( 'Member: %s added to %s mailing list.',
                           email,
-                          self.group )
+                          group )
             print( groupcmd, file = self.outfile )
         return email
         
@@ -425,7 +429,14 @@ class NewMembers( Manager ):
                         email = self.mkNewAccount( m )
                         if email:
                             # add member to group mailing list if one exists
-                            self.addToGroup( email )
+                            self.addToGroup( self.group, email )
+                            # check to see if we are doing a newbie group
+                            if( self.newbies ):
+                                self.addToGroup( self.newbieGroup,
+                                                 self.getContact( m['CAPID'],
+                                                                  'EMAIL',
+                                                                  'PRIMARY' )
+                                                 )
                             self.addCalendar( email, DOMAIN_CALENDAR )
                             n += 1
                             
@@ -443,6 +454,8 @@ class NewSeniors( NewMembers ):
     def __init__( self ):
         super().__init__()
         self.group = SENIORGROUPS
+        self.newbies = SENIOR_NEWBIES
+        self.newbieGroup = NEWBIE_GROUP
         self.query = { 'Type':'SENIOR',
                        'MbrStatus':'ACTIVE',
                        'Unit' : { '$ne' : '000' }  }
@@ -452,12 +465,15 @@ class NewSeniors( NewMembers ):
 class NewCadets( NewMembers ):
     """
     Scans the Member table for Cadet members not having Google accounts.
-    Makes a new account if the member is active and is 18 years of age or over.    """
-    helpMsg = 'Create wing accounts for Cadet members 18 yrs or older.'
+    Makes a new account if the cadet member is active and is min age or over.   
+    """
+    helpMsg = 'Create wing accounts for Cadet members {} yrs or older.'.format(MIN_CADET_AGE)
 
     def __init__( self ):
         super().__init__()
         self.group = CADETGROUPS
+        self.newbies = CADET_NEWBIES
+        self.newbieGroup = CADET_NEWBIE_GROUP
         y = datetime.utcnow().year - MIN_CADET_AGE
         m = datetime.utcnow().month
         qd = datetime( y, m, 1, tzinfo=timezone.utc)
