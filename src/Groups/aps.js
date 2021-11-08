@@ -77,7 +77,8 @@ function removeMembers( group, options ){
     // for each member of the group make sure member is active
     // check qualification status active/training,
     // if not generate a gam command to remove member
-    var cur = db.getCollection( 'GoogleGroups' ).find( { 'group': group } );
+    var cur = db.getCollection( 'GoogleGroups' ).find( { 'group': group,
+							 role: 'MEMBER'} );
     while ( cur.hasNext() ) {
         var e = cur.next().email;
         var rgx = new RegExp( e, "i" );
