@@ -1,7 +1,9 @@
 #!/bin/bash -e
 # Runs a MongoShell script given on the command line to update
 # a Google group membership.  Each script is unique to a particular
-# group.
+# group.  Optionally you can include a JavaScript expression on the
+# commandline that will be evaluated prior to running the main script. This
+# is a crude method to simulate commandline args for the main script.
 #
 # Input:
 # MongoShell script. By convention the script name is the base name of the group.
@@ -9,6 +11,8 @@
 # Output:
 # a MIMS type job file in the job queue
 # History:
+# 08Nov21 MEG Output file now gets timestam T%H%M%S appended to name.
+# 08Nov21 MEG Fixed not exit on 0 args, added optional JS expr.
 # 05Sep19 MEG Created.
 #
 
@@ -18,14 +22,13 @@
 # get credentials
 . $CREDS
 
-USAGE="Usage: $(basename $0) <mongo_script_file.js> "
-if [ $# -lt 1 ]; then
-    echo $USAGE
-    exit 1
-fi
+USAGE="Usage: $(basename $0) <mongo_script_file.js> [\"JS expr\"]\n
+\t Optional JS expression may be used to pass args to script by\n
+\t setting vars."
+[[ $# < 1 ]] && (echo -e $USAGE;exit 1 )
 
 # Output Job filename
-JOB=${1%.js}$(date +%Y%b%d).job
+JOB=${1%.js}$(date +%Y%b%dT%H%M%S).job
 
 # Run the script
-mongo --quiet -u "$USERID" -p "$PASSWD" --authenticationDatabase $DB $1 >$JOBQ/$JOB
+mongo --quiet -u "$USERID" -p "$PASSWD" --authenticationDatabase $DB --eval "$2" $1 >$JOBQ/$JOB
