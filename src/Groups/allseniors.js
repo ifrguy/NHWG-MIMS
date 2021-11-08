@@ -1,6 +1,7 @@
 //MongoDB script to Update allseniors group
 //This should really be replaced by a new Class in mims.py
 //History:
+// 08Nov21 MEG Ignore group managers and owners when scanning a group.
 // 16Aug21 MEG Ignore spaces in member email addresses.
 // 11Aug21 MEG Added hold check on members to prevent removal.
 // 18Nov19 MEG Change temporal ordering of add and remove to fix Google issue.
@@ -88,12 +89,14 @@ var memberPipeline =
 	];
 
 
-// Aggregate a list of all emails for the Google group of interest
+// Aggregate a list of all MEMBERS for the Google group of interest
+// Ignores group managers and owners
 var groupMemberPipeline =
     [
         { 
             "$match" : {
-                "group" : googleGroup
+                "group" : googleGroup,
+		"role" : 'MEMBER',
             }
         }, 
         { 
