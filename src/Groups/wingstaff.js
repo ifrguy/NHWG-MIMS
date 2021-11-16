@@ -2,6 +2,7 @@
 //The list includes all Wing Level staff members
 //Note: does not include assistants.
 //History:
+// 15Nov21 MEG Clean spaces from email addresses.
 // 20Apr21 MEG Added check for held members.
 // 03Sep20 MEG Created.
 var DEBUG = false;
@@ -110,6 +111,7 @@ function addMembers( collection, pipeline, options, group ) {
     var cursor = db.getCollection( collection ).aggregate( pipeline, options );
     while ( cursor.hasNext() ) {
         var m = cursor.next();  
+	var email = m.Email.toLowerCase().replace( / /g, "" );
         if ( ! isActiveMember( m.CAPID ) ) { continue; }
         list.push( m.Email );
         if ( isGroupMember( googleGroup, m.Email ) ) { continue; }
@@ -131,8 +133,7 @@ function removeMembers( collection, pipeline, options, group, authMembers ) {
 
     var m = db.getCollection( collection ).aggregate( pipeline, options );
     while ( m.hasNext() ) {
-       	var e = m.next().email;
-       	DEBUG && print("DEBUG::removeMembers::email",e);
+       	var e = m.next().email.toLowerCase().replace( / /g, "" );
        	var rgx = new RegExp( e, "i" );
        	if ( authMembers.includes( e ) ) { continue; }
 	if ( holdsCollection ) {
