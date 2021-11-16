@@ -2,6 +2,8 @@
 //The list includes Wing Directors and Assistants only.
 //
 //History:
+// 15Nov21 MEG Clean spaces from email addresses.
+// 07Mar21 MEG Exclude assistants
 // 27Jan21 MEG Created.
 var DEBUG = false;
 
@@ -18,7 +20,8 @@ var memberPipeline = [
     // Stage 1 - find ALL directors and assistants
     {
 	$match: {
-	    Duty:/director/i
+	    Duty:/director/i,
+	    Asst: 0,
 	}
     },
 
@@ -102,11 +105,12 @@ function addMembers( collection, pipeline, options, group ) {
     var cursor = db.getCollection( collection ).aggregate( pipeline, options );
     while ( cursor.hasNext() ) {
         var m = cursor.next();  
+	var email = m.Email.toLowerCase().replace( / /g, "" );
         if ( ! isActiveMember( m.CAPID ) ) { continue; }
-	if ( ! list.includes( m.Email ) ) {  list.push( m.Email ); }
+	if ( ! list.includes( email ) ) {  list.push( email ); }
         if ( isGroupMember( googleGroup, m.Email ) ) { continue; }
         // Print gam command to add new member
-        print("gam update group", googleGroup, "add member", m.Email );
+        print("gam update group", googleGroup, "add member", email );
     }
     return list;
 }
@@ -119,7 +123,7 @@ function removeMembers( collection, pipeline, options, group, authMembers ) {
     // options - options for aggregations pipeline
     var m = db.getCollection( collection ).aggregate( pipeline, options );
     while ( m.hasNext() ) {
-       	var e = m.next().email;
+       	var e = m.next().email.toLowerCase().replace( / /g, "" );
        	DEBUG && print("DEBUG::removeMembers::email",e);
        	var rgx = new RegExp( e, "i" );
        	if ( authMembers.includes( e ) ) { continue; }
