@@ -4,7 +4,7 @@
 // 15Aug21 MEG Created.
 var db = db.getSiblingDB( 'NHWG' );
 
-var DEBUG = true;
+var DEBUG = false;
 
 // Google Group of interest basename
 var baseGroupName = 'allparents';
@@ -119,6 +119,7 @@ var pipelineOptions =  { "allowDiskUse" : false };
 function isGroupMember( group, email ) {
     // Check if email is already in the group
 //    var email = email.toLowerCase();
+    email = email.replace(" ", "" );
     var rx = new RegExp( email, 'i' );
     return db.getCollection( groupsCollection ).findOne( { 'group': group, 'email': rx } );
 }
