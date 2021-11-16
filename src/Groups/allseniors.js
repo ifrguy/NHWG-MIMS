@@ -1,6 +1,7 @@
 //MongoDB script to Update allseniors group
 //This should really be replaced by a new Class in mims.py
 //History:
+// 15Nov21 MEG Remove spaces from email addresses.
 // 08Nov21 MEG Ignore group managers and owners when scanning a group.
 // 16Aug21 MEG Ignore spaces in member email addresses.
 // 11Aug21 MEG Added hold check on members to prevent removal.
@@ -143,6 +144,7 @@ function addMembers( collection, pipeline, options, group ) {
     var cursor = db.getCollection( collection ).aggregate( pipeline, options );
     while ( cursor.hasNext() ) {
         var m = cursor.next();  
+	var email = m.email.toLowerCase().replace( / /g, "" )
         if ( ! isActiveMember( m.CAPID ) ) { continue; }
         if ( isGroupMember( googleGroup, m.email ) ) { continue; }
         // Print gam command to add new member
