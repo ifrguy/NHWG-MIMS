@@ -2,6 +2,7 @@
 //The list includes: Commanders, Deputy Commander, DO, IG, Chief of Staff
 //Note: does not include assistants.
 //History:
+// 15Nov21 MEG Remove spaces from email addresses.
 // 05Sep19 MEG Created.
 var DEBUG = false;
 
@@ -110,7 +111,7 @@ function isActiveMember( capid ) {
 
 function isGroupMember( group, email ) {
     // Check if email is already in the group
-    var email = email.toLowerCase();
+    var email = email.toLowerCase().replace( / /g, "" );
     var rx = new RegExp( email, 'i' );
     return db.getCollection( groupsCollection ).findOne( { 'group': group, 'email': rx } );
 }
@@ -124,6 +125,7 @@ function addMembers( collection, pipeline, options, group ) {
     var cursor = db.getCollection( collection ).aggregate( pipeline, options );
     while ( cursor.hasNext() ) {
         var m = cursor.next();  
+	var email = m.email.toLowerCase().replace( / /g, "" );
         if ( ! isActiveMember( m.CAPID ) ) { continue; }
         list.push( m.email );
         if ( isGroupMember( googleGroup, m.email ) ) { continue; }
@@ -141,7 +143,7 @@ function removeMembers( collection, pipeline, options, group, authMembers ) {
     // options - options for aggregations pipeline
     var m = db.getCollection( collection ).aggregate( pipeline, options );
     while ( m.hasNext() ) {
-       	var e = m.next().email;
+       	var e = m.next().email.toLowerCase().replace( / /g, "" );
        	DEBUG && print("DEBUG::removeMembers::email",e);
        	var rgx = new RegExp( e, "i" );
        	if ( authMembers.includes( e ) ) { continue; }
