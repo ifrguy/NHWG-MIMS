@@ -110,9 +110,11 @@ function isActiveMember( capid ) {
 
 function isGroupMember( group, email ) {
     // Check if email is already in the group
-    var email = email.toLowerCase();
+    var email = email.toLowerCase().replace( / /g, "" );
     var rx = new RegExp( email, 'i' );
-    return db.getCollection( groupsCollection ).findOne( { 'group': group, 'email': rx } );
+    return db.getCollection( groupsCollection ).findOne( { 'group': group,
+							   'email': rx,
+							   role: 'MEMBER' } );
 }
 
 function isOnHold( group, email ) {
