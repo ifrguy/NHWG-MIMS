@@ -53,8 +53,9 @@ var group = 'pilots@nhwg.cap.gov';
 print( "# Add members to pilots group:" );
 while ( cur.hasNext() ) {
     var m = cur.next();
-    var groupMember = db.GoogleGroups.findOne( { group: group, email: m.email } );
+    var email = m.email.toLowerCase().replace( / /g, "" );
+    var groupMember = db.GoogleGroups.findOne( { group: group, email: email } );
     if ( groupMember ) { continue; }
     print( "# Add:", m.CAPID, m.NameLast+',', m.NameFirst );
-    print( "gam update group", group, "add member", m.email );  
+    print( "gam update group", group, "add member", email );  
 }
