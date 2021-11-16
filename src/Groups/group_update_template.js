@@ -142,7 +142,8 @@ function isActiveMember( capid ) {
 
 function isGroupMember( group, email ) {
     // Check if email is already in the group
-    var email = email.toLowerCase();
+    var email = email.toLowerCase().replace( / /g, "" );
+
     var rx = new RegExp( email, 'i' );
     return db.getCollection( groupsCollection ).findOne( { 'group': group, 'email': rx } );
 }
@@ -168,10 +169,11 @@ function addMembers( collection, pipeline, options, group ) {
     // Get the list of all qualified potential members for the list
     var cursor = db.getCollection( collection ).aggregate( pipeline, options );
     while ( cursor.hasNext() ) {
-        var m = cursor.next();  
+        var m = cursor.next();
+	var email = m.email.toLowerCase().replace( / /g, "" );
         if ( ! isActiveMember( m.CAPID ) ) { continue; }
-	if ( ! authList[ m.email ] ) {  authList[ m.email ] = true; }
-        if ( isGroupMember( googleGroup, m.email ) ) { continue; }
+	if ( ! authList[ email ] ) {  authList[ email ] = true; }
+        if ( isGroupMember( googleGroup, email ) ) { continue; }
         // Print gam command to add new member
         print("gam update group", googleGroup, "add member", m.email );
     }
@@ -183,13 +185,13 @@ function removeMembers( collection, pipeline, options, group, authMembers ) {
     // check active status, if not generate a gam command to remove member.
     // collection - name of collection holding all Google Group info
     // pipeline - array containing the pipeline to extract members of the target group
-    // Check hold status for potential removals
+    // Check hold status of potential removals
     // options - options for aggregations pipeline
     // group - group to be updated
     // authMembers - set of authorized and possible members
     var m = db.getCollection( collection ).aggregate( pipeline, options );
     while ( m.hasNext() ) {
-       	var e = m.next().email;
+       	var e = m.next().email.toLowerCase().replace( / /g, "" );
        	DEBUG && print("DEBUG::removeMembers::email",e);
        	var rgx = new RegExp( e, "i" );
        	if ( authMembers[ e ] ) { continue; }
