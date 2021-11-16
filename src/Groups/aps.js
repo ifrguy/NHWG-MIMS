@@ -1,5 +1,8 @@
 // Find all AP's with ACTIVE or TRAINING status.  If not in aps group add,
 // if not longer active remove.
+// History:
+// 15Nov21 MEG Remove spaces from email addresses.
+//
 var db = db.getSiblingDB( 'NHWG' );
 var baseGroupName = 'aps';
 var googleGroup = baseGroupName + '@nhwg.cap.gov';
@@ -58,7 +61,7 @@ function addMembers( collection, pipeline, options, group ) {
     var cursor = collection.MbrAchievements.aggregate( pipeline, options );
     while ( cursor.hasNext() ) {
         var m = cursor.next();
-        var email = m.Email.toLowerCase();
+        var email = m.Email.toLowerCase().replace( / /g, "" );
         var rx = new RegExp( email, 'i' );
         var g = db.getCollection( groupsCollection).findOne( { Group: group, Members: rx } );
         if ( g ) { continue; }
@@ -80,7 +83,7 @@ function removeMembers( group, options ){
     var cur = db.getCollection( 'GoogleGroups' ).find( { 'group': group,
 							 role: 'MEMBER'} );
     while ( cur.hasNext() ) {
-        var e = cur.next().email;
+        var e = cur.next().email.toLowerCase().replace( / /g, "" );
         var rgx = new RegExp( e, "i" );
         var  g = db.Google.findOne( {primaryEmail: rgx} );
         var capid = g.customSchemas.Member.CAPID;
