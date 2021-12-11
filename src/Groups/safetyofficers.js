@@ -1,6 +1,7 @@
 //MongoDB JS script to update a wing Safety Officers group
 
 // History:
+// 11Dec21 MEG isGroupMember: removed bad local var declartion for email arg.
 // 26Feb21 MEG Exclude group OWNERs from removal.
 // 25Feb21 MEG Created.
 
@@ -111,7 +112,8 @@ function isActiveMember( capid ) {
 
 function isGroupMember( group, email ) {
     // Check if email is already in the group
-    var email = email.toLowerCase().replace( / /g, "" );
+    DEBUG && print("group: ", group, "email: ",email);
+    email = email.toLowerCase().replace( / /g, "" );
     var rx = new RegExp( email, 'i' );
     return db.getCollection( groupsCollection ).findOne( { 'group': group, 'email': rx } );
 }
