@@ -1,11 +1,13 @@
 //MongoDB JS script to update a wing Safety Officers group
 
 // History:
+// 12Dec21 MEG Debug additions and minor changes for clarity.
 // 11Dec21 MEG isGroupMember: removed bad local var declartion for email arg.
 // 26Feb21 MEG Exclude group OWNERs from removal.
 // 25Feb21 MEG Created.
 
-var DEBUG = false;
+// If DEBUG is set some output will be produced during the run.  Use
+// the --eval="DEBUG=true;" option on the mongo shell command line.
 
 var db = db.getSiblingDB( 'NHWG');
 
@@ -112,7 +114,7 @@ function isActiveMember( capid ) {
 
 function isGroupMember( group, email ) {
     // Check if email is already in the group
-    DEBUG && print("group: ", group, "email: ",email);
+    DEBUG && print("DEBUG::isGroupMember:group: ", group, "email: ",email);
     email = email.toLowerCase().replace( / /g, "" );
     var rx = new RegExp( email, 'i' );
     return db.getCollection( groupsCollection ).findOne( { 'group': group, 'email': rx } );
@@ -125,16 +127,20 @@ function addMembers( collection, pipeline, options, group ) {
     // The set of possible group members.
     // Uses a JS object as a , cheap and dirty set
     var authList = {};
-
+    var m = undefined;
+    var email = '';
     // Get the list of all qualified potential members for the list
     var cursor = db.getCollection( collection ).aggregate( pipeline, options );
     while ( cursor.hasNext() ) {
-        var m = cursor.next();
-	var email = m.Email.toLowerCase().replace( / /g, "" );
+        m = cursor.next();
+	email = m.Email.toLowerCase().replace( / /g, "" );
         if ( ! isActiveMember( m.CAPID ) ) { continue; }
 	if ( ! authList[ email ] ) {  authList[ email ] = true; }
         if ( isGroupMember( googleGroup, email ) ) { continue; }
         // Print gam command to add new member
+	DEBUG && print("DEBUG::addMembers:email: ", email,
+		       ":CAPID: ", m.CAPID,
+		       " :googleGroup: ", googleGroup );
         print("gam update group", googleGroup, "add member", email );
     }
     return authList;
@@ -148,13 +154,16 @@ function removeMembers( collection, pipeline, options, group, authMembers ) {
     // options - options for aggregations pipeline
     // group - group to be updated
     // authMembers - set of authorized and possible members
+    var e = "";  //cleaned email address
     var m = db.getCollection( collection ).aggregate( pipeline, options );
-    while ( m.hasNext() ) {
-       	var e = m.next().email.toLowerCase().replace( / /g, "" );
-       	DEBUG && print("DEBUG::removeMembers::email",e);
-       	var rgx = new RegExp( e, "i" );
+    var rgx = undefined; // email regex
+    var r = undefined;  // single member record from query
+while ( m.hasNext() ) {
+       	e = m.next().email.toLowerCase().replace( / /g, "" );
+       	DEBUG && print("DEBUG::removeMembers:email",e);
+       	rgx = new RegExp( e, "i" );
        	if ( authMembers[ e ] ) { continue; }
-        var r = db.getCollection( 'MbrContact' ).findOne( { Type: 'EMAIL', Priority: 'PRIMARY', Contact: rgx } );
+        r = db.getCollection( 'MbrContact' ).findOne( { Type: 'EMAIL', Priority: 'PRIMARY', Contact: rgx } );
        	if ( r ) {
     	    var a = db.getCollection( 'Member' ).findOne( { CAPID: r.CAPID } );
     	    DEBUG && print("DEBUG::removeMembers::Member.CAPID",a.CAPID,"NameLast:",a.NameLast,"NameFirst:",a.NameFirst);
@@ -172,7 +181,7 @@ print("# Update group:", googleGroup );
 print("# Add new members");
 var theAuthList = addMembers( memberCollection, memberPipeline, options, googleGroup );
 
-DEBUG == true && print("DEBUG::theAuthList:", theAuthList);
+DEBUG && print("DEBUG::theAuthList:", theAuthList);
 
 print( "# Remove inactive members") ;
 removeMembers( groupsCollection, groupMemberPipeline, options, googleGroup, theAuthList );
