@@ -3,6 +3,7 @@
 // "GroupHolds" collection will not be removed regardless of member status.
 //
 // History:
+// 20Dec21 MEG Fixed bug, didn't consider managers as members when adding new.
 // 16Mar21 MEG Ported to new group update template.
 
 var DEBUG = false;
@@ -113,8 +114,7 @@ function isGroupMember( group, email ) {
     var email = email.toLowerCase().replace( / /g, "" );
     var rx = new RegExp( email, 'i' );
     return db.getCollection( groupsCollection ).findOne( { 'group': group,
-							   'email': rx,
-							   role: 'MEMBER' } );
+							   'email': rx } );
 }
 
 function isOnHold( group, email ) {
