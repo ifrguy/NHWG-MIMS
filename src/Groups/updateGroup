@@ -26,9 +26,10 @@ USAGE="Usage: $(basename $0) <mongo_script_file.js> [\"JS expr\"]\n
 \t Optional JS expression may be used to pass args to script by\n
 \t setting vars."
 [[ $# < 1 ]] && (echo -e $USAGE;exit 1 )
+[[ ! -f "$1" ]] && (echo "ERROR::File: $1 not found.";exit 1)
 
 # Output Job filename
-JOB=${1%.js}$(date +%Y%b%dT%H%M%S).job
+JOB=${1%.js}$(date +%Y%m%dT%H%M%S).job
 
 # Run the script
 mongo --quiet -u "$USERID" -p "$PASSWD" --authenticationDatabase $DB --eval "$2" $1 >$JOBQ/$JOB
