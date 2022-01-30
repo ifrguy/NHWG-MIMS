@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,6,6)
+version_tuple = (1,6,7)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,9 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+28Jan22 MEG Change insert to insert_one method for pymonogo >3.6
+17Dec21 MEG Updates for Python 3.8+ and MongoDB 5.0
+17Dec21 MEG ListManager classes and functions removed replace by javascript.
 05Nov21 MEG NewMember now addes primary email to a newbie group if configured.
 03Apr21 MEG Wing Calendar add moved to separate batch job file due to Google sync issue.
 03Apr21 MEG NewMember moved calendar cmd format declaration to init.
@@ -184,7 +187,7 @@ class help( Manager ):
         Print help and forces exit.
         """
         print("Summary:")
-        print( sys.argv[0], " <job>" )
+        print( sys.argv[0], " <job> [arg ...]" )
         print( 'Version:', VERSION )
         print( 'Available jobs:' )
         for job in MIMS.jobs():
@@ -332,7 +335,7 @@ class NewMembers( Manager ):
                                              m[ 'Type' ])
             # Write a placeholder to Google to record the new account
             # so we don't try to create a duplicate address.
-            self.DB().Google.insert( { 'primaryEmail': email } )
+            self.DB().Google.insert_one( { 'primaryEmail': email } )
             # check for primary email to notify member
             cmd = cmd + self.gamnotifyfmt.format( contact,
                                              "Welcome to your NH Wing account",
@@ -344,7 +347,7 @@ class NewMembers( Manager ):
                           m['NameSuffix'],
                           orgUnitPath[ m[ 'Unit' ]] )
         else: # do not issue account
-            logging.warn( "%d %s %s %s no primary email, no account created .",
+            logging.warning( "%d %s %s %s no primary email, no account created .",
                           m['CAPID'],m['NameFirst'],
                           m['NameLast'],
                           m['NameSuffix'] )
@@ -493,7 +496,7 @@ class NewCadets( NewMembers ):
             super().run()
         else:
             print('Cadet account creation is not enabled.')
-            logging.warn('Cadet account creation is not enabled.')
+            logging.warning('Cadet account creation is not enabled.')
         return
 
 class PurgeMembers( Manager ):    
@@ -748,7 +751,7 @@ class UnSuspend( Manager ):
                 if ( m ) :
                     # check to see if member is on the Holds list and skip
                     if ( self.checkHolds( m['CAPID'] )):
-                        logging.warn("Member on permanent hold CAPID: %d, Account: %s not reactivated.",
+                        logging.warning("Member on permanent hold CAPID: %d, Account: %s not reactivated.",
                                      m['CAPID'],
                                      g['primaryEmail'] )
                         continue
@@ -761,7 +764,7 @@ class UnSuspend( Manager ):
                                        { '$set' : { 'suspended' : False,
                                                     'suspensionReason': '' }} )
                         if ( result[ 'nModified' ] == 0 ) :
-                            logging.warn( "WARNING: Failed to update suspended for: %s in Google collection.",
+                            logging.warning( "WARNING: Failed to update suspended for: %s in Google collection.",
                                           g[ 'primaryEmail' ] )
                     
                     print( gamcmdfmt.format( g[ 'primaryEmail' ] ),
@@ -971,14 +974,12 @@ def main():
 # check for no job on command line
     if ( len(sys.argv) < 2 ):
         MIMS.job( 'help' ).run()
-        MIMS.DB().logout()
         MIMS.close()
         sys.exit( 0 )
 
 # All good try to run job        
     job = MIMS.job( sys.argv[1] )
     job.run()
-    job.DB().logout()
     MIMS.close()
     
 ###########################################
