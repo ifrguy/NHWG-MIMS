@@ -7,6 +7,8 @@
 # If callded as unholdMember removes CAPID from Holds
 
 # History:
+# 01Jun22 MEG Fixed dangling if in "unhold()"                                   
+# 01Jun22 MEG Removed deprecated db logout function call.                       
 # 08Mar21 MEG Added date stamp to hold
 # 02May20 MEG Set/unset Wing status on Member, check for duplicate holds on set
 # 09Aug18 MEG Added on hold checking
@@ -87,7 +89,8 @@ def unhold( db ):
         db.Member.update_one( { 'CAPID' : capid }, { '$set' : { 'NHWGStatus' :
                                                                 None }} )
         return
-    print( "Error: CAPID:", str( capid ), "not found." )
+    else:
+        print( "Error: CAPID:", sys.argv[1], "not found." )
     return
 
 def onhold( db ):
@@ -140,5 +143,4 @@ ftab = { "holdMember" : hold,
 
 ftab[ PROG ]( DB )
 # close up and exit
-DB.logout()
 client.close()
