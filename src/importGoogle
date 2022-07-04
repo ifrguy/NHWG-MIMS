@@ -22,6 +22,7 @@
 # Note: You will need to update the variables to point to the utilities.
 #
 # History:
+# 03Jul22 MEG Indexing now adds DB, removed DB from index script.
 # 28Oct19 MEG Added clear collection option, moved variables to config file.
 # 12Aug18 MEG Added index Google collection script config variable.
 # 20Jul18 MEG Index Google collection.
@@ -44,7 +45,7 @@ D=NO
 
 # Index the collection
 INDEX=no
-
+q
 # Collection in DB to import into
 COLL=Google
 
@@ -124,9 +125,9 @@ fi
 if [ $INDEX == "yes" ]; then
     echo "Indexing Google"
     if [ -f $INDEXSCRIPT ]; then
-	mongo  --quiet --host $HOST --authenticationDatabase=$DB --username=$MONGOUID \
-       --password=$MONGOPASS $COLL-index.js
+	mongosh  --quiet --host $HOST--username=$MONGOUID --password=$MONGOPASS --authenticationDatabase=$DB $DB $COLL-index.js
 	echo "Done."
+
     else
 	echo "WARNING:Indexing script: $INDEXSCRIPT not found."
 	echo "Indexing not performed."
