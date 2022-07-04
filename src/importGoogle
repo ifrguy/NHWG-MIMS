@@ -45,7 +45,7 @@ D=NO
 
 # Index the collection
 INDEX=no
-q
+
 # Collection in DB to import into
 COLL=Google
 
