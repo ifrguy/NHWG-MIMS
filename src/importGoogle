@@ -22,6 +22,7 @@
 # Note: You will need to update the variables to point to the utilities.
 #
 # History:
+# 21Jul22 MEG --upsert not needed with --upsertFields.
 # 03Jul22 MEG Indexing now adds DB, removed DB from index script.
 # 28Oct19 MEG Added clear collection option, moved variables to config file.
 # 12Aug18 MEG Added index Google collection script config variable.
@@ -38,7 +39,7 @@
 . ./$(basename $0).conf
 
 # Default operation to use to import collection
-CALL=drop
+CALL=upsert
 
 # Download Google json
 D=NO
@@ -66,7 +67,7 @@ function drop() {
 # indexes.
 function upsert() {
     $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
---password=$MONGOPASS --collection $1 --type json --mode upsert --upsertFields primaryEmail --file $1.json
+--password=$MONGOPASS --collection $1 --type json --upsertFields primaryEmail,id --file $1.json
 }
 
 # Updates collection. Collection is first cleared this preserves indexes
@@ -78,7 +79,7 @@ db.$COLL.remove( {} );
 exit
 EOJS
     $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
---password=$MONGOPASS --collection $1 --type json --mode upsert --upsertFields primaryEmail --file $1.json
+--password=$MONGOPASS --collection $1 --type json --upsertFields primaryEmail,id --file $1.json
 }
 
 # options
