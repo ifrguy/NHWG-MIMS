@@ -22,6 +22,8 @@
 # Note: You will need to update the variables to point to the utilities.
 #
 # History:
+# 30Jul22 MEG Change gam user pull method, now about 100x faster, but
+#             group memberships are not retrieved (different API call).
 # 21Jul22 MEG --upsert not needed with --upsertFields.
 # 03Jul22 MEG Indexing now adds DB, removed DB from index script.
 # 28Oct19 MEG Added clear collection option, moved variables to config file.
@@ -47,9 +49,6 @@ D=NO
 # Index the collection
 INDEX=no
 
-# Collection in DB to import into
-COLL=Google
-
 # Load MongoDB login creds
 . $CREDS
 
@@ -59,7 +58,6 @@ COLL=Google
 function drop() {
     $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
 	--password=$MONGOPASS --collection $1 --drop --type json --file $1.json
-
 }
 
 # Updates collection inserting new records if required.  No indexing
@@ -67,7 +65,7 @@ function drop() {
 # indexes.
 function upsert() {
     $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
---password=$MONGOPASS --collection $1 --type json --upsertFields primaryEmail,id --file $1.json
+--password=$MONGOPASS --collection $1 --type json --upsertFields $KEYS --file $1.json
 }
 
 # Updates collection. Collection is first cleared this preserves indexes
@@ -79,7 +77,7 @@ db.$COLL.remove( {} );
 exit
 EOJS
     $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
---password=$MONGOPASS --collection $1 --type json --upsertFields primaryEmail,id --file $1.json
+--password=$MONGOPASS --collection $1 --type json --upsertFields $KEYS --file $1.json
 }
 
 # options
@@ -92,7 +90,8 @@ USAGE="Usage: $(basename $0) [$OPTS]\n
 \td - database ($DB)\n
 \ti - index the collection ($INDEX)\n
 \tu - update/upsert collection default is: ($CALL)\n
-\th|? - this help\n"
+\th|? - this help\n
+\t Import key fields: $KEYS\n"
 
 while getopts $OPTS o; do
     case $o in
@@ -109,7 +108,8 @@ shift $(($OPTIND - 1))
 
 if [ $D = "yes" ]; then
     echo "Downloading Google members"
-    $GAM redirect stderr $LOG info users all users nolicenses formatjson | sed -r -f ./jsonfix.sed >$COLL.json
+    $GAM config csv_output_header_filter JSON redirect csv - noheader print users full formatjson quotechar "'" 2>$LOG | sed -r -f ./jsonfix.sed >$COLL.json
+    echo "GAM download exit code: $?"
     cat $LOG
 fi
 
