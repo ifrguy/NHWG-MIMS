@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,6,7)
+version_tuple = (1,6,8)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,8 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+01Aug22 MEG UnSuspend.run() report, skip Google records without custom schema.
+24Mar22 MEG Disable bulk calendar event notifications on wing calendar.
 28Jan22 MEG Change insert to insert_one method for pymonogo >3.6
 17Dec21 MEG Updates for Python 3.8+ and MongoDB 5.0
 17Dec21 MEG ListManager classes and functions removed replace by javascript.
@@ -223,7 +225,7 @@ class NewMembers( Manager ):
         # GAM command to email notification to new member
         self.gamnotifyfmt = ' notify {} subject "{}" file {}'
         # Calendar template command
-        self.calcmdfmt = 'gam user {} add calendar {} notification email eventchange,eventcancellation'
+        self.calcmdfmt = 'gam user {} add calendar {}'
         # Group or groups string, comma separted groups, to add member to
         self.group = None
         # Add members to the newbies group
@@ -747,7 +749,8 @@ class UnSuspend( Manager ):
                         { 'CAPID' : g[ 'customSchemas']['Member']['CAPID'] }
                     )
                 except KeyError as e:
-                    print("ERROR:Missing or corrupt customSchema in Google:",g['_id'] )
+                    print("WARNING::Missing or corrupt customSchema in Google _id:",g['_id'], "primaryEmail:", g['primaryEmail']," SKIPPING." )
+                    continue
                 if ( m ) :
                     # check to see if member is on the Holds list and skip
                     if ( self.checkHolds( m['CAPID'] )):
