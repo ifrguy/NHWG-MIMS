@@ -749,7 +749,11 @@ class UnSuspend( Manager ):
                         { 'CAPID' : g[ 'customSchemas']['Member']['CAPID'] }
                     )
                 except KeyError as e:
-                    print("WARNING::Missing or corrupt customSchema in Google _id:",g['_id'], "primaryEmail:", g['primaryEmail']," SKIPPING." )
+                    print("WARNING::UnSuspend:run: ",
+                          "Missing or corrupt customSchema in Google _id:",
+                          g['_id'], "primaryEmail:",
+                          g['primaryEmail'],
+                          " SKIPPING." )
                     continue
                 if ( m ) :
                     # check to see if member is on the Holds list and skip
