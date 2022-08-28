@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,6,8)
+version_tuple = (1,6,9)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,8 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+19Aug22 MEG Catch DuplicateKeyError exception on mkNewAccount().
+19Aug22 MEG mkNewAccount(), add CAPID to Google placeholder.
 01Aug22 MEG UnSuspend.run() report, skip Google records without custom schema.
 24Mar22 MEG Disable bulk calendar event notifications on wing calendar.
 28Jan22 MEG Change insert to insert_one method for pymonogo >3.6
@@ -337,7 +339,18 @@ class NewMembers( Manager ):
                                              m[ 'Type' ])
             # Write a placeholder to Google to record the new account
             # so we don't try to create a duplicate address.
-            self.DB().Google.insert_one( { 'primaryEmail': email } )
+            try:
+                self.DB().Google.insert_one( { 'primaryEmail': email,
+                                               'customSchemas': {
+                                                   'Member': {
+                                                       'CAPID': m['CAPID'] }}} )
+            except DuplicateKeyError as e:
+                print( "ERROR::NewMember.mkNewAccount",e, "primaryEmail:", email,
+                       "CAPID:", m['CAPID'] )
+                logging.error( "ERROR: %s primaryEmail: %s, CAPID: %d",
+                               e, email,
+                               m['CAPID'] )
+                return None
             # check for primary email to notify member
             cmd = cmd + self.gamnotifyfmt.format( contact,
                                              "Welcome to your NH Wing account",
