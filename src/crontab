@@ -25,9 +25,7 @@ CODEREDHOME=/home/mims/work/NHWG/CodeRed
 # Create MIMS batch job files for Google account update
 0 6 * * 5 cd $MIMSHOME;./MIMSJobsGen
 # Import all Wing Google groups
-0 2 * * * echo "Importing Groups";cd $MIMSHOME;./importGroups
-# Code Red Monthly
-0 12 1 * * echo Monthly Code Red;cd $NHWGHOME/CodeRed;./codered;echo Done.
+0 2 * * * echo "Importing Groups";cd $MIMSHOME;./importGroups -D
 # Gen commanders mailing list
 0 5 * * * echo Mailing list Gen;cd $REPORTHOME;./Mailing-List-Gen
 # Weekly New Member report
