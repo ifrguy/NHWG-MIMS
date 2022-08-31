@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (1,6,9)
+version_tuple = (2,0,0)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+28Aug22 MEG Group management removed. Only user accounts managed now.
 19Aug22 MEG Catch DuplicateKeyError exception on mkNewAccount().
 19Aug22 MEG mkNewAccount(), add CAPID to Google placeholder.
 01Aug22 MEG UnSuspend.run() report, skip Google records without custom schema.
@@ -667,63 +668,6 @@ class Expired( Manager ):
                            file = outfile )
         logging.info( "Accounts suspended: %d", n )
         return
-
-class ListManager( Manager ):
-    """
-    Root class of all mailing list management subclasses/jobs.
-    This is just a base class doesn't do anything, subclasses
-    are the real actors.
-    """
-
-    helpMsg = 'Abastract class does nothing. Top level for list management.'
-
-    def __init__(self):
-        super().__init__()
-
-    def run( self ):
-        """
-        Doesn't do anything just a placeholder for subclasses.
-        """
-        return
-
-    def isGroupMember( self, groups, group ):
-        """
-        Search the users groups list to see if group email address is in
-        the members list of groups. If not found return None.
-        """
-        for g in groups:
-            if ( g['email'] == group ):
-                return True
-        return None # not member of group
-    
-class SeniorListChecker( ListManager ):
-    """
-    Scan Google users for senior members, check to see if they are on the
-    senior mailing list, if not add them.
-    """
-
-    helpMsg = 'Maintenance check that all seniors are on senior mailing list.'
-
-    def __init__( self ):
-        super().__init__()
-        logging.basicConfig( filename = self.logfileName, filemode = 'w',
-                             level = logging.DEBUG )
-        self.query = { 'customSchemas.Member.Type' : "SENIOR" }
-
-    def run( self ):
-        """
-        Scan for senior members and add them to the senior mailing list
-        """
-        cur = self.DB().Google.find( self.query )
-        gamcmdfmt = 'gam user {} add groups member {}'
-        with open( self.outfileName, 'w' ) as outfile:
-            for m in cur:
-                primaryEmail = m['primaryEmail']
-                if not self.isGroupMember( m['groups'], "seniors@nhwg.cap.gov"):
-                    logging.info( "%s %s", "Senior mailing list Add:", primaryEmail ) 
-                    print( gamcmdfmt.format( primaryEmail,
-                           "seniors@nhwg.cap.gov"),
-                           file = outfile )
 
 class UnSuspend( Manager ):
     """
