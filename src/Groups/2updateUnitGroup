@@ -1,0 +1,52 @@
+#!/bin/bash -e
+# For unit level group maintenance.
+# Updates the group of specified type for all units that subscribe
+# Input: type of group to update
+# Output: a MIMS job file with group update commands
+
+# Loops over the specified group type outputs an update job for
+# each unit in the selected group array in the .conf file
+
+# History:
+# 27Jul22 MEG Created.
+#
+
+# import config var's
+. ./$(basename $0).conf
+
+# get credentials
+. $CREDS
+
+# optional switches
+OPTS="L:h?"
+
+USAGE="Usage: $(basename $0) [$OPTS] Group\n
+Generate job to update all unit Google groups for a group class.\n
+\t Group - class: Seniors|Cadets|Parents\n
+\t L - Path to the library of <group JS> scripts. ($LIB)\n
+\t h? - this message.\n"
+
+[[ $# < 1 ]] && (echo -e $USAGE;exit 1 )
+
+while getopts $OPTS o; do
+    case $o in
+	L) LIB=$OPTARG;;
+	h|?) echo -e $USAGE;exit 1;;
+	*) echo -e $USAGE;exit 1;;
+    esac
+done
+shift $(( $OPTIND - 1 ))
+
+# Check to make sure a class script was specified
+[[ ! -f "$LIB/$1.js" ]] && (echo "ERROR::Script: $1 not found in $LIB.";exit 1)
+
+# Bash trickiness, grp is a reference to the array of units
+# subscribing to a group class, e.g. Seniors,  named by $1
+declare -n grp=$1
+
+for u in ${grp[@]}; do
+    # Output Job filename
+    JOB="$u$1$SUFFIX".job
+    mongosh --quiet  -u "$USERID" -p "$PASSWD" --authenticationDatabase $DB $DB \
+	--eval \"unit=\'$u\'\;\'\'\;\" $LIB/$1.js >$JOBQ/$JOB
+done

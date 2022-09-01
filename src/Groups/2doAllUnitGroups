@@ -1,0 +1,11 @@
+#!/bin/bash -e
+# Run update for all unit groups
+
+LIB=./lib/Unit
+
+for f in $(/bin/ls -1 $LIB/*.js); do
+    t=$(basename $f)
+    grp=${t%.js}
+    echo "Updating group: $grp
+    ./2updateUnitGroup $grp
+done

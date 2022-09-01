@@ -1,18 +1,21 @@
-// Manage Incident Commander (IC) list
+// IC (Incident Commanders) group
+//
 // History:
-// 06Mar21 MEG Fixed problem member not actually removed from list
-// 20Apr20 MEG Created.
+// 06Jul22 MEG Group leaf class includes mainline.
+// 26May22 MEG Updated member pipeline to sort on email.
+// 24Dec21 MEG Created.
 
-var db = db.getSiblingDB('NHWG');
-// Requires official MongoShell 3.6+
+// Load my super class definition
+load( './lib/Group.js');
 
-var ics = {};  //set of active IC's
-var group = 'ic@nhwg.cap.gov';
-var count = 0;
+// Group base name
+const group = 'ic';
 
-// Get cursor on pipeline for all active/training level 1,2,3 ICs
-var cur = db.getCollection("MbrAchievements").aggregate(
-    [
+// Name of collection on which the aggregation pipeline beings search
+const pipeline_start = 'MbrAchievements';
+
+// MongoDB aggregation pipeline to find potential group members
+const memberpipeline =  [
         { 
             "$match" : { 
                 "AchvID" : { 
@@ -77,52 +80,30 @@ var cur = db.getCollection("MbrAchievements").aggregate(
         { 
             "$project" : { 
                 "CAPID" : 1, 
-                "NameFirst" : "$member.NameFirst", 
-                "NameLast" : "$member.NameLast", 
-                "NameSuffix" : "$member.NameSuffix", 
+                "Name" : "$google.name.fullName", 
                 "Achievement" : "$achv.Achv", 
                 "Status" : 1, 
                 "AchvID" : 1, 
                 "email" : "$google.primaryEmail"
             }
-        }
-    ], 
-    { 
-        "allowDiskUse" : false
+        },
+       {
+	"$sort" : { "email" : 1 }
+       },
+];
+
+
+// Incident Commanders group
+class IC extends Group {
+    constructor( domain = wing_domain, groupname = group, pipeline = memberpipeline,
+	         start_agg = pipeline_start )
+    {
+	super( domain, groupname, pipeline, start_agg );
     }
-);
-
-while ( cur.hasNext() ) { 
-    var m = cur.next();
-    ics[ m.email ] = { CAPID: m.CAPID, last: m.NameLast, first: m.NameFirst, suffix: m.NameSuffix };
 }
 
-// Check for new members to add to group
-count = 0;
-print( "# Add new members to:", group );
-for ( e in ics ) {
-    var m = db.GoogleGroups.findOne( { group: group, email: e } );
-    if ( m ) { continue; }
-    print( "# Adding member:", ics[ e ].CAPID, (db.Google.findOne( { "customSchemas.Member.CAPID": ics[ e ].CAPID } )) );
-    print( "gam update group", group, "add member", e );
-    count++;
-}
-print( "# Total members added:", count );
+// Main
 
-// Check for members to remove from group
-print();
-count = 0;
-print( "## Remove members from:", group );
-var cur = db.GoogleGroups.find( { group: group, role: 'MEMBER'} );
+let theGroup = new IC();
+theGroup.updateGroup();
 
-while ( cur.hasNext() ) {
-    var m = cur.next();
-//    print("email:", m.email );
-    if ( m.email in ics ) { continue; }
-    count++;
-    print( "# Remove member:", "CAPID:",
-	   db.Google.findOne( { primaryEmail: m.email } ).customSchemas.Member.CAPID,
-	   db.Google.findOne( { primaryEmail: m.email } ).name.fullName, 'email:', m.email );
-    print( "gam update group", group, "delete member", m.email );
-}
-print( "# Total members removed:", count );

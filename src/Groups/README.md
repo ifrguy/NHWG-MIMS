@@ -1,38 +1,49 @@
-This contains a collection of scripts to manage groups for various member sets.
-The scripts here are intended to be run as batch jobs, but can be run directly
-from the command line if desired.;
+This contains a collection of scripts to manage groups for various
+member sets.  The scripts here are intended to be run as batch jobs,
+but can be run directly from the command line if desired.  New groups
+may be added by simply defining new group classes.
 
-A dump of all Wing G Suite groups is pulled regularly and saved in the
-GoogleGroups collection.  The bash script reads a Mongo shell
-javascript script and produces an output file containing a series of GAM commands to update the specified group.
+A dump of all Wing Google Workspace groups is pulled regularly and
+saved in the GoogleGroups collection.  The bash script reads a Mongo
+shell javascript script and produces an output file containing a
+series of GAM commands to update the specified group.
+
+*You must edit all* **.conf** *files with values appropriate to your installation.*
 
 
 #### Naming convention:
 
-Each group to be updated may have either one or more MongoDB
-javascript files associated.  By convention the root name of the
-script should be the email name for the group, e.g. aircrew group
-update script is aircrew.js.  It is also possible to have different
+Each group to be updated must be defined by a  MongoDB
+javascript class file in ./lib.  By convention the  of the
+script reflect the name of the group, e.g. aircrew group
+class script is Aircrew.js.  It is also possible to have different
 scripts one say to add new members and one to remove lapsed members.
 It is purely a design choice.
 
 #### Operation:
-In operation each group to be updated must have it's update script(s)
-called as a cron job on whatever schedule is desired.  As an example I
-update the senior members group weekly in cron using the entry:
+In operation each group to be updated must have it's update script
+called. This can be scheduled as a cron job on whatever schedule is
+desired.  As an example I update the list of all wing senior members
+group weekly in cron using the entry:
 
-`* 12 * * 7 echo "Weekly all seniors list update";cd $GROUPS;./updateGroup allseniors.js`
+`* 12 * * 7 echo "Weekly all seniors list update";cd $GROUPS;./2updateGroup AllSeniors.js`
 
 This will run the update for the allseniors group at noon on the
 seventh day of eack week. Do the above for each group to be updated.
 
+#### Adding a new group:
+To define a new group what is necessary is a MongoDB aggregation
+pipeline to select potential group members. The aggregation pipeline
+along with the group name and starting DB collection are placed in a
+new group class file.  See the template class file in the ./lib directory.
+
 #### Scripts:
-* updateGroup - bash group update job generator
-* updateGroup.conf - updateGroup configuration file
+* 2updateGroup - update a single wing level group
+* 2updateGroup.conf - configuration file
+* 2doAllGroups -  update all wing level groups calls 2updateGroup
+* 2doAllUnitGroups - update all unit level groups calls 2updateUnitGroup
+* 2updateUnitGroup - group update a single unit level group type
+* 2updateUnitGroup.conf - configuration file
 * groupmanager.creds - MongoDB login credentials
-* allcadets.js - updates the all cadets group
-* allseniors.js - updates the all seniors group
-* aps.js - updates the airborne photographers group.
-* aircrew.js - update the aircrew group.
-* commanders.js - update the wing/unit commanders group
+
 

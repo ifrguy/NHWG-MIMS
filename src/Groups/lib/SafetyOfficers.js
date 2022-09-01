@@ -1,0 +1,75 @@
+// Group: safetyofficers@nhwg.cap.gov
+// Purpose: List of all safety officers and assistants across all units
+
+// History:
+// 06Jul22 MEG Group leaf class includes mainline.
+// 27May22 MEG Created
+
+// Load my super class definition
+load( './lib/Group.js');
+
+// base name of the group
+const group = 'safetyofficers';
+
+// Name of collection on which the aggregation pipeline beings search
+const pipeline_start = 'DutyPosition';
+
+// MongoDB aggregation pipeline to find potential group members.
+// The pipeline must result in objects that contain a valid email address
+// for candidate members in the attribute named "email"
+const memberpipeline = [
+    // Stage 1
+    {
+	$match: {
+	    // enter query here
+	    Duty: /safety/i,
+	}
+    },
+
+    // Stage 2
+    {
+	$lookup: // Equality Match
+	{
+	    from: "Google",
+	    localField: "CAPID",
+	    foreignField: "customSchemas.Member.CAPID",
+	    as: "google"
+	}
+    },
+
+    // Stage 3
+    {
+	$unwind: {
+	    path: "$google",
+	    preserveNullAndEmptyArrays: false, // optional
+	}
+    },
+
+    // Stage 4
+    {
+	$project: {
+	    // specifications
+	    CAPID:1,
+	    Asst: 1,
+	    Duty: 1,
+	    Name: "$google.name.fullName",
+	    email: "$google.primaryEmail",
+	    Unit: "$google.orgUnitPath",
+	}
+    },
+];
+
+// Safety Officers group
+class SafetyOfficers extends Group {
+    constructor( domain = wing_domain, groupname = group, pipeline = memberpipeline,
+	         start_agg = pipeline_start ) {
+	super( domain, groupname, pipeline, start_agg );
+    }
+}
+
+// Main
+
+let theGroup = new SafetyOfficers();
+theGroup.updateGroup();
+
+
