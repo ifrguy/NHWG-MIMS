@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-## Copyright 2018 Marshall E. Giguere
+## Copyright 2022 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -75,7 +75,8 @@ def download():
     except requests.exceptions.ReadTimeout as e:
 # Note: if the requests times out, i.e. no connection, "requests.get" returns
 # no value.  The return variable is "unbound".  Attempting to access any
-# of the atts of the request package with throw an UnboundLocalVarilable error.# So we force the return of an HTTP 408 Timeout Error, so we can try again.
+# of the atts of the request package with throw an UnboundLocalVarilable error.
+# So we force the return of an HTTP 408 Timeout Error, so we can try again.
         print('Read: download orgid:', str( opts.o ), 'timed out.')
         print( "Error: ", e )
         print( "HTTP Error 408 - Timeout Error" )

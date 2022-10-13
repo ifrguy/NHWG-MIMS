@@ -1,7 +1,25 @@
 #!/bin/bash -e
-# Run update for all groups
+# Run update for all wing level groups
+# This is a convenience script to process all defined wing level groups.
+# NOTE:
+# It is assumed that each ".js" script in ./lib defines a single wing level group and nothing else!
 
-for f in $(/bin/ls -1 ./lib/*.js|grep -v skeleton|grep -v Group); do
-    echo "Updating group: ${f%.js}"
-    ./2updateGroup $( basename $f )
+# HISTORY:
+# 21Sep22 MEG bash syntax enhancments and clean-up
+# 14Sep22 MEG Created.
+
+# path to group scripts
+LIB=./lib
+
+# Get a list of all the group class files
+files=(./lib/*.js)
+
+# Remove groups superclass from the list of groups to process
+files=(${files[@]/\.\/$LIB\/Group\.js/})
+
+# Update each group type, note the groups superclass Group.js is excluded
+for f in "${files[@]}"; do
+    class=$(basename "$f")
+    echo "Updating group: ${class%.js}"
+    ./2updateGroup "$class"
 done

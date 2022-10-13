@@ -6,12 +6,12 @@
 # 
 SHELL=/bin/bash
 MAILTO=mims
-PATH=/home/mims/bin:/home/mims/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+PATH=/home/mims/bin:/home/mims/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-REPORTHOME=/home/mims/work/NHWG/Reports
-MIMSHOME=/home/mims/work/NHWG/MIMS
-NHWGHOME=/home/mims/work/NHWG
-CODEREDHOME=/home/mims/work/NHWG/CodeRed
+REPORTHOME=/home/mims/work/WING/Reports
+MIMSHOME=/home/mims/work/WING/MIMS
+WINGHOME=/home/mims/work/WING
+CODEREDHOME=/home/mims/work/WING/CodeRed
 
 # m h  dom mon dow   command
 # Run jobexec to process MIMS batch files

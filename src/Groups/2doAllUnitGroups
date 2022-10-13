@@ -1,11 +1,23 @@
 #!/bin/bash -e
-# Run update for all unit groups
+# Run update for all unit level groups
+# This is a convenience script to process all defined unit level groups.
+# NOTE:
+# It is assumed that each ".js" script in ./lib/Unit defines a single unit level group and nothing else!
 
+# HISTORY:
+# 21Sep22 MEG bash syntax enhancements and clean-up
+# 11Sep22 MEG Created
+
+# path to all unit group class definitions
 LIB=./lib/Unit
 
-for f in $(/bin/ls -1 $LIB/*.js); do
-    t=$(basename $f)
+# get an array of all the unit class .js files in $LIB
+files=($LIB/*.js)
+
+# Now process each file as the group to update and call the update script
+for f in "${files[@]}"; do
+    t=$(basename "$f")
     grp=${t%.js}
-    echo "Updating group: $grp
-    ./2updateUnitGroup $grp
+    echo "Updating group: $grp"
+    ./2updateUnitGroup "$grp"
 done
