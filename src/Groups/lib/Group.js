@@ -66,7 +66,8 @@ class Group {
     #agg_options =  { "allowDiskUse" : false };
 
     dump() {
-	print( "Group: " + this.myGroup,
+	print( "DB: " + db.getName(),
+	       "\nGroup: " + this.myGroup,
 	       "\nDomain:", this.#myDomain,
 	       "\n#pipeline:",this.#pipeline,
 	       "\n#aggStart: " + this.#aggStart,

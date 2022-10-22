@@ -15,7 +15,7 @@ LIB=./lib
 files=(./lib/*.js)
 
 # Remove groups superclass from the list of groups to process
-files=(${files[@]/\.\/$LIB\/Group\.js/})
+files=(${files[@]/$LIB\/Group\.js/})
 
 # Update each group type, note the groups superclass Group.js is excluded
 for f in "${files[@]}"; do
