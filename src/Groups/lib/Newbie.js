@@ -34,7 +34,7 @@ class Newbie extends Group {
 
     addMembers() {
 	// Members are automatically added at account creation time.
-	DEBUG && print( this.name + ":addMembers(): does nothing." ); 
+	DEBUG && print( "Newbie:addMembers(): does nothing, overrides Group method." ); 
 	return true;
     }
 
@@ -45,7 +45,7 @@ class Newbie extends Group {
 	let lookback = dateFns.subDays( today, RETENTION );
 
 
-	DEBUG && print( this.name + ":removeMembers()" );
+	DEBUG && print( "Newbie:removeMembers()" );
 	print( "## Remove group members." );
 	let count = 0;
 	let cursor = db.getCollection("GoogleGroups").find({ group: this.myGroup,
@@ -57,15 +57,6 @@ class Newbie extends Group {
 	    count++;
 	}
 	print( "## Removed:", count, "members." );
-    }
-    updateGroup() {
-	// We only remove members that have exceeded RETENTION days.
-	// New members are automatically added when their account is created.
-	// if NOAUTORUNGROUP is defined do not run the update, we must not
-	// be in batch mode.
-	if ( process.env.NOAUTORUNGROUP ) { return; }
-	print( "# Update: " + this.myGroup + " Group" );
-	this.removeMembers();
     }
 }
 

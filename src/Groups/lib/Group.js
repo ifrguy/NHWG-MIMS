@@ -12,6 +12,7 @@
 // MongoShell(mongosh) >1.1.7
 
 // History:
+// 18Nov22 MEG addMembers() adding duplicates if member listed more than once.
 // 12Jul22 MEG Domain name can now be passed as arg to constructor.
 // 10Jul22 MEG updateGroup() added, default procedure for updating a group.
 // 07Jun22 MEG isGroupMember() not ignoring case when searching group.
@@ -76,7 +77,7 @@ class Group {
     constructor( domain, name, pipeline, agg_start ) {
 	this.#_myName = name;
 	this.#myDomain = domain;
-	this.#authList = {}; //uses a JS object as a cheap set object
+	this.#authList = {}; //uses a JS object as a cheap associative set
 	this.#group = name + '@' + domain;
 	this.#pipeline = pipeline;
 	this.#aggStart = agg_start;
@@ -182,16 +183,20 @@ class Group {
             var m = cursor.next();  
 	    let e = this.cleanEmailAddress( m.email );
             if ( ! this.#isActiveMember( m.CAPID ) ) { continue; }
+	    // if member is not in auth list add them and issue group add
+	    // if already in the auth list skip we've done them previously
+	    // this is to handle duplicates from queries.
 	    if ( ! this.#isAuth( e )) {
 		this.#authList[ e ] = m;
 		if ( DEBUG ) { print( "Added to authList:", e, "to authList." ); }
+
+		if ( this.#isGroupMember( e ) ) { continue; }
+		// Print gam command to add new member
+		if (DEBUG) { print( "returned from #isGroupMember()" ); }
+		print( "# Associated CAPID:", m.CAPID );
+		print("gam update group", this.myGroup, "add member", e );
+		count++;
 	    }
-            if ( this.#isGroupMember( e ) ) { continue; }
-            // Print gam command to add new member
-	    if (DEBUG) { print( "returned from #isGroupMember()" ); }
-	    print( "# Associated CAPID:", m.CAPID );
-            print("gam update group", this.myGroup, "add member", e );
-	    count++;
 	}
 	print( "## Added:", count, "members." );
     }
@@ -238,6 +243,7 @@ class Group {
 	// if NOAUTORUNGROUP is defined do not run the update, we must not
 	// be in batch mode.
 	if ( process.env.NOAUTORUNGROUP ) { return; }
+	DEBUG && print("DB:", db.getName());
 	print( "# Update: " + this.myGroup + " Group" );
 	this.addMembers();
 	this.removeMembers();
