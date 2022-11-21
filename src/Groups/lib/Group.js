@@ -183,10 +183,11 @@ class Group {
             var m = cursor.next();  
 	    let e = this.cleanEmailAddress( m.email );
             if ( ! this.#isActiveMember( m.CAPID ) ) { continue; }
-	    // if member is not in auth list add them and issue group add
 	    // if already in the auth list skip we've done them previously
+	    // if member is not in auth list add them and issue group add
 	    // this is to handle duplicates from queries.
-	    if ( ! this.#isAuth( e )) {
+	    if ( this.#isAuth( e )) { continue; }
+	    else {  // haven't seen you before add to auth and group
 		this.#authList[ e ] = m;
 		if ( DEBUG ) { print( "Added to authList:", e, "to authList." ); }
 
