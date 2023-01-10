@@ -13,7 +13,7 @@ MIMSHOME=/home/mims/work/WING/MIMS
 WINGHOME=/home/mims/work/WING
 CODEREDHOME=/home/mims/work/WING/CodeRed
 
-# m h  dom mon dow   command
+# M H  DOM MON DOW   command
 # Run jobexec to process MIMS batch files
 0 3 * * * cd $MIMSHOME;./jobexec
 # Download CAPWATCH
@@ -21,11 +21,11 @@ CODEREDHOME=/home/mims/work/WING/CodeRed
 # Download and import Google accounts
 0 0 * * * cd $MIMSHOME;./importGoogle -Du
 # Extract and filter CAPWATCH and import tables
-30 0 * * * cd $MIMSHOME;./getTables;./importTables -u;/bin/rm -f $HOME/downloads/NHWG.zip
+30 0 * * * cd $MIMSHOME;./getTables;./importTables -u;/bin/rm -f $HOME/downloads/WING.zip
 # Create MIMS batch job files for Google account update
 0 6 * * 5 cd $MIMSHOME;./MIMSJobsGen
 # Import all Wing Google groups
-0 2 * * * echo "Importing Groups";cd $MIMSHOME;./importGroups -D
+0 2 * * * echo "Importing Groups";cd $MIMSHOME;./importGroups -Du
 # Gen commanders mailing list
 0 5 * * * echo Mailing list Gen;cd $REPORTHOME;./Mailing-List-Gen
 # Weekly New Member report

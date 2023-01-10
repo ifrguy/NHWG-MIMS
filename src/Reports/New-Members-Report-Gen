@@ -55,7 +55,7 @@ shift $(($OPTIND - 1))
 
 echo "Preparing New members report"
 fn=$DATESTAMP-NewMembers-Report.csv
-mongo --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB NewMembersLastWeek.js >$fn
+mongosh --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB NewMembersLastWeek.js >$fn
 # Upload file to shared drive if there's anything to send (size gt 41 bytes)
 if [ $( find ./$fn -type f -size +41c 2>/dev/null ) ]; then
     FILEID[$r]=$(gam user $ASUSER create drivefile \
