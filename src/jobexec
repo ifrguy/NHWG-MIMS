@@ -1,19 +1,4 @@
 #!/bin/bash
-
-## Copyright 2022 Marshall E. Giguere
-##
-##   Licensed under the Apache License, Version 2.0 (the "License");
-##   you may not use this file except in compliance with the License.
-##   You may obtain a copy of the License at
-##
-##       http://www.apache.org/licenses/LICENSE-2.0
-##
-##   Unless required by applicable law or agreed to in writing, software
-##   distributed under the License is distributed on an "AS IS" BASIS,
-##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-##   See the License for the specific language governing permissions and
-##   limitations under the License.
-
 # jobexec is designed to be run as a cron job, when awakened it
 # scans the JOBS directory for .job files.  The jobs are executed in sort
 # order, successfully completed job files are move to the completed
@@ -22,6 +7,7 @@
 # are reported, this is to prevent unintended re-runs.
 #
 # History:
+# 09Mar23 MEG jobexec now deletes job files that contain no gam actions.
 # 02Jan22 MEG If job aborts continue, report and skip to next job.
 # 10Oct20 MEG Moved reporting mailing list to conf file
 # 28Apr18 MEG bash replaced with gam batch to execute jobs.
@@ -68,6 +54,11 @@ echo Running jobexec $(date)|tee job-report.txt
 echo "GAM Run Log" > runlog
 # loop over job files in sort order, skip files ^HOLD-*
 for j in *.job; do
+    # sweep job queue, remove job files with no executable gam commands
+    if ! grep -q "^gam " $j; then
+	/bin/rm $j
+	continue
+    fi
     echo $j|grep -qi '^hold-' && continue
     [ ! -f $j ] && continue
     echo "Job: " $j|tee -a job-report.txt
