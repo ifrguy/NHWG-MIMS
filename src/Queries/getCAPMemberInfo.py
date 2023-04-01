@@ -6,6 +6,7 @@
 #        plus optional first name.
 #
 # History:
+# 31Mar23 MEG Fixed bug exception if db.Squadron.Unit missing from collection
 # 04Sep20 MEG Added Duty Positions to output.
 # 10Oct19 MEG pymongo.Database.logout() Deprecated.
 # 18Aug19 MEG Search by CAPID, better agg pipeline handling.
@@ -107,7 +108,10 @@ for m in cur:
     print( f5.format( 'Status', m['MbrStatus'] ))
     print( f5.format( "Rank", m['Rank'] ))
     u = DB.Squadrons.find_one( { 'Unit' : int( m['Unit'] ) } )
-    print( f5.format( "Unit", m['Unit'] + " " +u['SquadName'] ))
+    if ( u ):
+        print( f5.format( "Unit", m['Unit'] + " " +u['SquadName'] ))
+    else:
+        print( f5.format( "Unit", m['Unit'] + " " +u'SquadName.Unit::missing or corrupt' ))
     print( f5.format( "Expiration", m['Expiration'] ))
     print( "\tMember Contacts:" )
     g = DB.Google.find_one( {'customSchemas.Member.CAPID' : m['CAPID']} )
