@@ -7,6 +7,7 @@
 # are reported, this is to prevent unintended re-runs.
 #
 # History:
+# 04Apr23 MEG Exit if no jobs found.
 # 09Mar23 MEG jobexec now deletes job files that contain no gam actions.
 # 02Jan22 MEG If job aborts continue, report and skip to next job.
 # 10Oct20 MEG Moved reporting mailing list to conf file
@@ -49,6 +50,9 @@ cd $JOBS
 if [ ! -d $COMPJOBS ]; then
     /bin/mkdir -p $COMPJOBS
 fi
+
+# Check to see if there are any jobs, if not bail
+/bin/ls *.job && exit
 
 echo Running jobexec $(date)|tee job-report.txt
 echo "GAM Run Log" > runlog
