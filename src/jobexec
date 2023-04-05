@@ -52,7 +52,7 @@ if [ ! -d $COMPJOBS ]; then
 fi
 
 # Check to see if there are any jobs, if not bail
-/bin/ls *.job && exit
+/bin/ls *.job &>/dev/null || exit
 
 echo Running jobexec $(date)|tee job-report.txt
 echo "GAM Run Log" > runlog
