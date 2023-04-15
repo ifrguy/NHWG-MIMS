@@ -12,6 +12,7 @@
 // MongoShell(mongosh) >1.1.7
 
 // History:
+// 15Apr23 MEG Ignore members that are "groups".
 // 18Nov22 MEG addMembers() adding duplicates if member listed more than once.
 // 12Jul22 MEG Domain name can now be passed as arg to constructor.
 // 10Jul22 MEG updateGroup() added, default procedure for updating a group.
@@ -81,16 +82,19 @@ class Group {
 	this.#group = name + '@' + domain;
 	this.#pipeline = pipeline;
 	this.#aggStart = agg_start;
+	// Ignores managers and groups
 	this.#groupMemberPipeline = [
             { 
 		"$match" : {
                     "group" : this.#group,
 		    "role" : 'MEMBER',
+		    "type" : 'USER',
 		}
             }, 
             { 
 		"$project" : {
-		    "email" : "$email"
+		    "email" : "$email",
+		    "type" : "$type",
 		}
             }
 	];
@@ -187,17 +191,16 @@ class Group {
 	    // if member is not in auth list add them and issue group add
 	    // this is to handle duplicates from queries.
 	    if ( this.#isAuth( e )) { continue; }
-	    else {  // haven't seen you before add to auth and group
-		this.#authList[ e ] = m;
-		if ( DEBUG ) { print( "Added to authList:", e, "to authList." ); }
+	    // haven't seen you before add to auth and group
+	    this.#authList[ e ] = m;
+	    if ( DEBUG ) { print( "Added to authList:", e, "to authList." ); }
 
-		if ( this.#isGroupMember( e ) ) { continue; }
-		// Print gam command to add new member
-		if (DEBUG) { print( "returned from #isGroupMember()" ); }
-		print( "# Associated CAPID:", m.CAPID );
-		print("gam update group", this.myGroup, "add member", e );
-		count++;
-	    }
+	    if ( this.#isGroupMember( e ) ) { continue; }
+	    // Print gam command to add new member
+	    if (DEBUG) { print( "returned from #isGroupMember()" ); }
+	    print( "# Associated CAPID:", m.CAPID );
+	    print("gam update group", this.myGroup, "add member", e );
+	    count++;
 	}
 	print( "## Added:", count, "members." );
     }
