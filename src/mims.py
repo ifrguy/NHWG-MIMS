@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (2,0,0)
+version_tuple = (2,0,2)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,11 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+19Apr23 MEG SweepExpired only emit job file positive count.
+10Feb23 MEG PurgeMembers.run rewrite for better file mgt.
+09Feb23 MEG Expired.run rewrite for better file mgt.
+09Feb23 MEG UnSuspend.run rewrite for better file mgt.
+09Feb23 MEG Introduced role accounts. Not subject to MIMS management.
 28Aug22 MEG Group management removed. Only user accounts managed now.
 19Aug22 MEG Catch DuplicateKeyError exception on mkNewAccount().
 19Aug22 MEG mkNewAccount(), add CAPID to Google placeholder.
@@ -549,10 +554,14 @@ class PurgeMembers( Manager ):
         Write a GAM batch job file to purge members.
         """
         gamcmdfmt = 'gam {} user {}'
-        with open( self.outfileName, 'w' ) as outfile:
-            for j in list:
-                print( gamcmdfmt.format( PURGE_ACTION, j ),
+        if ( len( list ) > 0 ):
+             with open( self.outfileName, 'w' ) as outfile:
+                 for j in list:
+                     print( gamcmdfmt.format( PURGE_ACTION, j ),
                        file = outfile )
+
+        logging.info( "Account to purge: %d", len( list ))
+
         return
 
     def writeGetFiles( self, list ):
@@ -606,7 +615,6 @@ class PurgeMembers( Manager ):
         l.sort()
         # generate the purge job
         self.writePurge( l )
-        logging.info( "Accounts purged: %d", len( l ))
         # generate job to list purged members files for examination
         self.writeGetFiles( l )
         return
@@ -637,36 +645,40 @@ class Expired( Manager ):
         days are considered for suspension.  The account is NOT deleted
         and may be reactivated by any sys admin.
         """
+        outputCmds = []  # the list of gam cmds to output
         gamcmdfmt = "gam {} user {}"
         cur = self.DB().Member.find( self.query ).sort('CAPID',
                                                        pymongo.ASCENDING)
-        n = 0   # number of suspended member accounts
+        # Look for expired memberships
+        for m in cur:
+            # Check if member is on hold status
+            if ( self.checkHolds( m['CAPID'] )): continue
+            # Check if member is already an EXMEMBER
+            try:
+                if ( m['NHWGStatus'] == "EXMEMBER" ): continue
+            except KeyError as e:
+                if ( m['MbrStatus'] == 'EXMEMBER' ): continue
 
-        with open( self.outfileName, 'w' ) as outfile:
-            for m in cur:
-                # Check if member is on hold status
-                if ( self.checkHolds( m['CAPID'] )): continue
-                # Check if member is already an EXMEMBER
-                try:
-                    if ( m['NHWGStatus'] == "EXMEMBER" ): continue
-                except KeyError as e:
-                    if ( m['MbrStatus'] == 'EXMEMBER' ): continue
+            g = self.DB().Google.find_one(
+                {'customSchemas.Member.CAPID': m['CAPID']} )
+            if ( g ):
+                if ( g[ 'suspended' ] ): continue # already suspended
+                outputCmds.append( gamcmdfmt.format( EXPIRED_ACTION,
+                                                 g[ 'primaryEmail' ]))
+                logging.info( "Suspend: %d %s %s %s %s %s", 
+                              m[ 'CAPID' ],
+                              m[ 'NameFirst' ],
+                              m[ 'NameLast' ],
+                              m[ 'NameSuffix' ],
+                              m[ 'Type' ],
+                              g[ 'primaryEmail' ]
+                )
+        if ( len( outputCmds) > 0 ):
+            with open( self.outfileName, 'w' ) as outfile:
+                for cmd in outputCmds:
+                    print( cmd, file = outfile )
 
-                g = self.DB().Google.find_one(
-                    {'customSchemas.Member.CAPID': m['CAPID']} )
-                if ( g ):
-                    if ( g[ 'suspended' ] ): continue # already suspended
-                    n += 1
-                    logging.info( "Suspend: %d %s %s %s %s", 
-                                  m[ 'CAPID' ],
-                                  m[ 'NameFirst' ],
-                                  m[ 'NameLast' ],
-                                  m[ 'NameSuffix' ],
-                                  m[ 'Type' ] )
-                    print( gamcmdfmt.format( EXPIRED_ACTION,
-                                             g[ 'primaryEmail' ]),
-                           file = outfile )
-        logging.info( "Accounts suspended: %d", n )
+        logging.info( "Accounts suspended: %d", len( outputCmds) )
         return
 
 class UnSuspend( Manager ):
@@ -690,54 +702,62 @@ class UnSuspend( Manager ):
         Scans Google account documents for suspended accounts. Checks account
         against the Member document to see if the member is active again by
         looking at the expiration date. Emit a GAM command to unsuspend the
-        account on Google G Suite if active.
+        account on Google Workspace if active.
+        Note: Member.Type == ROLE accounts are exempt, and manually managed.
         """
+        outputCmds = []  #array of gam commands to output
         gamcmdfmt = 'gam unsuspend user {}'
-        count = 0
         today = datetime.today()
-        
-        cur = self.DB().Google.find( self.query ).sort( 'customSchemas.Member.CAPID',
-                                                        pymongo.ASCENDING )
-        with open( self.outfileName, 'w' ) as outfile:
-            for g in cur:
+
+        cur = self.DB().Google.find( self.query )
+
+        for g in cur:
+            try:
+                # ROLE accounts are ignored, manually managed by admin
+                if ( re.match( 'role',
+                               g[ 'customSchemas' ][ 'Member' ][ 'Type' ],
+                               re.I )): continue
+            except KeyError as e:
+                pass
+            try:
                 # lookup user in Member documents
-                try:
-                    m = self.DB().Member.find_one(
-                        { 'CAPID' : g[ 'customSchemas']['Member']['CAPID'] }
-                    )
-                except KeyError as e:
-                    print("WARNING::UnSuspend:run: ",
-                          "Missing or corrupt customSchema in Google _id:",
-                          g['_id'], "primaryEmail:",
-                          g['primaryEmail'],
-                          " SKIPPING." )
+                m = self.DB().Member.find_one(
+                    { 'CAPID' : g[ 'customSchemas']['Member']['CAPID'] }
+                )
+            except KeyError as e:
+                logging.warning("WARNING::UnSuspend:run: Missing or corrupt customSchema in Google collection at: _id: %s, primaryEmail: %s SKIPPED",
+                                g['_id'],
+                                g['primaryEmail'] )
+                continue
+            if ( m ) :
+                # check to see if member is on the Holds list and skip
+                if ( self.checkHolds( m['CAPID'] )):
+                    logging.warning("Member on permanent hold CAPID: %d, Account: %s not reactivated.",
+                                    m['CAPID'],
+                                    g['primaryEmail'] )
                     continue
-                if ( m ) :
-                    # check to see if member is on the Holds list and skip
-                    if ( self.checkHolds( m['CAPID'] )):
-                        logging.warning("Member on permanent hold CAPID: %d, Account: %s not reactivated.",
-                                     m['CAPID'],
-                                     g['primaryEmail'] )
-                        continue
-                    # if membership is still expired skip reactivation
-                    if ( m[ 'Expiration' ] < today ):
-                        continue
-                    # check to see if we should update the local Google collection
-                    if UPDATE_SUSPEND :
-                        result = self.DB().Google.update_one( { 'primaryEmail' : g['primaryEmail']},
-                                       { '$set' : { 'suspended' : False,
-                                                    'suspensionReason': '' }} )
-                        if ( result[ 'nModified' ] == 0 ) :
-                            logging.warning( "WARNING: Failed to update suspended for: %s in Google collection.",
-                                          g[ 'primaryEmail' ] )
-                    
-                    print( gamcmdfmt.format( g[ 'primaryEmail' ] ),
-                                             file = outfile )
-                    logging.info( "UNSUSPEND: %d, %s, %s, %s",
-                                  m['CAPID'], g['name']['fullName'],
-                                  g['primaryEmail'], orgUnitPath[ m['Unit'] ] )
-                    count += 1
-            logging.info( "Total members reactivated: %d", count)
+                # if membership is still expired skip reactivation
+                if ( m[ 'Expiration' ] < today ):
+                    continue
+                # push unsuspend command to output list
+                outputCmds.append( gamcmdfmt.format( g[ 'primaryEmail' ] )),
+                # check to see if we should update the local Google collection
+                if UPDATE_SUSPEND :
+                    result = self.DB().Google.update_one( { 'primaryEmail' : g['primaryEmail']},
+                                                          { '$set' : { 'suspended' : False,
+                                                                       'suspensionReason': '' }} )
+                    if ( result[ 'nModified' ] == 0 ) :
+                        logging.warning( "WARNING::UnSuspend:run:Failed to update suspended for: %s in Google collection.",
+                                         g[ 'primaryEmail' ] )
+    
+        if ( len( outputCmds ) > 0 ):
+            with open( self.outfileName, 'w' ) as outfile:
+                for cmd in outputCmds:
+                    print( cmd, file = outfile )
+                    logging.warning( "UNSUSPEND: %d, %s, %s, %s",
+                                     m['CAPID'], g['name']['fullName'],
+                                     g['primaryEmail'], orgUnitPath[ m['Unit'] ] )
+        logging.info( "Total members reactivated: %d", len( outputCmds ))
 
 class SweepExpired( Manager ):
     """
@@ -775,26 +795,28 @@ class SweepExpired( Manager ):
         Run the query against the Member collection and mark
         select documents as EXMEMBERs.
         """
+        purgeList = ()  
         cursor = self.DB().Member.find( self.query )
-        with open( self.outfileName, 'w' ) as outfile:
-            for member in cursor:
-                if ( self.checkHolds( member[ 'CAPID' ] )): continue
-                if ( member[ 'MbrStatus' ] != 'EXMEMBER' ):
-                    self.markEXMEMBER( member[ 'CAPID' ] )
-                    logging.info("Member: %d marked EXMEMBER in database.",
-                                  member[ 'CAPID' ] )
+        for member in cursor:
+            if ( self.checkHolds( member[ 'CAPID' ] )): continue
+            if ( member[ 'MbrStatus' ] != 'EXMEMBER' ):
+                self.markEXMEMBER( member[ 'CAPID' ] )
+                logging.info("Member: %d marked EXMEMBER in database.",
+                             member[ 'CAPID' ] )
                 # delete Google account record if one exists
                 g = self.DB().Google.find_one(
                     { 'customSchemas.Member.CAPID' : member['CAPID'] } )
                 if ( g ):
-                    print( 'gam delete user {}'.format(
-                           g['primaryEmail']), file = outfile )
+                    purgeList.append( 'gam delete user {}'.format(
+                        g['primaryEmail']))
                     if ( DELETE_PURGED ):
                         self.DB().Google.delete_one( { '_id': g[ '_id' ] } )
-                    logging.info( "Member: %d Purged from Google: %s",
-                          member[ 'CAPID' ],
-                          DELETE_PURGED )
-
+                        logging.info( "Member: %d Purged from Google: %s",
+                                      member[ 'CAPID' ],
+                                      DELETE_PURGED )
+        if ( len( purgeList ) > 0 ):
+            with open( self.outfileName, 'w' ) as outfile:
+                [ print( gamcmd, file = outfile ) for gamcmd in purgeList ]
 
 class CheckOrgUnit ( Manager ):
     """
