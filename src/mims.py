@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+21Apr23 MEG Dropped use of name suffix from account name creation.
 19Apr23 MEG SweepExpired only emit job file positive count.
 10Feb23 MEG PurgeMembers.run rewrite for better file mgt.
 09Feb23 MEG Expired.run rewrite for better file mgt.
@@ -314,7 +315,7 @@ class NewMembers( Manager ):
         Input: member record
         Output: string email address
         """
-        email = (m['NameFirst'][0] + m['NameLast'] + m['NameSuffix']).lower()
+        email = (m['NameFirst'][0] + m['NameLast']).lower()
         email = re.sub( '[\' ]', '', email )  # remove apostrophes & spaces
         email = self.mkename( email, 0 )
         return email + '@' + self.domain
