@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (2,0,2)
+version_tuple = (2,0,3)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+22Apr23 JCV Added CheckGoogle class to combine reconciling Unit and MemberType
 21Apr23 MEG Dropped use of name suffix from account name creation.
 19Apr23 MEG SweepExpired only emit job file positive count.
 10Feb23 MEG PurgeMembers.run rewrite for better file mgt.
@@ -796,7 +797,7 @@ class SweepExpired( Manager ):
         Run the query against the Member collection and mark
         select documents as EXMEMBERs.
         """
-        purgeList = ()  
+        purgeList = []
         cursor = self.DB().Member.find( self.query )
         for member in cursor:
             if ( self.checkHolds( member[ 'CAPID' ] )): continue
@@ -823,7 +824,7 @@ class CheckOrgUnit ( Manager ):
     """
     CheckOrgUnit - Class for reconciling Unit from eServices and Unit/orgUnitPath from Google
     """
-    helpMsg = 'Compares CAPWATCH organizational unit to Google and updates Google if different'
+    helpMsg = '[DEPRECATED]Compares CAPWATCH organizational unit to Google and updates Google if different. USE: CheckGoogle'
 
     def __init__(self):
         super().__init__()
@@ -890,7 +891,7 @@ class CheckMemberType ( Manager ):
     """
     CheckMemberType - Class for reconciling Member.Type from eServices and customSchemas.Member.Type from Google
     """
-    helpMsg = 'Compares CAPWATCH member type to Google and updates Google if different'
+    helpMsg = '[DEPRECATED]Compares CAPWATCH member type to Google and updates Google if different. USE: CheckGoogle'
 
     def __init__(self):
         super().__init__()
@@ -945,7 +946,92 @@ class CheckMemberType ( Manager ):
                     # Here's where we add a gam command to the batch file to update the Google record
                     print( self.gamupdate.format( m['primaryEmail'], m['mType']), file = outfile )
             logging.info( "Total members who changed type of membership: %d", n)
-    
+
+class CheckGoogle ( Manager ):
+    """
+    CheckGoogle - Class for reconciling eServices and Google with respect to Org Unit Path and Member Type
+          (This combines the CheckMemberType and CheckOrgUnit classes into one.)
+    """
+    helpMsg = 'Compares CAPWATCH to Google and updates Google (organizational unit and member type) if different'
+
+    def __init__(self):
+        super().__init__()
+        self.domain = DOMAIN
+
+        # MongoDB aggregation (for Member collection):
+        self.query = [
+        # Stage 0: we just care about 'ACTIVE' members 
+            { '$match' : {
+                'MbrStatus' : 'ACTIVE'
+               }
+            },
+
+        # Stage 1: join Member (CAPWATCH) and Google collections based on CAPID:
+            { '$lookup' : {
+                'from': "Google",
+                'localField': "CAPID",
+                'foreignField': "customSchemas.Member.CAPID",
+                'as': "tempAgg"
+                }
+            },
+
+        # Stage 2:  unwind (or flatten) the "tempAgg" element
+            { '$unwind' : {
+                'path': "$tempAgg"
+                }
+            },
+
+        # Stage 3:  limit the result to just the fields we care about
+            { '$project' : {
+                "Gid" : "$tempAgg.customSchemas.Member.CAPID",
+                "primaryEmail" : "$tempAgg.primaryEmail",
+                "orgUnit" : "$tempAgg.orgUnitPath",
+                "GUnit" : "$tempAgg.customSchemas.Member.Unit",
+                "CUnit" : "$Unit",
+                "mType" : "$Type",
+                "gType" : "$tempAgg.customSchemas.Member.Type"
+                }
+            }
+        ]
+
+        #
+        logging.basicConfig( filename = self.logfileName, filemode = 'w', level = logging.DEBUG )
+
+    def run(self):
+        # Perform a "join" to get overlap of Google and CAPWATCH entries based on CAPID
+        # (Note that we execute the aggregation on the Member collection, but could have just
+        # as easily designed an aggregation on the Google collection:)
+        result = self.DB().Member.aggregate( self.query)
+
+        # In case we want to track number of individual differences we find:
+        nOrgChanges = 0 # number of orgUnit modifications
+        nMemberTypeChanges = 0 # number of MemberType modifications
+
+        # Iterate over result, looking first for differing orgUnit, then for differing MemberType:
+        # (Only write to file if we actually have updates)
+        gamCmdList = []
+        for m in result:
+           # Act on those records for which the Member.Unit from Google does not equal the Unit from CAPWATCH:
+           if ( m[ 'GUnit' ] != m[ 'CUnit' ] ):
+               # Ah, but only proceed for those members NOT in unit '000' (** do we want this? **)
+               if ( m[ 'CUnit' ] != '000' ):
+                   nOrgChanges += 1
+                   logging.info("The Unit is different for CAPID [%d] %s versus %s", m['Gid'], m['GUnit'], m['CUnit'])
+                   # Add gam update command to our list:
+                   gamCmdList.append('gam update user {} orgUnitPath \"{}\" Member.Unit \"{}\"'.format( m['primaryEmail'], orgUnitPath[ m[ 'CUnit' ] ], m[ 'CUnit' ]))
+
+           # Now look for differing Member Types:
+           if ( m[ 'gType' ] != m[ 'mType' ] ):
+               nMemberTypeChanges += 1
+               logging.info("The member type for CAPID [%s] has changed from %s to %s", m['Gid'], m['gType'], m['mType'])
+               # Add gam update command to our list:
+               gamCmdList.append('gam update user {} Member.Type \"{}\" '.format( m['primaryEmail'], m['mType']))
+               
+        # If we have any gam update commands in our list, write them to the file:
+        if (len(gamCmdList) > 0) :
+            with open (self.outfileName, 'w' ) as outfile:
+                [ print (c, file = outfile) for c in gamCmdList ]
+
 # Create the base object for all jobs
 # MIMS is the factory base class object
 MIMS = Manager()
