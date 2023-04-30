@@ -12,6 +12,7 @@
 // MongoShell(mongosh) >1.1.7
 
 // History:
+// 30Apr23 MEG Group.cleanEmailAddress - fixed replace() regex pattern.
 // 15Apr23 MEG Ignore members that are "groups".
 // 18Nov22 MEG addMembers() adding duplicates if member listed more than once.
 // 12Jul22 MEG Domain name can now be passed as arg to constructor.
@@ -149,7 +150,7 @@ class Group {
 	
 	Assert( email, this.name + ":cleanEmailAddress: invalid email" );
 	let e = email.toLowerCase().replace( / /g, "" );
-	e = e.replace( /\,\;/g, "" );
+	e = e.replace( /[\,\;\ ]/g, "" );
 	return e;
     }
     
