@@ -147,10 +147,12 @@ class Group {
     cleanEmailAddress( email ) {
 	// Change all chars to lowercase and remove offensive chars.
 	// all email addresses are assumed to but UTF-8 charset.
-	
+
+	// rex - illegal characters to remove from email address
+	const rex = /[\,\;\ ]/g;
 	Assert( email, this.name + ":cleanEmailAddress: invalid email" );
-	let e = email.toLowerCase().replace( / /g, "" );
-	e = e.replace( /[\,\;\ ]/g, "" );
+	let e = email.toLowerCase();
+	e = e.replace( rex, "" );
 	return e;
     }
     
