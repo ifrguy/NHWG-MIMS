@@ -68,7 +68,7 @@ GRACE = 30
 # for suspend
 LOOKBACK = 31
 
-# Default action for Expired members
+# Default action for Expired members: delete|suspend
 EXPIRED_ACTION = 'suspend'
 
 # Default action for ex-members, no longer on eServices rolls
