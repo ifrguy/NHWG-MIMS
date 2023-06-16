@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (2,0,3)
+version_tuple = (2,0,4)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+14Jun23 MEG Suspended Users removed from GAL (Global Address List).
 22Apr23 JCV Added CheckGoogle class to combine reconciling Unit and MemberType
 21Apr23 MEG Dropped use of name suffix from account name creation.
 19Apr23 MEG SweepExpired only emit job file positive count.
@@ -625,7 +626,8 @@ class Expired( Manager ):
     """
     Expired scans the Member collection for members whose membership
     has expired LOOKBACK or more days ago and issues a GAM command
-    to suspend the users Wing account.
+    to suspend the users Wing account.  In addition user's email is remvoved
+    from the Google Global Address List (GAL).
     """
 
     helpMsg = 'Suspend member wing accounts of expired members.'
@@ -649,6 +651,7 @@ class Expired( Manager ):
         """
         outputCmds = []  # the list of gam cmds to output
         gamcmdfmt = "gam {} user {}"
+        gamSuspendCmdFmt = "gam update user {} suspended on gal off"
         cur = self.DB().Member.find( self.query ).sort('CAPID',
                                                        pymongo.ASCENDING)
         # Look for expired memberships
@@ -665,21 +668,30 @@ class Expired( Manager ):
                 {'customSchemas.Member.CAPID': m['CAPID']} )
             if ( g ):
                 if ( g[ 'suspended' ] ): continue # already suspended
-                outputCmds.append( gamcmdfmt.format( EXPIRED_ACTION,
-                                                 g[ 'primaryEmail' ]))
-                logging.info( "Suspend: %d %s %s %s %s %s", 
-                              m[ 'CAPID' ],
-                              m[ 'NameFirst' ],
-                              m[ 'NameLast' ],
-                              m[ 'NameSuffix' ],
-                              m[ 'Type' ],
-                              g[ 'primaryEmail' ]
-                )
+                if ( EXPIRED_ACTION == 'delete' ):
+                    outputCmds.append( gamcmdfmt.format( EXPIRED_ACTION,
+                                                         g[ 'primaryEmail' ]))
+                    logging.info( "Delete: %d %s %s %s %s %s", 
+                                  m[ 'CAPID' ],
+                                  m[ 'NameFirst' ],
+                                  m[ 'NameLast' ],
+                                  m[ 'NameSuffix' ],
+                                  m[ 'Type' ],
+                                  g[ 'primaryEmail' ] )
+
+                else:
+                    outputCmds.append( gamSuspendCmdFmt.format( g[ 'primaryEmail' ] ))
+                    logging.info( "Suspend: %d %s %s %s %s %s", 
+                                  m[ 'CAPID' ],
+                                  m[ 'NameFirst' ],
+                                  m[ 'NameLast' ],
+                                  m[ 'NameSuffix' ],
+                                  m[ 'Type' ],
+                                  g[ 'primaryEmail' ] )
+# Generate job file
         if ( len( outputCmds) > 0 ):
             with open( self.outfileName, 'w' ) as outfile:
-                for cmd in outputCmds:
-                    print( cmd, file = outfile )
-
+                [ print( cmd, file = outfile ) for cmd in outputCmds ]
         logging.info( "Accounts suspended: %d", len( outputCmds) )
         return
 
@@ -708,7 +720,7 @@ class UnSuspend( Manager ):
         Note: Member.Type == ROLE accounts are exempt, and manually managed.
         """
         outputCmds = []  #array of gam commands to output
-        gamcmdfmt = 'gam unsuspend user {}'
+        gamcmdfmt = 'gam update user {} suspended off gal on'
         today = datetime.today()
 
         cur = self.DB().Google.find( self.query )
@@ -742,7 +754,7 @@ class UnSuspend( Manager ):
                 if ( m[ 'Expiration' ] < today ):
                     continue
                 # push unsuspend command to output list
-                outputCmds.append( gamcmdfmt.format( g[ 'primaryEmail' ] )),
+                outputCmds.append( gamcmdfmt.format( g[ 'primaryEmail' ] ))
                 # check to see if we should update the local Google collection
                 if UPDATE_SUSPEND :
                     result = self.DB().Google.update_one( { 'primaryEmail' : g['primaryEmail']},
