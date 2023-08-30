@@ -2,10 +2,10 @@
 // Produces a csv file of all the officers at the unit level
 //
 // History:
+// 29Aug23 MEG Removed call to "getSiblingDB", DB now supplied on command line.
 // 22May21 MEG Created
 //
 
-var db = db.getSiblingDB("NHWG");
 var cur = db.DutyPosition.aggregate( [
         { 
             "$match" : { 
