@@ -3,6 +3,7 @@
 # Then mail to the command staff mailing list.
 
 # History:
+# 29Aug23 MEG Upgraded to mongosh, DB passed to script on command line.
 # 18Sep20 MEG Uploads files to shared drive, sends only links
 # 06Jul19 MEG Correct sendemail message file syntax.
 # 10Mar19 MEG Fixed options order parsing.
@@ -55,7 +56,8 @@ shift $(($OPTIND - 1))
 
 echo "Preparing New members report"
 fn=$DATESTAMP-NewMembers-Report.csv
-mongosh --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB NewMembersLastWeek.js >$fn
+mongosh --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB \
+	$DB NewMembersLastWeek.js >$fn
 # Upload file to shared drive if there's anything to send (size gt 41 bytes)
 if [ $( find ./$fn -type f -size +41c 2>/dev/null ) ]; then
     FILEID[$r]=$(gam user $ASUSER create drivefile \

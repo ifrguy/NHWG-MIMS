@@ -1,8 +1,11 @@
 // Query to find members expiring between the first day of the month and the end of the month plus "days" in the future.
 // Sorted output by Unit, expiration date, last name
+
+// History:
+// 29Aug23 MEG "getSiblingDB" call removed, DB passed on command line.
 // 12Apr2017 MEG Updated
 //
-var db = db.getSiblingDB( 'NHWG' );
+
 load( db.ENV.findOne({name:'DATEFNS'}).value );
 load( db.ENV.findOne({name:'stringFormat'}).value );
 // Keyword template string

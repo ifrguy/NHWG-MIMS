@@ -3,6 +3,7 @@
 # for use is distribution of the reports
 
 # History:
+# 29Aug23 MEG Upgraded to mongosh, DB passed to script on command line.
 # 27Nov18 MEG Added mailinglist.include file.
 # 20Oct18 MEG Remove names with pattern file.
 # 05Oct18 MEG Created.
@@ -17,8 +18,9 @@ CREDS=./reporter-creds
 
 # target database
 DB=NHWG
+
 echo "Preparing New mailing list"
-mongo --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB CmdrsEmails.js
+mongosh --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB $DB CmdrsEmails.js
 
 # export mailing list, add mailing list include file
 mongoexport --db $DB -u $USERID -p $PASSWD --authenticationDatabase $DB -c reportEmailList --type csv -f primaryEmail|tail -n +2|cat - mailinglist.include|sort|uniq|grep -v -f mailing-list-exclude.pat >mailinglist

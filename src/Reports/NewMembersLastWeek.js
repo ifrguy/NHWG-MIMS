@@ -1,11 +1,11 @@
 // Find new members that have joined in the last week,
 // produce a csv file, with header.
+
 // History:
+// 29Aug23 MEG "getSiblingDB" call removed, DB passed on command line.
 // 02Oct18 MEG Created.
 
-db = db.getSiblingDB( 'NHWG');
 var dfns = db.ENV.findOne({name:'DATEFNS'}).value;
-//print(dfns);
 load( dfns );
 
 var today = new Date();
