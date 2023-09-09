@@ -18,6 +18,7 @@
 # a MIMS type job file in the job queue
 
 # History:
+# 09Sep23 MEG Class filename .js suffix on command line removed.
 # 14Jul22 MEG AUTORUNGROUP removed. NOAUTORUNGROUP skips update.
 # 10Jul22 MEG Added AUTORUNGROUP env var to automatically invoke group update.
 #             If not defined the group class is only instantiated.
@@ -42,9 +43,9 @@
 # optional switches
 OPTS="L:h?"
 
-USAGE="Usage: $(basename $0) [$OPTS] <group JS> [ 'JS expr' ]\n
+USAGE="Usage: $(basename $0) [$OPTS] <group> [ 'JS expr' ]\n
 Generate a set of GAM commands to update a Google group.\n
-\t <group JS> script to update a group.\n
+\t <group> Class base name of the group script.\n
 \t [ JS expr ] Optional JS expression passed to script.\n
 \t L - Path to the library of <group JS> scripts. ($LIB)\n
 \t h? - this message.\n"
@@ -60,11 +61,14 @@ while getopts $OPTS o; do
 done
 shift $(( $OPTIND - 1 ))
 
+# The JS class script to be run
+CLASS=$1.js
+
 # Check to make sure a class script was specified
-[[ ! -f "$LIB/$1" ]] && (echo "ERROR::Class: $1 not found in $LIB.";exit 1)
+[[ ! -f "$LIB/$CLASS" ]] && (echo "ERROR::Class: $CLASS not found in $LIB.";exit 1)
 
 # Output Job filename
-JOB=${1%.js}$SUFFIX.job
+JOB=$1$SUFFIX.job
 
 # Run the script
 if [  -v NOAUTORUNGROUP ]; then
@@ -74,4 +78,4 @@ if [  -v NOAUTORUNGROUP ]; then
 fi
 
 mongosh --quiet  -u "$USERID" -p "$PASSWD" --authenticationDatabase $DB $DB \
-	--eval \"$2\;\'\'\;\" $LIB/$1 >$JOBQ/$JOB
+	--eval \"$2\;\'\'\;\" $LIB/$CLASS >$JOBQ/$JOB

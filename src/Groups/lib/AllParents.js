@@ -1,6 +1,8 @@
 // Group: allparents
 
 // History:
+// 08Sep23 MEG Skip record if "DoNotContact" is true.
+// 03Apr23 MEG Project DoNotContact
 // 06Jul22 MEG Group leaf class includes mainline.
 // 28May22 MEG Created
 
@@ -31,7 +33,7 @@ const memberpipeline = [
 	    from: "MbrContact",
 	    localField: "CAPID",
 	    foreignField: "CAPID",
-	    as: "mbrcontact"
+	    as: "contact"
 	}
 	
     },
@@ -39,7 +41,7 @@ const memberpipeline = [
     // Stage 3
     {
 	$unwind: {
-	    path: "$mbrcontact",
+	    path: "$contact",
 	    
 	}
     },
@@ -47,14 +49,14 @@ const memberpipeline = [
     // Stage 4
     {
 	$match: {
-	    "mbrcontact.Priority": 'PRIMARY',
-	    "mbrcontact.Type": 'CADET PARENT EMAIL',
-	    
+	    "contact.Priority": 'PRIMARY',
+	    "contact.Type": 'CADET PARENT EMAIL',
+	    "contact.DoNotContact" : false,
 	}
     },
 
     // Stage 5
-    // MANDATORY FIELDS: CAPID, email, Name
+    // MANDATORY FIELDS: CAPID, email, Name, DoNotContact
     {
 	$project: {
 	    CAPID: 1,
@@ -67,8 +69,7 @@ const memberpipeline = [
 		    "$NameSuffix",
                 ]
             },
-	    email: "$mbrcontact.Contact"
-	    
+	    email: "$contact.Contact",
 	}
     },
 

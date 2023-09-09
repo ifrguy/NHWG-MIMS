@@ -19,18 +19,19 @@ var pipeline =
                 "from" : "MbrContact",
                 "localField" : "CAPID",
                 "foreignField" : "CAPID",
-                "as" : "contacts"
+                "as" : "contact"
             }
         }, 
         {
             "$unwind" : {
-                "path" : "$contacts"
+                "path" : "$contact"
             }
         }, 
         {
             "$match" : {
-                "contacts.Type" : "CADET PARENT EMAIL",
-                "contacts.Priority" : "PRIMARY"
+                "contact.Type" : "CADET PARENT EMAIL",
+                "contact.Priority" : "PRIMARY",
+		"contact.DoNotContact" : false,
             }
         }, 
         {
@@ -39,7 +40,7 @@ var pipeline =
                 "Unit" : 1,
                 "Type" : 1,
 		"Name": { $concat: [ "$NameFirst", " ", "$NameLast" ]},
-                "email" : "$contacts.Contact"
+                "email" : "$contact.Contact",
             }
         }
     ]; 

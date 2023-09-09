@@ -3,6 +3,8 @@
 // eServices PRIMARY EMAIL.
 
 // History:
+// 08Sep23 MEG Skip record if "DoNotContact" is true.
+// 03Apr23 MEG Project DoNotContact
 // 06Jul22 MEG Group leaf class includes mainline.
 // 28May22 MEG Created
 
@@ -33,7 +35,7 @@ const memberpipeline = [
 	    from: "MbrContact",
 	    localField: "CAPID",
 	    foreignField: "CAPID",
-	    as: "Contacts"
+	    as: "contact"
 	}
 	
     },
@@ -41,7 +43,7 @@ const memberpipeline = [
     // Stage 3
     {
 	$unwind: {
-	    path : "$Contacts",
+	    path : "$contact",
 	    preserveNullAndEmptyArrays : false
 	}
     },
@@ -49,19 +51,13 @@ const memberpipeline = [
     // Stage 4
     {
 	$match: {
-	    "Contacts.Priority": "PRIMARY",
-	    "Contacts.Type": /^EMAIL/,
+	    "contact.Priority": "PRIMARY",
+	    "contact.Type": /^EMAIL/,
+	    "contact.DoNotContact" : false,
 	}
     },
 
     // Stage 5
-    {
-	$unwind: {
-	    path : "$Contacts",
-	    preserveNullAndEmptyArrays : false
-	}
-    },
-    // Stage 6
     // MANDATORY FIELDS: CAPID, email, Name
     {
 	$project: {
@@ -76,8 +72,7 @@ const memberpipeline = [
 		    "$NameSuffix",
                 ]
             },
-	    "email": "$Contacts.Contact",
-	    
+	    "email": "$contact.Contact",
 	}
     },
 ];
