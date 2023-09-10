@@ -19,7 +19,7 @@ var pipeline =
                 "from" : "MbrContact",
                 "localField" : "CAPID",
                 "foreignField" : "CAPID",
-                "as" : "contacts"
+                "as" : "contact"
             }
         }, 
         {
