@@ -65,7 +65,7 @@ shift $(( $OPTIND - 1 ))
 CLASS=$1.js
 
 # Check to make sure a class script was specified
-[[ ! -f "$LIB/$CLASS" ]] && (echo "ERROR::Class: $CLASS not found in $LIB.";exit 1)
+[[ ! -f "$LIB/$CLASS" ]] && (echo "ERROR::$(basename $0):Class: $CLASS not found in $LIB.";exit 1)
 
 # Output Job filename
 JOB=$1$SUFFIX.job

@@ -5,6 +5,7 @@
 # It is assumed that each ".js" script in ./lib defines a single wing level group and nothing else!
 
 # HISTORY:
+# 14Sep23 MEG Fixed bug .js not being stripped from group name.
 # 21Sep22 MEG bash syntax enhancments and clean-up
 # 14Sep22 MEG Created.
 
@@ -20,6 +21,7 @@ files=(${files[@]/$LIB\/Group\.js/})
 # Update each group type, note the groups superclass Group.js is excluded
 for f in "${files[@]}"; do
     class=$(basename "$f")
-    echo "Updating group: ${class%.js}"
-    ./2updateGroup "$class"
+    group=${class%.js}
+    echo "Updating group: $group"
+    ./2updateGroup "$group"
 done
