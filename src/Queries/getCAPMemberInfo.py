@@ -31,8 +31,8 @@ except IndexError:
     print( 'Usage:', sys.argv[0], 'CAPID|[lastname', '[firstname]]' )
     print( 'Look-up a member by CAPID or lastname and optional firstname')
     print( "\tCAPID - CAPID number" ) 
-    print( "\tlastname - REGEX, first letters, partial string, case insensitive" )
-    print( "\tfirstname - first letters, partial string, case insensitive" ) 
+    print( "\tlastname - Python REGEX, first letters or partial string, case insensitive" )
+    print( "\tfirstname - Python REGEX, first letters, partial string, case insensitive" ) 
     sys.exit( 1 )
 
 # either we got a capid or a lastname
@@ -41,7 +41,7 @@ try:
 except ValueError:
     pipeline.append( { u"$match": { u"NameLast": { u"$regex":  Regex( pat, u"i") }}} )
     try: 
-        pat2 = u'^' + sys.argv[2]
+        pat2 = sys.argv[2]
         pipeline.append( { u"$match":{ u'NameFirst': { u"$regex": Regex( pat2, u"i" ) }}} )
     except IndexError:
         pass
