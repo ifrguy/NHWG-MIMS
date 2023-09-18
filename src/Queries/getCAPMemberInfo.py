@@ -6,6 +6,7 @@
 #        plus optional first name.
 #
 # History:
+# 17Sep23 MEG Removed forced ^ anchor form last name pattern.
 # 31Mar23 MEG Fixed bug exception if db.Squadron.Unit missing from collection
 # 04Sep20 MEG Added Duty Positions to output.
 # 10Oct19 MEG pymongo.Database.logout() Deprecated.
@@ -30,7 +31,7 @@ except IndexError:
     print( 'Usage:', sys.argv[0], 'CAPID|[lastname', '[firstname]]' )
     print( 'Look-up a member by CAPID or lastname and optional firstname')
     print( "\tCAPID - CAPID number" ) 
-    print( "\tlastname - first letters, partial string, case insensitive" )
+    print( "\tlastname - REGEX, first letters, partial string, case insensitive" )
     print( "\tfirstname - first letters, partial string, case insensitive" ) 
     sys.exit( 1 )
 
@@ -38,7 +39,6 @@ except IndexError:
 try:
     pipeline.append( {'$match': {u'CAPID': int( pat ) }} )
 except ValueError:
-    pat = u'^' + pat
     pipeline.append( { u"$match": { u"NameLast": { u"$regex":  Regex( pat, u"i") }}} )
     try: 
         pat2 = u'^' + sys.argv[2]
