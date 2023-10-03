@@ -48,10 +48,10 @@ MIN_CADET_AGE = 18
 # Default cadet groups
 CADETGROUPS = 'all'
 # Default senior member groups
-SENIORGROUPS = 'all,seniors'
+SENIORGROUPS = 'seniors@example.com'
 
 # Domain to be used when creating, deleting accounts or groups
-DOMAIN = 'nhwg.cap.gov'
+DOMAIN = 'example.com'
 
 # Domain calendar ID
 # This is the wing level calendar everyone should see it.
@@ -89,14 +89,4 @@ UPDATE_SUSPEND = False
 # to the tail of file spec.
 WELCOMEMSG = "./new-user-email-template.html html true"
 
-# New members groups
-# These are groups to which new members current primary email will be added.
-# newbie group email addresses
-NEWBIE_GROUP = ''
-CADET_NEWBIE_GROUP = None
 
-# Add seniors to the newbie group
-SENIOR_NEWBIES = True
-
-# Add cadets to the newbie group
-CADET_NEWBIES = False
