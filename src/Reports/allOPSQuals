@@ -1,0 +1,76 @@
+#!/bin/bash -e
+#
+# Dumb script to handle all the processing to generate OPS Quals csv file(s)
+#
+# Here's the outline:
+# The OPSQuals <type>.js script updates the MongoDB <type> , same root name
+# collection. The collection is then dumped to a CSV file. The CSV is uploaded
+# a Google Shared drive and a link emailed to the designated receiver(s)
+# (EMAILTO).
+# 
+# Notes:
+# 1. Each OPS Quals JS script must have an associated <quals name>.fields.txt
+# file list all the fields to output and in the desired order.
+# Example: All_OPSQuals_Seniors.js field file: All_OPSQuals_Seniors.fields.txt
+# 2. Each OPS Quals JS script basename must be listed in the QUALS variable.
+#
+# History:
+# 28Oct23 MEG Updates to fixed spreadsheet.
+# 30Aug23 MEG Updated for mongosh, mongo shell deprecated.
+# 20Sep20 MEG Sends links to files now not attachments
+# 20Apr19 MEG Created.
+
+# load config options
+. ./$(basename $0).conf || exit 1
+
+# import MongoDB security credentials
+
+. ./$(basename $0).creds || exit 1
+
+# commandline options
+OPTS="eh?nx"
+
+USAGE="Usage: $(basename $0) [$OPTS]\n
+\tGenerate new OPS Quals collection(s) & csv file(s), email notification to receivers\n
+\tQuals: $QUALS\n
+\te - where to send email default ($EMAILTO)\n
+\th? - help - this message\n
+\tn - do not send email notification\n
+\tx - Export CSV data only, do not update DB collection and spreadsheet\n
+"
+
+while getopts $OPTS o; do
+    case $o in
+	e) EMAILTO=$o;;
+	h?) echo -e $USAGE;exit 1;;
+	n) NOEMAIL=1;;
+	x) unset UPDATE;;
+	*) echo -e $USAGE;exit 1;;
+    esac
+done
+shift $(($OPTIND - 1 ))
+
+# Update the OPS Quals
+for q in $QUALS; do
+    if [[ -v UPDATE ]]; then
+	mongosh  --quiet -u $USER -p $PASSWD --authenticationDatabase=$DB $DB $q.js
+    fi
+# Export the new OPS Quals records as a csv file
+    mongoexport  --db $DB --collection $q --authenticationDatabase $DB \
+	--username $USER --password $PASSWD \
+	--fieldFile ./$q.fields.txt --type csv --out ./$q.csv
+   if [[ -v UPDATE ]]; then
+       # upload csv file to shared drive
+       gam user $DRIVEUSER update drivefile id "$FILEID" retainname \
+	   localname ./$q.csv gsheet $q
+       fi
+done
+
+# Skip sending email notification if -n switch
+if [[ -v NOEMAIL ]]; then
+    exit 0
+fi
+
+# Send notification to contacts
+gam sendemail "$EMAILTO" subject "OPS Quals Update Notification" $MESSAGE replace fileID "$FILEID"
+echo Done.

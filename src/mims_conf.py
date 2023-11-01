@@ -89,4 +89,16 @@ UPDATE_SUSPEND = False
 # to the tail of file spec.
 WELCOMEMSG = "./new-user-email-template.html html true"
 
+# New members groups
+# These are groups to which new members current primary email will be added.
+# newbie group addresses
+NEWBIE_GROUP = None
+CADET_NEWBIE_GROUP = None
+
+# Add seniors to the newbie group
+SENIOR_NEWBIES = True
+
+# Add cadets to the newbie group
+CADET_NEWBIES = False
+
 
