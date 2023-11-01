@@ -23,19 +23,9 @@ MIMS_DB = 'NHWG'
 
 # Maps CAP operational squadron/unit to Google organization path
 orgUnitPath = {
-    '000':"/000 - New Hampshire Wing",
-    '001':"/001 - New Hampshire Wing",
-    '010':"/010 - Portsmouth Squadron",
-    '014':"/014 - Lebanon Squadron",
-    '016':"/016 - Nashua Squadron",
-    '032':"/032 - Concord Squadron",
-    '037':"/037 - Highlanders Squadron - Rochester",
-    '053':"/053 - Monadnock Squadron - Keene",
-    '054':"/054 - Manchester Squadron",
-    '056':"/056 - Hawk Squadron - Laconia",
-    '075':"/075 - Whitefield",
-    '801':"/801 - 801 - Humphrey Squadron - ASD Nashua Cadets",
-    '999':"/999 - State Legislators",
+    '000':"/000 - Retired-Patrons",
+    '001':"/001 - Domain top level",
+    '002':"/002 - Next lower unit",
 }
 
 # Cadet account creation control
@@ -92,7 +82,7 @@ WELCOMEMSG = "./new-user-email-template.html html true"
 # New members groups
 # These are groups to which new members current primary email will be added.
 # newbie group addresses
-NEWBIE_GROUP = None
+NEWBIE_GROUP = 'newbies@example.com'
 CADET_NEWBIE_GROUP = None
 
 # Add seniors to the newbie group
@@ -100,5 +90,3 @@ SENIOR_NEWBIES = True
 
 # Add cadets to the newbie group
 CADET_NEWBIES = False
-
-
