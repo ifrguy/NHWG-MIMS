@@ -1,5 +1,5 @@
-#!/usr/bin/env /usr/bin/python3
-## Copyright 2022 Marshall E. Giguere
+#!/usr/bin/env /usr/bin/python
+## Copyright 2023 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 
-version_tuple = (2,0,4)
+version_tuple = (2,0,8)
 VERSION = 'v{}.{}.{}'.format(version_tuple[0], version_tuple[1], version_tuple[2])
 
 """
@@ -25,6 +25,11 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires G-Suite admin privileges.
 
 History:
+28Oct23 MEG NewMembers::run not correctly add member to newbie group.
+25Oct23 MEG UnSuspend:run not correctly logging unsuspends to log file.
+21Oct23 MEG Fixed syntax error in groups addition for new members.
+02Oct23 MEG Groups now appended directly to the GAM create user cmd.
+02Oct23 MEG NewMember::addToGroup removed.
 14Jun23 MEG Suspended Users removed from GAL (Global Address List).
 22Apr23 JCV Added CheckGoogle class to combine reconciling Unit and MemberType
 21Apr23 MEG Dropped use of name suffix from account name creation.
@@ -214,7 +219,7 @@ class NewMembers( Manager ):
     subclasses to create new Google accounts.  In most cases the new member
     creation subclass will only need to declare the query needed to find
     potential members in the Member collection, and the name of the
-    mailing list/group if any used by those members.  Eac new member
+    mailing list/group if any used by those members.  Each new member
     has the wing calendar added to their personal calendar.
 
     The run method does the work of generating the commands necessary to
@@ -231,17 +236,16 @@ class NewMembers( Manager ):
         self.query = None
         # GAM account creation command
         self.gamaccountfmt = 'gam create user {} givenname "{}" familyname "{}" orgunitpath "{}" password \'{}\' changepassword true Member.CAPID {:d} Member.Unit {} Member.Type {}'
-        # GAM group add member command
-        self.gamgroupfmt = 'gam update groups {} add member {}'
         # GAM command to email notification to new member
         self.gamnotifyfmt = ' notify {} subject "{}" file {}'
         # Calendar template command
         self.calcmdfmt = 'gam user {} add calendar {}'
         # Group or groups string, comma separted groups, to add member to
-        self.group = None
-        # Add members to the newbies group
+        self.groups = None
+        # Add members to the newbies group, use eServices PRIMARY EMAIL
         self.newbies = False
         self.newbieGroup = None
+        self.gamnewbiecmd = 'gam update group {} add member {}'
         self.outfile = None
         self.caloutfile = None
         # calendar add job file
@@ -360,6 +364,9 @@ class NewMembers( Manager ):
                                e, email,
                                m['CAPID'] )
                 return None
+            # Append the default groups
+            if self.groups:
+                cmd = cmd + " groups " + '"' + self.groups + '"'
             # check for primary email to notify member
             cmd = cmd + self.gamnotifyfmt.format( contact,
                                              "Welcome to your NH Wing account",
@@ -377,25 +384,10 @@ class NewMembers( Manager ):
                           m['NameSuffix'] )
             print( "# WARNING:" + str(m['CAPID']) + ": " + m['NameFirst'] +
                    " " + m['NameLast'] + " " + m['NameSuffix'] +
-                   ", NO Primary Email, no account created.",
+                   ", NO Primary Email, account not created.",
                    file = self.outfile )
         return email
 
-    def addToGroup( self, group, email ):
-        """
-        Add a member to a group
-        Input member Google email address
-        Output GAM command to add member to a mailing list/groups.
-        Note: this function always succeeds.
-        """
-        if ( group and email ):
-            groupcmd = self.gamgroupfmt.format( group, email  )
-            logging.info( 'Member: %s added to %s mailing list.',
-                          email,
-                          group )
-            print( groupcmd, file = self.outfile )
-        return email
-        
     def addCalendar( self, email, calEntity ):
         """
         Add a calender to the users calendars.
@@ -455,15 +447,15 @@ class NewMembers( Manager ):
                     if ( g == None ): # if user does not exist make new account
                         email = self.mkNewAccount( m )
                         if email:
-                            # add member to group mailing list if one exists
-                            self.addToGroup( self.group, email )
-                            # check to see if we are doing a newbie group
-                            if( self.newbies ):
-                                self.addToGroup( self.newbieGroup,
-                                                 self.getContact( m['CAPID'],
-                                                                  'EMAIL',
-                                                                  'PRIMARY' )
-                                                 )
+                            if self.newbies:
+                                print( self.gamnewbiecmd.format(
+                                       self.newbieGroup,
+                                       self.getContact( m['CAPID'],
+                                                        'EMAIL',
+                                                        'PRIMARY' ),
+                                       file = self.outfile ))
+                                logging.info( 'Added member: %s to newbie group: %s',
+                                              m['CAPID'], self.newbieGroup )
                             self.addCalendar( email, DOMAIN_CALENDAR )
                             n += 1
                             
@@ -480,7 +472,7 @@ class NewSeniors( NewMembers ):
 
     def __init__( self ):
         super().__init__()
-        self.group = SENIORGROUPS
+        self.groups = SENIORGROUPS
         self.newbies = SENIOR_NEWBIES
         self.newbieGroup = NEWBIE_GROUP
         self.query = { 'Type':'SENIOR',
@@ -498,7 +490,7 @@ class NewCadets( NewMembers ):
 
     def __init__( self ):
         super().__init__()
-        self.group = CADETGROUPS
+        self.groups = CADETGROUPS
         self.newbies = CADET_NEWBIES
         self.newbieGroup = CADET_NEWBIE_GROUP
         y = datetime.utcnow().year - MIN_CADET_AGE
@@ -754,6 +746,9 @@ class UnSuspend( Manager ):
                 if ( m[ 'Expiration' ] < today ):
                     continue
                 # push unsuspend command to output list
+                logging.info( "UNSUSPEND: %d, %s, %s, %s",
+                              m['CAPID'], g['name']['fullName'],
+                              g['primaryEmail'], orgUnitPath[ m['Unit'] ] )
                 outputCmds.append( gamcmdfmt.format( g[ 'primaryEmail' ] ))
                 # check to see if we should update the local Google collection
                 if UPDATE_SUSPEND :
@@ -768,9 +763,6 @@ class UnSuspend( Manager ):
             with open( self.outfileName, 'w' ) as outfile:
                 for cmd in outputCmds:
                     print( cmd, file = outfile )
-                    logging.warning( "UNSUSPEND: %d, %s, %s, %s",
-                                     m['CAPID'], g['name']['fullName'],
-                                     g['primaryEmail'], orgUnitPath[ m['Unit'] ] )
         logging.info( "Total members reactivated: %d", len( outputCmds ))
 
 class SweepExpired( Manager ):
