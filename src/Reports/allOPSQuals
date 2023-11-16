@@ -62,7 +62,7 @@ for q in $QUALS; do
    if [[ -v UPDATE ]]; then
        # upload csv file to shared drive
        gam user $DRIVEUSER update drivefile id "$FILEID" retainname \
-	   localname ./$q.csv gsheet $q
+	   localfile ./$q.csv gsheet $q
        fi
 done
 
