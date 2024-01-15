@@ -1,4 +1,5 @@
 // Aircrew group
+// Includes all qualified: AP, MO, MP, MS
 //
 // Instantiate group:
 // default constructor args: group & memberpipeline
@@ -18,6 +19,7 @@ const group = 'aircrew';
 const pipeline_start = 'MbrAchievements';
 
 // MongoDB aggregation pipeline to find potential aircrew
+
 const memberpipeline = [
         { 
             "$match" : { 
