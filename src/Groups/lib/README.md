@@ -16,5 +16,5 @@ customer domain.  As an example if the top level domain is
 "subunit.wing.cap.gov".  Unit subscriptions are recorded in the
 **2updateUnitGroup.conf** file.  Unit groups are subclasses of the
 **Group.js** super class.  For examples see the classes in the
-**./Unit** subdirectory, all other requirements are the same as for
-wing level group classes.
+**./Unit** subdirectory for unit level groups
+**./Wing** subdirectory, for allwing level group classes.

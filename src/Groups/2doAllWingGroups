@@ -10,13 +10,14 @@
 # 14Sep22 MEG Created.
 
 # path to group scripts
-LIB=./lib
+#LIB=./lib
+LIB='./lib/Wing'
 
 # Get a list of all the group class files
-files=(./lib/*.js)
+files=($LIB/*.js)
 
 # Remove groups superclass from the list of groups to process
-files=(${files[@]/$LIB\/Group\.js/})
+#files=(${files[@]/$LIB\/Group\.js/})
 
 # Update each group type, note the groups superclass Group.js is excluded
 for f in "${files[@]}"; do

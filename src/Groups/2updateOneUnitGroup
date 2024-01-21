@@ -1,0 +1,58 @@
+#!/bin/bash -e
+# For unit level group maintenance.
+# Updates a single group type for a list of units.
+# Input: type of group type, e.g. Cadets, to update and the unit(s), e.g. "010"
+# Output: a MIMS job file with group update commands
+
+# History:
+# 30Sep22 MEG Created.
+#
+
+# import config var's
+. ./$(basename $0).conf
+
+# get credentials
+. $CREDS
+
+# optional switches
+OPTS="L:h?"
+
+USAGE="Usage: $(basename $0) [$OPTS] Group Unit [Unit]...\n
+Generate job(s) to update a single group for units.\n
+\t Group - Aircrew|Seniors|Cadets|Parents|Pilots\n
+\t Unit - unit number e.g. "010"\n
+\t L - Path to the library of <group JS> scripts. ($LIB)\n
+\t h? - this message.\n"
+
+[[ $# < 1 ]] && (echo -e $USAGE;exit 1 )
+
+while getopts $OPTS o; do
+    case $o in
+	L) LIB=$OPTARG;;
+	h|?) echo -e $USAGE;exit 1;;
+	*) echo -e $USAGE;exit 1;;
+    esac
+done
+shift $(( $OPTIND - 1 ))
+
+# Check to make sure a class script was specified
+[[ ! -f "$LIB/$1.js" ]] && (echo "ERROR::Script: $1 not found in $LIB.";exit 1)
+
+# Bash trickiness, grp is a reference to the array of units
+# subscribing to a group class, e.g. Seniors,  named by $1
+# We will look here to determine if the unit actually subscribes
+declare -n subs=$1
+group=$1
+# eat group type arg
+shift
+# process the remainder list of units
+for u in $@; do
+    # Output Job filename
+    if [[ ${subs[*]} =~ $u ]]; then
+	JOB="$u$group$SUFFIX".job
+	mongosh --quiet  -u "$USERID" -p "$PASSWD" --authenticationDatabase $DB $DB \
+	--eval \"unit=\'$u\'\;\'\'\;\" $LIB/$group.js >$JOBQ/$JOB
+    else
+	echo "Unit: $u does not subscribe to: $class list. Skipping"
+    fi
+done
