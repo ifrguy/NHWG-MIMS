@@ -1,5 +1,5 @@
 # -*- mode: Python; coding: utf-8 -*-
-## Copyright 2023 Marshall E. Giguere
+## Copyright 2024 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 ##   limitations under the License.
 
 # History:
+# 16Feb24 MEG NewCadets: force cadet account creation with list of CAP ID's.
 # 10Dec23 MEG Module version
 # 28May17 MEG Original MIMS created.
 
@@ -38,8 +39,11 @@ class NewCadets( NewMembers ):
     Makes a new account if the cadet member is active and is MIN_CADET_AGE or over.
     If you desire all cadets to have accounts simply set MIN_CADET_AGE to some
     low value and setting CREATE_CADET_ACCOUNTS to True.
+
+    As a convenience you can force cadet account creation by supplying a
+    comman separated list of CAP ID's e.g. 111111,222222...
     """
-    helpMsg = f"Create wing accounts for Cadet members {MIN_CADET_AGE} yrs or older."
+    helpMsg = f"Create cadet accounts, min age: {MIN_CADET_AGE}. Optional force creation: CAPID[,CAPID...]"
 
     is_a_job = True
 
@@ -51,10 +55,19 @@ class NewCadets( NewMembers ):
         y = datetime.utcnow().year - MIN_CADET_AGE
         m = datetime.utcnow().month
         qd = datetime( y, m, 1, tzinfo=timezone.utc)
-        self.query = { 'Type':'CADET',
-                       'MbrStatus':'ACTIVE',
-                       'DOB': { u'$lte' : qd }
-        }
+        try:
+            self.query = { 'Type':'CADET',
+                           'MbrStatus':'ACTIVE',
+                           'CAPID': { u'$in': [int(i) for i in sys.argv[ 2 ].split(',')] }
+                          }
+        except ValueError as e:
+            print("ERROR: not a valid CAPID:", e.args[0].split(': ')[1] )
+            sys.exit( 1 )
+        except IndexError as e:
+            self.query = { 'Type':'CADET',
+                           'MbrStatus':'ACTIVE',
+                           'DOB': { u'$lt' : qd }
+                          }
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.DEBUG )
 
