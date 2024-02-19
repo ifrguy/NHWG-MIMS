@@ -14,6 +14,7 @@
 ##   limitations under the License.
 
 # History:
+# 18Feb24 MEG Force account creation when CAPID list supplied.
 # 16Feb24 MEG NewCadets: force cadet account creation with list of CAP ID's.
 # 10Dec23 MEG Module version
 # 28May17 MEG Original MIMS created.
@@ -55,15 +56,19 @@ class NewCadets( NewMembers ):
         y = datetime.utcnow().year - MIN_CADET_AGE
         m = datetime.utcnow().month
         qd = datetime( y, m, 1, tzinfo=timezone.utc)
+        # Check for list of cadet CAPID's, if none default to normal processing.
         try:
             self.query = { 'Type':'CADET',
                            'MbrStatus':'ACTIVE',
                            'CAPID': { u'$in': [int(i) for i in sys.argv[ 2 ].split(',')] }
                           }
+            # force cadet account creation to make it happen
+            CREATE_CADET_ACCOUNTS = True
         except ValueError as e:
             print("ERROR: not a valid CAPID:", e.args[0].split(': ')[1] )
             sys.exit( 1 )
         except IndexError as e:
+            # Default cadet account creation query
             self.query = { 'Type':'CADET',
                            'MbrStatus':'ACTIVE',
                            'DOB': { u'$lt' : qd }
