@@ -3,7 +3,7 @@
 // const group = <theGroupName>  The name of the Google group
 // const memberpipeline = [] an array containing the MongoDB aggregation
 //       pipeline used to return potential members.  The pipeline must at
-//       minimum produce the value "email" containing the members email address.
+//       minimum produce the field "email" containing the members email address.
 // Subclasses may override methods as needed.
 //
 // Compatibility:
@@ -12,6 +12,7 @@
 // MongoShell(mongosh) >1.1.7
 
 // History:
+// 22Feb24 MEG Clean-up debug output.
 // 30Apr23 MEG Group.cleanEmailAddress - fixed replace() regex pattern.
 // 15Apr23 MEG Ignore members that are "groups".
 // 18Nov22 MEG addMembers() adding duplicates if member listed more than once.
@@ -121,7 +122,7 @@ class Group {
 	DEBUG && print( this.name + ':' + 'called isGroupMember():' + email );
 	let regx = new RegExp( email, 'i' );
 	var r = db.getCollection( "GoogleGroups" ).findOne( { 'group': this.myGroup, 'email': regx } );
-	DEBUG && print( "email:", email, "r:", r );
+	DEBUG && print( "email:", email, "is group member:", r );
 	return ( r == null) ? false : email;
 
     }
@@ -196,7 +197,7 @@ class Group {
 	    if ( this.#isAuth( e )) { continue; }
 	    // haven't seen you before add to auth and group
 	    this.#authList[ e ] = m;
-	    if ( DEBUG ) { print( "Added to authList:", e, "to authList." ); }
+	    if ( DEBUG ) { print( "Added to authList:", e ); }
 
 	    if ( this.#isGroupMember( e ) ) { continue; }
 	    // Print gam command to add new member
@@ -249,7 +250,9 @@ class Group {
 	// Maybe overridden by subclass
 	// if NOAUTORUNGROUP is defined do not run the update, we must not
 	// be in batch mode.
-	if ( process.env.NOAUTORUNGROUP ) { return; }
+	if ( process.env.NOAUTORUNGROUP ) {
+	    print( "NOAUTORUNGROUP: enabled, returning without running." );
+	    return; }
 	DEBUG && print("DB:", db.getName());
 	print( "# Update: " + this.myGroup + " Group" );
 	this.addMembers();
