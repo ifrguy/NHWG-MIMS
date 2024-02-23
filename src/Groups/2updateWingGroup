@@ -18,6 +18,7 @@
 # a MIMS type job file in the job queue
 
 # History:
+# 22Feb24 MEG fix usage message to be more clear about optional JS exprs.
 # 09Sep23 MEG Class filename .js suffix on command line removed.
 # 14Jul22 MEG AUTORUNGROUP removed. NOAUTORUNGROUP skips update.
 # 10Jul22 MEG Added AUTORUNGROUP env var to automatically invoke group update.
@@ -46,7 +47,7 @@ OPTS="L:h?"
 USAGE="Usage: $(basename $0) [$OPTS] <group> [ 'JS expr' ]\n
 Generate a set of GAM commands to update a Google group.\n
 \t <group> Class base name of the group script.\n
-\t [ JS expr ] Optional JS expression passed to script.\n
+\t [ JS expr ] Optional JS expression, example: DEBUG=true;\n
 \t L - Path to the library of <group JS> scripts. ($LIB)\n
 \t h? - this message.\n"
 
@@ -76,6 +77,6 @@ if [  -v NOAUTORUNGROUP ]; then
     echo "To actually run unset NOAUTORUNGROUP."
     exit 0
 fi
-
+echo "eval: $2"
 mongosh --quiet  -u "$USERID" -p "$PASSWD" --authenticationDatabase $DB $DB \
 	--eval \"$2\;\'\'\;\" $LIB/$CLASS >$JOBQ/$JOB
