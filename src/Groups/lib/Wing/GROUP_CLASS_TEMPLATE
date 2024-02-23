@@ -1,6 +1,9 @@
 // Group: <groupname>
 // Purpose: 
 
+// At a minimum the memberpipeline (join) must emit the field "email" contain
+//the members email address.  Other fields are optional.
+
 // History:
 // 12Jul22 MEG domain name can now be passed as an argument.
 // 06Jul22 MEG Leaf group classes include a mainline
@@ -33,11 +36,14 @@ class <Class> extends Group {
 
 // Main
 
-// Check to see if we're really in full auto mode as opposed to interactive.
-// If the environment variable NOAUTORUNGROUP is defined bail out.
-if ( process.env.NOAUTORUNGROUP ) { return; }
+
 
 // If we got here we must be in batch mode, so run the update.
 // Instantiate the group object to start everything
 let theGroup = new <Class>();
+
+// if NOAUTORUNGROUP env var is set updateGroup() will simply return,
+// this will allow for manual debugging in a mongosh session.
 theGroup.updateGroup();
+
+
