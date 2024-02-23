@@ -1,33 +1,49 @@
-// Group: <Class Name Here>
+// Group: <groupname>
+// Purpose: 
 
-load('./lib/Group.js');
+// At a minimum the memberpipeline (join) must emit the field "email" contain
+//the members email address.  Other fields are optional.
 
-// Definitions
-// unit charter number as a string must be supplied by --eval or other means
-var unit_domain = unit + "." + wing_domain;
-// Group email account name, e.g. 'seniors'
-var unit_group_name = '<group email account name here>';
+// History:
+// 12Jul22 MEG domain name can now be passed as an argument.
+// 06Jul22 MEG Leaf group classes include a mainline
+// 27May22 MEG Created
 
+// Load my super class definition
+load( './lib/Group.js');
 
-var pipeline = 
-    [
-	<mongo aggreation pipeline here>
-    ]; 
+// base name of the Google group
+const group = '<group>';
 
-var AggOptions =
-    {
-        "allowDiskUse" : false
-    };
+// Name of collection on which the aggregation pipeline beings search
+const pipeline_start = '<mongodb collection name>';
 
+// MongoDB aggregation pipeline to find potential group members.
+// The pipeline must result in objects that contain a valid email address
+// for candidate members in the attribute named "email"
+const memberpipeline = [
 
-class <Class Name Here> extends Group {
-    constructor( domain, groupname, pipeline, start_agg ) {
+    <MongoDB_aggregation_pipeline>
+
+];
+
+class <Class> extends Group {
+    constructor( domain = wing_domain, groupname = group, pipeline = memberpipeline,
+	         start_agg = pipeline_start ) {
 	super( domain, groupname, pipeline, start_agg );
     }
 }
 
-var theGroup = new <Class Name Here>( unit_domain,
-			    unit_group_name,
-			    pipeline, "Member" );
+// Main
+
+
+
+// If we got here we must be in batch mode, so run the update.
+// Instantiate the group object to start everything
+let theGroup = new <Class>();
+
+// if NOAUTORUNGROUP env var is set updateGroup() will simply return,
+// this will allow for manual debugging in a mongosh session.
 theGroup.updateGroup();
+
 
