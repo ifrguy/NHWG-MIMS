@@ -1,8 +1,10 @@
 #!/bin/bash -e
 # Prepare new member report for command staff.
 # Then mail to the command staff mailing list.
+# This report is only scheduled to run on a weekly basis.
 
 # History:
+# 13May24 MEG -n now no upload or email, uploads csv as GSheet now.
 # 29Aug23 MEG Upgraded to mongosh, DB passed to script on command line.
 # 18Sep20 MEG Uploads files to shared drive, sends only links
 # 06Jul19 MEG Correct sendemail message file syntax.
@@ -33,21 +35,21 @@ DATESTAMP=$(date +%Y%m%d)
 cd $WORKDIR
 
 # cmd line options
-OPTS="h?l:m:n"
+OPTS="h?l:m:nN"
 
 USAGE="Usage: $(basename $0) [$OPTS]\n
 \tCreate and mail new member report\n
 \th|? - this help\n
 \tl - mailing list ($MAILINGLIST)\n
 \tm - new message or message file ($MESSAGE)\n
-\tn - No email - skip sending report to mailing list\n
+\tn - No post - do not upload sheet or send report to mailing list\n
 "
 
 while getopts $OPTS o; do
     case $o in
 	l) MAILINGLIST=OPTARG;;
 	m) MESSAGE=OPTARG;;
-	n) NOEMAIL="true";;
+	n) NOPOST="true";;
 	h|?) echo -e $USAGE;exit 1;;
 	*) echo -e $USAGE;exit 1;;
     esac
@@ -58,16 +60,21 @@ echo "Preparing New members report"
 fn=$DATESTAMP-NewMembers-Report.csv
 mongosh --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB \
 	$DB NewMembersLastWeek.js >$fn
-# Upload file to shared drive if there's anything to send (size gt 41 bytes)
+
+# If -n do not upload csv file or send notificaion email
+
+
+    [[ -v NOPOST ]] && exit 0
 if [ $( find ./$fn -type f -size +41c 2>/dev/null ) ]; then
-    FILEID[$r]=$(gam user $ASUSER create drivefile \
+    # Upload file to shared drive if there's anything to send (size gt 41 bytes)
+    FILEID=$(gam user $ASUSER create drivefile \
 		 teamdriveparent "$SHAREDDRIVE" \
 		 teamdriveparentname "$DRIVEFOLDER" \
-		 drivefilename "$fn" localfile "$fn" returnidonly)
+		 drivefilename "$fn" localfile "$fn" \
+		 mimetype gsheet returnidonly)
     # clean-up
     /bin/rm $fn
-    # if NOEMAIL is set skip sending report
-    [[ -v NOEMAIL ]] && continue
+
     # Use GAM to email reports to commanders mailing list
     echo "Sent emails to list"
     gam sendemail file $MAILINGLIST subject "NHWG:Weekly New Members Report" $MESSAGE replace newmembers $FILEID
