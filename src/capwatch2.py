@@ -81,7 +81,7 @@ def download():
         print( "Error: ", e )
         print( "HTTP Error 408 - Timeout Error" )
         return 408
-    except requests.execptions.HTTPError as e:
+    except requests.exceptions.HTTPError as e:
         print( e, r.status_code, r.reason )
         return r.status_code
     except requests.exceptions.Timeout:
