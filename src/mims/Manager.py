@@ -55,7 +55,7 @@ class Manager(object):
     """
     helpMsg = 'Top level'
 
-    # logger debug level set here to keep pymonog from spewing its guts
+    # logger debug level set here to keep pymongo from spewing its guts
     # in the log files.  Due to logging changes in PyMongo 4.8
     logging.getLogger('pymongo').setLevel(logging.ERROR)
 
