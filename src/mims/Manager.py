@@ -14,6 +14,7 @@
 ##   limitations under the License.
 
 # History:
+# 02Aug24 MEG Set pymongo log level to ERROR only due logging change in 4.8.0
 # 10Dec23 MEG Module version
 # 28May17 MEG Original MIMS created.
 
@@ -23,10 +24,6 @@ MIMS - Member Information Management System.
        Google account synchronization between National and NH Wing.
        MIMS uses a combintation of MongoDB, Python, and the GAMADV-X
        Google Account Management tool. Requires Workspace admin privileges.
-
-History:
-10Dec23 MEG Module version.
-28May17 MEG Created.
 """
 import os, sys, string, random
 import logging
@@ -57,6 +54,10 @@ class Manager(object):
     and consistency.
     """
     helpMsg = 'Top level'
+
+    # logger debug level set here to keep pymonog from spewing its guts
+    # in the log files.  Due to logging changes in PyMongo 4.8
+    logging.getLogger('pymongo').setLevel(logging.ERROR)
 
     __client = MongoClient( host=MIMS_HOST, port=MIMS_PORT,
                             username=MIMSUSER, password=MIMSPASS,
