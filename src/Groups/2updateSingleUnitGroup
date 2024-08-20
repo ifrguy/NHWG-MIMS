@@ -1,0 +1,52 @@
+#!/bin/bash -e
+# For unit level group maintenance.
+# This script is mostly intended as a one-off for new subscriptions, or
+# necessary forced updates for a single4 unit.
+
+# Input: unit and type of group to update
+# Output: a MIMS job file with group update commands
+
+# Update a single unit group type
+
+# History:
+# 20Aug24 MEG Created.
+#
+
+# import config var's
+. ./$(basename $0).conf
+
+# get credentials
+. $CREDS
+
+# optional switches
+OPTS="L:h?"
+
+USAGE="Usage: $(basename $0) [$OPTS] Unit Group\n
+Generate job to update a single group type for a unit.\n
+\t Unit - Squadron number, e.g. 023\n
+\t Group - class: Seniors|Cadets|Parents...\n
+\t L - Path to the library of <group> scripts. ($LIB)\n
+\t h? - this message.\n"
+
+[[ $# < 1 ]] && (echo -e $USAGE;exit 1 )
+
+while getopts $OPTS o; do
+    case $o in
+	L) LIB=$OPTARG;;
+	h|?) echo -e $USAGE;exit 1;;
+	*) echo -e $USAGE;exit 1;;
+    esac
+done
+shift $(( $OPTIND - 1 ))
+
+if (( $# < 2 )); then
+    echo -e $USAGE
+    exit 1
+fi
+
+# Output Job filename
+echo "Update unit: $1, group: $2"
+JOB="$1$2$SUFFIX".job
+mongosh --quiet  -u "$USERID" -p "$PASSWD" --authenticationDatabase $DB $DB \
+	--eval \"unit=\'$1\'\;\'\'\;\" $LIB/$2.js >$JOBQ/$JOB
+echo "done."
