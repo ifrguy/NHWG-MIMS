@@ -5,6 +5,7 @@
 # Output: a MIMS job file with group update commands
 
 # History:
+# 15Sep24 MEG Update help and .conf file use.
 # 30Sep22 MEG Created.
 #
 
@@ -18,8 +19,8 @@
 OPTS="L:h?"
 
 USAGE="Usage: $(basename $0) [$OPTS] Group Unit [Unit]...\n
-Generate job(s) to update a single group for units.\n
-\t Group - Aircrew|Seniors|Cadets|Parents|Pilots\n
+Generate job(s) to update a single group type for a list of units.\n
+\t Groups - Aircrew|Seniors|Cadets|Parents|Pilots\n
 \t Unit - unit number e.g. "010"\n
 \t L - Path to the library of <group JS> scripts. ($LIB)\n
 \t h? - this message.\n"
