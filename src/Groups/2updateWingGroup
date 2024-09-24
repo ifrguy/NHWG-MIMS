@@ -45,7 +45,7 @@
 OPTS="L:h?"
 
 USAGE="Usage: $(basename $0) [$OPTS] <group> [ 'JS expr' ]\n
-Generate a set of GAM commands to update a Google group.\n
+Generate a set of GAM commands to update a single Wing group.\n
 \t <group> Class base name of the group script.\n
 \t [ JS expr ] Optional JS expression, example: DEBUG=true;\n
 \t L - Path to the library of <group JS> scripts. ($LIB)\n
