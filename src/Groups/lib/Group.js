@@ -12,6 +12,7 @@
 // MongoShell(mongosh) >1.1.7
 
 // History:
+// 26Sep24 MEG Fixed bug where non-NHWG emails were ignored for removal.
 // 22Feb24 MEG Clean-up debug output.
 // 30Apr23 MEG Group.cleanEmailAddress - fixed replace() regex pattern.
 // 15Apr23 MEG Ignore members that are "groups".
@@ -90,7 +91,7 @@ class Group {
 		"$match" : {
                     "group" : this.#group,
 		    "role" : 'MEMBER',
-		    "type" : 'USER',
+		    "type" : /(USER|OTHER)/i,
 		}
             }, 
             { 
@@ -223,16 +224,17 @@ class Group {
 
 	let count = 0;
 	if ( DEBUG ) {
-		print( "Group::removeMembers" );
-		print( "Group:", this.myGroup );
-		print( this.name + ':' + 'called removeMembers():' );
+	    print( "Group::removeMembers" );
+	    print( "AuthList: ", Object.getOwnPropertyNames( this.AuthList ) );
+	    print( "Group:", this.myGroup );
+	    print( this.name + ':' + 'called removeMembers():' );
 	}
 	print( "## Remove group members." );
 	var m = db.getCollection( "GoogleGroups" ).aggregate( this.#groupMemberPipeline,
 								    this.#agg_options );
 	while ( m.hasNext() ) {
        	    var e = this.cleanEmailAddress( m.next().email );
-       	    DEBUG && print( this.name + "::removeMembers::email",e);
+       	    DEBUG && print( this.name + "::removeMembers:called with email:",e);
        	    if ( this.#isAuth( e )) { continue; }
 	    if ( this.#isOnHold( e )) {
 		print( '# INFO:', e, 'on hold status, not removed.');
