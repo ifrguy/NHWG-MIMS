@@ -12,6 +12,7 @@
 // MongoShell(mongosh) >1.1.7
 
 // History:
+// 27Sep24 MEG Change REGEX in group selection to simple test for speed.
 // 26Sep24 MEG Fixed bug where non-NHWG emails were ignored for removal.
 // 22Feb24 MEG Clean-up debug output.
 // 30Apr23 MEG Group.cleanEmailAddress - fixed replace() regex pattern.
@@ -91,7 +92,7 @@ class Group {
 		"$match" : {
                     "group" : this.#group,
 		    "role" : 'MEMBER',
-		    "type" : /(USER|OTHER)/i,
+		    "type" : ( "$ne" : "GROUP" },
 		}
             }, 
             { 
