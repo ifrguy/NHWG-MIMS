@@ -12,6 +12,7 @@
 // MongoShell(mongosh) >1.1.7
 
 // History:
+// 28Sep24 MEG Selection $expr selecting GROUP types, it shouldn't
 // 27Sep24 MEG Change REGEX in group selection to simple test for speed.
 // 26Sep24 MEG Fixed bug where non-NHWG emails were ignored for removal.
 // 22Feb24 MEG Clean-up debug output.
@@ -93,7 +94,9 @@ class Group {
                     "group" : this.#group,
 		    "role" : 'MEMBER',
 		    // Only select USER & OTHER member types
-		    $expr: { $or: [ {"type" : "USER" }, { "type" : "OTHER" } ] },
+		    $expr: { $or: [ { $eq: [ "$type", "USER"] }, { $eq: [ "$type", "OTHER" ] } ] },
+//  Marginally slower using REGEX
+//		    "type" : /(USER|OTHER)/,
 		}
             }, 
             { 
