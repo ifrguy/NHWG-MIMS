@@ -92,7 +92,8 @@ class Group {
 		"$match" : {
                     "group" : this.#group,
 		    "role" : 'MEMBER',
-		    "type" : ( "$ne" : "GROUP" },
+		    // Only select USER & OTHER member types
+		    $expr: { $or: [ { $eq: [ "$type", "USER"] }, { $eq: [ "$type", "OTHER" ] } ] },
 		}
             }, 
             { 
