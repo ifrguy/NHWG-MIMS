@@ -17,6 +17,8 @@
 ##   limitations under the License.
 
 # History:
+# 27Apr22 MEG $ARCH now calls cmd arch to get system architecture.
+# 10Oct21 MEG -L takes precedence over specified version.
 # 14Jul21 MEG -L now checks for latest, installs if not up to date.
 # 15Dec20 MEG Added download only option.
 # 15Dec20 MEG bail on failed download of archive.
@@ -33,7 +35,7 @@ function die () {
 
 OPTS="Dd:i:l:Lh?u:"
 
-ARCH=$(uname -p)
+ARCH=$(arch)
 DLPATH=$HOME/downloads
 GLIBCVERSION=$(ldd --version|head -1|while read a b c d e;do echo $e;done)
 GAMURL="https://github.com/taers232c/GAMADV-XTD3/releases/download/v"
@@ -44,11 +46,12 @@ Download and install GAMADV-XTD3\n
 \td - Download target path ($DLPATH)\n
 \ti - Installation target directory ($INSTALLDIR)\n
 \th|? - Help - this message\n
+
 \tl - Glibc version ($GLIBCVERSION)\n
-\tL - get GAMADV-XTD3 Latest version\n
+\tL - get GAMADV-XTD3 Latest version (takes precedence)\n
 \tu - URL to GAMADVX repo ($GAMURL)\n
 Note: you must have privileges to copy to the install directory.\n
-\tuse setfacl to set acls for user.\n"
+\tuse setfacl to set acls for user. Example: setfacl -m u:user1:rwx /usr/local/bin\n"
 
 while getopts $OPTS o; do
     case $o in
@@ -65,15 +68,6 @@ done
 shift $((OPTIND - 1 ))
 
 if [ -v LATEST ]; then
-#    GAMVERSION=$(curl -s https://github.com/taers232c/GAMADV-XTD3|egrep ">GAM ([0-9]+\.[0-9]{2}\.[0-9]{2})"|(while read a b c d e f g h i;do echo $h;done)|sed -e 's/<\/span>//')
-#elif [ $# = 1 ]; then
-#    GAMVERSION=$1
-#else
-#    echo "Error: no GAM version specified"
-#    echo -e $USAGE
-#    exit 1
-#fi
-
     # Check for latest release, install only if gam not up to date
     # Depends on Ross's "checkrc" option for the gam version command.
     # This code replaces the more complex curl call that downloaded
@@ -84,21 +78,38 @@ if [ -v LATEST ]; then
     else
 	GAMVERSION=$(gam version checkrc|egrep "^[ \t]+Latest:"|(while read a b;do echo $b;done))
     fi
+else
+    GAMVERSION=$1
 fi
 
 ARCHIVE="gamadv-xtd3-$GAMVERSION-linux-$ARCH-glibc$GLIBCVERSION.tar.xz"
 
+if [ -v DEBUG ]; then
+    echo ARCH: $ARCH
+    echo DLPATH: $DLPATH
+    echo INSTALLDIR: $INSTALLDIR
+    echo GAMVERSION: $GAMVERSION
+    echo ARCHIVE: $ARCHIVE
+    echo URL: $GAMURL
+fi
+
+
 pushd $DLPATH &>/dev/null
 
 # attempt to download GAM archive
-curl -sL "$GAMURL$GAMVERSION/$ARCHIVE" --output $ARCHIVE
+echo "Downloading GAM..."
+echo Download: "$GAMURL$GAMVERSION/$ARCHIVE"
+
+/usr/bin/curl -sL "$GAMURL$GAMVERSION/$ARCHIVE" --output $ARCHIVE
+#echo ret: $?
 SIZE=$(stat -c%s $ARCHIVE)
-#SIZE=$(wc -c < $ARCHIVE)
-(($SIZE > 2000000)) || die
+echo SIZE: $SIZE
+(($SIZE > 1000000)) || die
 #trap "echo ERROR:Download $GAMURL$GAMVERSION/$ARCHIVE failed." ERR
 #wget -q "$GAMURL$GAMVERSION/$ARCHIVE" > $ARCHIVE
 
 # Check for download only
+# If DOWNLOANDONLY bail out and leave it for the user
 if [ -v DOWNLOADONLY ]; then
     echo "Downloaded: $ARCHIVE"
     popd &>/dev/null
