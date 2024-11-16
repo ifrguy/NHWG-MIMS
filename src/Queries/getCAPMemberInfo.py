@@ -6,7 +6,7 @@
 #        plus optional first name.
 #
 # History:
-# 15Nov24 MEG Include "Joined" date in output.
+# 15Nov24 MEG Include "OrgJoined" date in output.
 # 17Sep23 MEG Removed forced ^ anchor form last name pattern.
 # 31Mar23 MEG Fixed bug exception if db.Squadron.Unit missing from collection
 # 04Sep20 MEG Added Duty Positions to output.
@@ -113,7 +113,7 @@ for m in cur:
         print( f5.format( "Unit", m['Unit'] + " " +u['SquadName'] ))
     else:
         print( f5.format( "Unit", m['Unit'] + " " +u'SquadName.Unit::missing or corrupt' ))
-    print( f5.format( "Joined", m['Joined'] ))
+    print( f5.format( "Joined CAP", m['OrgJoined'] ))
     print( f5.format( "Expiration", m['Expiration'] ))
     print( "\tMember Contacts:" )
     g = DB.Google.find_one( {'customSchemas.Member.CAPID' : m['CAPID']} )
