@@ -1,9 +1,11 @@
 // Scan AircrewMailingList and match email address to a CAP Wing Member
 // Prints a list of members to add to the mailing mailing list.
 // History:
+// 07Dec24 DJL Consolidate configuration files for single point changes.
 // 07Jul16 MEG Created.
 
-db = db.getSiblingDB("NHWG");
+const { config } = require("../config.js");
+db = db.getSiblingDB(config.wing);
 
 var i=null;
 var p=null;

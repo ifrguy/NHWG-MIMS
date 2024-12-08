@@ -1,8 +1,10 @@
 // Find all current unit commanders, their units, names and wing email addresses
 //
+// 07Dec24 DJL Consolidate configuration files for single point changes.
 // 09Apr18 MEG Created
 
-db = db.getSiblingDB( 'NHWG' );
+const { config } = require("../config.js");
+db = db.getSiblingDB(config.wing);
 
 var cur = db.Commanders.find( {Wing:'NH'} ).sort( {Unit:1} );
 print( 'orgUnitPath,CAPID,fullName,primaryEmail' );

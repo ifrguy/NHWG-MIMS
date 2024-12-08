@@ -1,9 +1,11 @@
 // Scan mission staff  mailing list for active members and valid wing addresses
 
 // History:
+// 07Dec24 DJL Consolidate configuration files for single point changes.
 // 11Dec17 MEG Created.
 //
-db = db.getSiblingDB( 'NHWG' );
+const { config } = require("../config.js");
+db = db.getSiblingDB(config.wing);
 
 // find all non-wing emails in collection
 var cur = db.missionstaff.find();

@@ -16,77 +16,34 @@ MIMS Configuration File
 ##   limitations under the License.
 
 
-# Mongo DB host options
-MIMS_HOST = 'localhost'
-MIMS_PORT = 27017
-MIMS_DB = 'NHWG'
+# Read the configuration file
+import json
+with open('config.json') as f:
+  CONFIGURATION = json.load(f)
 
-# Maps CAP operational squadron/unit to Google organization path
-orgUnitPath = {
-    '000':"/000 - Retired-Patrons",
-    '001':"/001 - Domain top level",
-    '002':"/002 - Next lower unit",
-}
-
-# Cadet account creation control
-CREATE_CADET_ACCOUNTS = True
-# Minimun age at which Cadets are premitted to have accounts
-MIN_CADET_AGE = 18
-
-# Default group strings
-# May be a string of comma separated group email addresses, e.g. "all,cadets"
-# Default cadet groups
-CADETGROUPS = 'all'
-# Default senior member groups
-SENIORGROUPS = 'seniors@example.com'
-
-# Domain to be used when creating, deleting accounts or groups
-DOMAIN = 'example.com'
-
-# Domain calendar ID
-# This is the wing level calendar everyone should see it.
-# Put you domain wide calerdar ID (email address in this variable).
-# You will find this by looking the calendar settings for the particular
-# calendar.
-DOMAIN_CALENDAR = None
-
-# Grace period. The number of days beyond the LOOKBACK after which member
-# accounts will be purged
-GRACE = 30
-
-# Look Back period - how many days back to start considering expired members
-# for suspend
-LOOKBACK = 31
-
-# Default action for Expired members: delete|suspend
-EXPIRED_ACTION = 'suspend'
-
-# Default action for ex-members, no longer on eServices rolls
-PURGE_ACTION = 'delete'
-
-# Flag to remove purged members from NHWG.Google collection
-DELETE_PURGED=True
-
-# Where to save output
-LogFilePath = "./log/"
-JobFilePath = "./job/"
-
-# if true update the user record in local MongoDB Google collection
-UPDATE_SUSPEND = False
-
-# Welcome message template file path relaitve to ./job
-# May also include a flag to tell gam this is a HTML file by adding "html true"
-# to the tail of file spec.
-WELCOMEMSG = "./new-user-email-template.html html true"
-
-# New members groups
-# These are groups to which new members current primary email will be added.
-# newbie group addresses
-NEWBIE_GROUP = 'newbies@example.com'
-CADET_NEWBIE_GROUP = None
-
-# Add seniors to the newbie group
-SENIOR_NEWBIES = True
-
-# Add cadets to the newbie group
-CADET_NEWBIES = False
+# Internal-use variables
+# See config.json for comments documenting each of these
+MIMS_HOST               = CONFIGURATION.mongoDb.host
+MIMS_PORT               = CONFIGURATION.mongoDb.port
+MIMS_DB                 = CONFIGURATION.mongoDb.db
+orgUnitPath             = CONFIGURATION.orgUnit
+CREATE_CADET_ACCOUNTS   = CONFIGURATION.createCadetAccounts
+MIN_CADET_AGE           = CONFIGURATION.minCadetAge
+CADETGROUPS             = CONFIGURATION.cadetGroups
+SENIORGROUPS            = CONFIGURATION.seniorGroups
+DOMAIN                  = CONFIGURATION.domain
+DOMAIN_CALENDAR         = CONFIGURATION.domainCalendar
+GRACE                   = CONFIGURATION.grace
+LOOKBACK                = CONFIGURATION.lookBack
+EXPIRED_ACTION          = CONFIGURATION.expiredAction
+PURGE_ACTION            = CONFIGURATION.purgeAction
+DELETE_PURGED           = CONFIGURATION.deletePurged
+LogFilePath             = CONFIGURATION.logFilePath
+JobFilePath             = CONFIGURATION.jobFilePath
+UPDATE_SUSPEND          = CONFIGURATION.updateSuspend
+WELCOMEMSG              = CONFIGURATION.welcomeMessage
+NEWBIE_GROUP            = CONFIGURATION.newbieGroup
+CADET_NEWBIE_GROUP      = CONFIGURATION.cadetNewbieGroup
+SENIOR_NEWBIES          = CONFIGURATION.seniorNewbies
+CADET_NEWBIES           = CONFIGURATION.cadetNewbies
+DEBUG                   = CONFIGURATION.debug

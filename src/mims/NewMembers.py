@@ -143,7 +143,7 @@ class NewMembers( Manager ):
         Input: member record
         Output: string email address
         """
-        email = (m['NameFirst'][0] + m['NameLast']).lower()
+        email = eval(CONFIGURATION.makeMemberEmailAddress)
         email = re.sub( '[\' ]', '', email )  # remove apostrophes & spaces
         email = self.mkename( email, 0 )
         return email + '@' + self.domain

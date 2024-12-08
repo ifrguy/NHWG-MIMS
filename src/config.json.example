@@ -1,0 +1,139 @@
+{
+  "$comment": "Whether to print copious debugging information",
+  "debug": false,
+
+  "$comment": "Your wing",
+  "wing": "MAWG",
+
+  "$comment": "Top-level directory of the MIMS source.",
+  "mimsSourceTopDir": "/home/mims/work/MAWG/MIMS",
+
+  "$comment": [
+    "Algorithm to generate a member's email address."
+    "This code has access to a CAPWATCH member record, m, ",
+    "which contains, among others, the fields ",
+    "'NameFirst', 'NameLast', 'NameMiddle', and 'NameSuffix'."
+    "",
+    "Examples:",
+    "",
+    "  First initial of first name immediately followed by last name:",
+    "  \"(m['NameFirst'][0] + m['NameLast']).lower()\" "
+    "",
+    "  firstname-dot-lastname:",
+    "  \"(m['NameFirst'].lower() + '.' + m['NameLast']).lower()\" "
+  ],
+  "makeMemberEmailAddress": "(m['NameFirst'][0] + m['NameLast']).lower()"
+
+  "$comment": "Each organizational unit in your wing",
+  "orgUnit":
+  {
+    "000": "/000 - Patrons",
+    "001": "/001 - Massachusetts Wing",
+    "059": "/059 - Lt Col Frank Pocher Minute Man Squadron"
+  },
+
+  "$comment": "Mongo DB host options",
+  "mongoDb":
+  {
+    "host": "localhost",
+    "port": 27017,
+    "db": "MAWG"
+  },
+
+  "$comment": "Cadet account creation control",
+  "createCadetAccounts" : true,
+
+  "$comment": "Minimun age at which Cadets are premitted to have accounts",
+  "minCadetAge": 18,
+
+  "$comment": [
+    "Default group strings",
+    "May be a string of comma separated group email addresses, e.g. 'all,cadets'",
+    "Default cadet groups"
+  ],
+  "cadetGroups": "all",
+
+  "$comment": "Default senior member groups",
+  "seniorGroups": "seniors@example.com",
+
+  "$comment": "Domain to be used when creating, deleting accounts or groups",
+  "domain": "mawg.cap.gov",
+
+  "$comment": [
+    "Domain calendar ID",
+    "This is the wing level calendar everyone should see it.",
+    "Put you domain wide calerdar ID (email address in this variable).",
+    "You will find this by looking the calendar settings for the particular",
+    "calendar."
+  ],
+  "domainCalendar": null,
+
+  "$comment": [
+    "Grace period. The number of days beyond the LOOKBACK after which member",
+    "accounts will be purged"
+  ],
+  "grace": 30,
+
+  "$comment": [
+    "Look Back period - how many days back to start considering expired members",
+    "for suspend"
+  ],
+  "lookBack": 31,
+
+  "$comment": "Default action for Expired members: delete|suspend",
+  "expiredAction": "suspend",
+
+  "$comment": "Default action for ex-members, no longer on eServices rolls",
+  "purgeAction": "delete",
+
+  "$comment": "Whether to remove purged members from NHWG.Google collection",
+  "deletePurged": true,
+
+  "$comment": "Where to save output",
+  "logFilePath": "./log/",
+  "jobFilePath": "./job/",
+
+  "$comment": "Whether to update the user record in local MongoDB Google collection",
+  "updateSuspend": false,
+
+  "$comment": [
+    "Welcome message template file path relaitve to ./job",
+    "May also include a flag to tell gam this is a HTML file by adding 'html true'",
+    "to the tail of file spec."
+  ],
+  "welcomeMessage": "./new-user-email-template.html html true",
+
+  "$comment": [
+    "New members groups",
+    "These are groups to which new members current primary email will be added.",
+    "newbie group addresses"
+  ],
+  "newbieGroup": "newbies@example.com",
+  "cadetNewbieGroup": null,
+
+  "$comment": "Whether to seniors to the newbie group",
+  "seniorNewbies": true,
+
+  "$comment": "Whether to cadets to the newbie group",
+  "cadetNewbies": false,
+
+
+
+  "$comment": "*****************"
+  "$comment": "*** getTables ***",
+  "$comment": "*****************"
+  "getTables":
+  {
+    "$comment": "Archiver - application to unzip/decompress CAPWATCH download",
+    "arc": "/usr/bin/unzip",
+
+    "$comment": "Max age in hours after which the CAPWATCH zip archive is considered stale (expired)",
+    "maxZipAge": 23,
+
+    "$comment": "Default Zip file",
+    "zip": "/home/mims/downloads/MAWG.zip",
+
+    "$comment": "List of Tables to extract",
+    "tables": "Commanders Member MbrContact MbrAddresses MbrAchievements DutyPosition equipment"
+  }
+}

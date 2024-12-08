@@ -1,3 +1,5 @@
+const { config } = require("./config.js");
+
 db.getCollection("DutyPosition").aggregate(
 
     // Pipeline
@@ -93,7 +95,7 @@ db.getCollection("DutyPosition").aggregate(
         {
             $out: // Note: must be last stage of pipeline
             {
-                 db: "NHWG",
+                 db: config.wing,
                  coll: "reportEmailList"
             }
         }

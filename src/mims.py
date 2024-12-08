@@ -35,7 +35,6 @@ import re
 from bson.regex import Regex
 
 # MIMS specific
-from config.config import *
 from config.mims_conf import *
 from config.credentials import *
 from mims.Manager import *

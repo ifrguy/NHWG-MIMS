@@ -3,6 +3,7 @@
 # Then mail to the command staff mailing list.
 
 # History:
+# 07Dec24 DJL Consolidate configuration files for single point changes.
 # 29Aug23 MEG Upgraded to mongosh, DB passed to script on command line.
 # 17Sep20 MEG Upload files to shared drive, only emails links to mailing list.
 # 17Sep20 MEG Moved all user vars to config file.
@@ -73,5 +74,6 @@ done
 
 echo "Sending reports."
 # Use GAM to email reports to commanders mailing list
-gam sendemail file $MAILINGLIST subject "NHWG:Monthly Expiration Reports" $MESSAGE replace expired ${FILEID[Expired]} replace 30Day ${FILEID[Expiring30Days]} replace 60Day ${FILEID[Expiring60Days]}
+WING=$(getConfigValue("wing")
+gam sendemail file $MAILINGLIST subject "$WING:Monthly Expiration Reports" $MESSAGE replace expired ${FILEID[Expired]} replace 30Day ${FILEID[Expiring30Days]} replace 60Day ${FILEID[Expiring60Days]}
 echo Done.

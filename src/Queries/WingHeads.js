@@ -1,5 +1,6 @@
 // find Wing Duty Positions
-var db = db.getSiblingDB("NHWG");//var cur = db.wingheads.find({});
+const { config } = require("../config.js");
+var db = db.getSiblingDB(config.wing);//var cur = db.wingheads.find({});
 // join DutyPosition to Google
 var cur = db.DutyPosition.aggregate(
 	// Pipeline

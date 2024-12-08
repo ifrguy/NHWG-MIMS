@@ -2,6 +2,7 @@
 // Purpose: Corral wing logistics officers into a group
 
 // History:
+// 07Dec24 DJL Consolidate configuration files for single point changes.
 // 22Feb24 MEG Created.
 
 
@@ -9,7 +10,8 @@
 load( './lib/Group.js');
 
 // base name of the Google group
-const group = 'nhwg-logistics';
+const { config } = require("../../../config.js");
+const group = config.wing.toLowerCase() + '-logistics';
 
 // Name of collection on which the aggregation pipeline beings search
 const pipeline_start = 'DutyPosition';

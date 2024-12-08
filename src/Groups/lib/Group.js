@@ -12,6 +12,7 @@
 // MongoShell(mongosh) >1.1.7
 
 // History:
+// 07Dec24 DJL Consolidate configuration files for single point changes.
 // 28Sep24 MEG Selection $expr selecting GROUP types, it shouldn't
 // 27Sep24 MEG Change REGEX in group selection to simple test for speed.
 // 26Sep24 MEG Fixed bug where non-NHWG emails were ignored for removal.
@@ -25,7 +26,8 @@
 // 26May22 MEG Debugged into existence.
 // 22Dec21 MEG Created.
 
-//const db = db.getSiblingDB("NHWG");
+const { config } = require("../../config.js");
+//const db = db.getSiblingDB(config.wing);
 
 try {
 	if ( DEBUG ) {}
@@ -48,7 +50,7 @@ const Assert = function( conditionalExpression, errorMessage ) {
 }
 
 //Base FQDN
-const wing_domain = 'nhwg.cap.gov';
+const wing_domain = config.domain;
 // MongoDB collection that contains members on hold status
 const holdsCollection = 'GroupHolds';
 // MongoDB collection holding all groups & members

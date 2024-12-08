@@ -4,6 +4,7 @@
 # This report is only scheduled to run on a weekly basis.
 
 # History:
+# 07Dec24 DJL Consolidate configuration files for single point changes.
 # 13May24 MEG -n now no upload or email, uploads csv as GSheet now.
 # 29Aug23 MEG Upgraded to mongosh, DB passed to script on command line.
 # 18Sep20 MEG Uploads files to shared drive, sends only links
@@ -77,7 +78,8 @@ if [ $( find ./$fn -type f -size +41c 2>/dev/null ) ]; then
 
     # Use GAM to email reports to commanders mailing list
     echo "Sent emails to list"
-    gam sendemail file $MAILINGLIST subject "NHWG:Weekly New Members Report" $MESSAGE replace newmembers $FILEID
+    WING=$(getConfigValue "wing")
+    gam sendemail file $MAILINGLIST subject "$WING:Weekly New Members Report" $MESSAGE replace newmembers $FILEID
 else
     echo "No report to send."
 fi

@@ -16,6 +16,12 @@ MIMS MongoDB Credentials File
 ##   limitations under the License.
 
 
+
+# Read the credentials file
+import json
+with open('../credentials.json') as f:
+  CREDENTIALS = json.load(f)
+
 # Mongo DB cred's
-MIMSUSER = ''
-MIMSPASS = ''
+MIMSUSER = CREDENTIALS.mims.user
+MIMSPASS = CREDENTIALS.mims.password
