@@ -1,5 +1,5 @@
 // Find Google accounts with an "externalIds" field
-const { config } = require("../config.js");
+const { config } = require("../getConfig.js");
 db = db.getSiblingDB(config.wing);
 var cur = db.Google.find({externalIds:{$exists:true}});
 while( cur.hasNext() ) {

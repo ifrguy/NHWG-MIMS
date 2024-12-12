@@ -3,7 +3,7 @@
 // 01Oct2018 MEG Updated.
 // 12Apr2017 MEG Updated.
 //
-const { config } = require("../config.js");
+const { config } = require("../getConfig.js");
 db = db.getSiblingDB(config.wing);
 var dfns = db.ENV.findOne({name:'DATEFNS'}).value;
 load( dfns );

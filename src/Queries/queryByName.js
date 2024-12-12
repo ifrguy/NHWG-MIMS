@@ -3,7 +3,7 @@ if (!load("/home/meg/work/NHWG/Queries/stringFormatting.js")) {
   quit();
 }
 
-const { config } = require("../config.js");
+const { config } = require("../getConfig.js");
 db = db.getSiblingDB(config.wing);
 var t1 ="{0},{1},{2}";
 var rx = new RegExp( '^brown', 'i' );

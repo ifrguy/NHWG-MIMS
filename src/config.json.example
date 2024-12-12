@@ -8,28 +8,24 @@
   "$comment": "Top-level directory of the MIMS source.",
   "mimsSourceTopDir": "/home/mims/work/MAWG/MIMS",
 
-  "$comment": [
-    "Algorithm to generate a member's email address."
-    "This code has access to a CAPWATCH member record, m, ",
-    "which contains, among others, the fields ",
-    "'NameFirst', 'NameLast', 'NameMiddle', and 'NameSuffix'."
-    "",
-    "Examples:",
-    "",
-    "  First initial of first name immediately followed by last name:",
-    "  \"(m['NameFirst'][0] + m['NameLast']).lower()\" "
-    "",
-    "  firstname-dot-lastname:",
-    "  \"(m['NameFirst'].lower() + '.' + m['NameLast']).lower()\" "
-  ],
-  "makeMemberEmailAddress": "(m['NameFirst'][0] + m['NameLast']).lower()"
-
   "$comment": "Each organizational unit in your wing",
   "orgUnit":
   {
+    "000": "/000 - HEADQRTS MASS WING HQ SQ",
     "000": "/000 - Patrons",
     "001": "/001 - Massachusetts Wing",
-    "059": "/059 - Lt Col Frank Pocher Minute Man Squadron"
+    "002": "/002 - Boston Cadet Squadron",
+    "005": "/005 - Bridgewater State University Composite Squadron",
+    "007": "/007 - Goddard Cadet Sqdn",
+    "013": "/013 - Brigadier General Arthur J. Pierce Squadron",
+    "015": "/015 - Westover Composite Sqdn",
+    "019": "/019 - Beverly Composite Sqdn",
+    "022": "/022 - Worcester Cadet Squadron",
+    "043": "/043 - Hanscom Composite Sqdn",
+    "044": "/044 - Cape Cod Coastal Patrol 18 Comp Sqdn",
+    "070": "/070 - Essex County Composite Sqdn",
+    "071": "/071 - Pilgrim Composite Sqdn",
+    "999": "/999 - Massachusetts Legislative Squadron"
   },
 
   "$comment": "Mongo DB host options",
@@ -41,10 +37,10 @@
   },
 
   "$comment": "Cadet account creation control",
-  "createCadetAccounts" : true,
+  "createCadetAccounts" : false,
 
-  "$comment": "Minimun age at which Cadets are premitted to have accounts",
-  "minCadetAge": 18,
+  "$comment": "Minimum age at which Cadets are permitted to have accounts",
+  "minCadetAge": 12,
 
   "$comment": [
     "Default group strings",
@@ -86,7 +82,7 @@
   "$comment": "Default action for ex-members, no longer on eServices rolls",
   "purgeAction": "delete",
 
-  "$comment": "Whether to remove purged members from NHWG.Google collection",
+  "$comment": "Whether to remove purged members from $WING.Google collection",
   "deletePurged": true,
 
   "$comment": "Where to save output",
@@ -108,20 +104,46 @@
     "These are groups to which new members current primary email will be added.",
     "newbie group addresses"
   ],
-  "newbieGroup": "newbies@example.com",
+  "newbieGroup": null,
   "cadetNewbieGroup": null,
 
-  "$comment": "Whether to seniors to the newbie group",
-  "seniorNewbies": true,
+  "$comment": "Whether to add seniors to the newbie group",
+  "seniorNewbies": false,
 
-  "$comment": "Whether to cadets to the newbie group",
+  "$comment": "Whether to add cadets to the newbie group",
   "cadetNewbies": false,
 
+  "$comment": [
+    "Algorithm to generate a member's email address.",
+    "This code has access to a CAPWATCH member record, m, ",
+    "which contains, among others, the fields ",
+    "'NameFirst', 'NameLast', 'NameMiddle', and 'NameSuffix'.",
+    "",
+    "Examples:",
+    "",
+    "  First initial of first name immediately followed by last name:",
+    "  \"(m['NameFirst'][0] + m['NameLast']).lower()\" ",
+    "",
+    "  firstname-dot-lastname:",
+    "  \"(m['NameFirst'].lower() + '.' + m['NameLast']).lower()\" "
+  ],
+  "makeMemberEmailAddress": "(m['NameFirst'][0] + m['NameLast']).lower()",
 
+  "$comment": "GAM command and related config",
+  "gam":
+  {
+    "command": "/usr/local/bin/gam",
+    "log": "./log/GAM.log"
+  },
 
-  "$comment": "*****************"
-  "$comment": "*** getTables ***",
-  "$comment": "*****************"
+  "$comment": "Mongo import tool",
+  "mongoImport": "/usr/bin/mongoimport",
+
+  "$comment": [
+    "*****************",
+    "*** getTables ***",
+    "*****************"
+  ],
   "getTables":
   {
     "$comment": "Archiver - application to unzip/decompress CAPWATCH download",
@@ -131,9 +153,34 @@
     "maxZipAge": 23,
 
     "$comment": "Default Zip file",
-    "zip": "/home/mims/downloads/MAWG.zip",
+    "zip": "/home/mims/work/MAWG/Downloads/MAWG.zip",
 
     "$comment": "List of Tables to extract",
     "tables": "Commanders Member MbrContact MbrAddresses MbrAchievements DutyPosition equipment"
+  },
+
+  "importTables":
+  {
+    "$comment": "List of Tables to extract",
+    "$comment": "NOTE: Use getTables.tables instead of importTables.tables",
+
+    "$comment": "Path to column type definitions for each table",
+    "typePath": "./",
+
+    "$comment": [
+      "Upsert fields for each table",
+      "Fields to match on import.  If these fields match the record is updated,",
+      "if not a new record is inserted into the collection."
+    ],
+    "upsertFields":
+    {
+      "Commanders": "ORGID",
+      "Member": "CAPID",
+      "MbrContact": "CAPID,Type,Priority",
+      "MbrAddresses": "CAPID,Type,Priority",
+      "MbrAchievements": "CAPID,AchvID",
+      "DutyPosition": "CAPID,Duty,FunctArea,Lvl,Asst,ORGID",
+      "equipment": "assetcd"
+    }
   }
 }

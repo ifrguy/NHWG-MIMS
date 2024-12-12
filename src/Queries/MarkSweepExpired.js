@@ -9,7 +9,7 @@
 // 03Apr2019 MEG Created.
 //
 
-const { config } = require("../config.js");
+const { config } = require("../getConfig.js");
 var db = db.getSiblingDB(config.wing);
 var LOG = true;
 load( db.ENV.findOne({name:'DATEFNS'}).value );

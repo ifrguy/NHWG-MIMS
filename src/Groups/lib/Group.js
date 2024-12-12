@@ -26,7 +26,7 @@
 // 26May22 MEG Debugged into existence.
 // 22Dec21 MEG Created.
 
-const { config } = require("../../config.js");
+const { config } = require("../../getConfig.js");
 //const db = db.getSiblingDB(config.wing);
 
 try {

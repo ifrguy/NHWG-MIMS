@@ -18,12 +18,23 @@ function getConfigValue()
 {
   if [ $# -lt 1 ]; then
     echo "getConfigValue: missing argument"
+    return 1
   fi
 
+  # Figure out what directory the current script is running in. The
+  # config file will be found in this same directory.
+  scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
   # The default configuration file is config.json
-  configFile = "config.json"
+  configFile="config.json"
   if [ $# -gt 1 ]; then
-    configFile = $2
+    configFile=$2
+  fi
+
+  # Abort if configuration file doesn't exist
+  if [ ! -f $scriptDir/$configFile ]; then
+      echo "Could not find configuration file: $scriptDir/$configFile"
+      return 1
   fi
 
   # Take the possibly dot-separated argument and quote each component.
@@ -32,10 +43,6 @@ function getConfigValue()
   # as keys confuse jq.
   jqArg=$(echo $1 | awk -F . '{for(i=1;i<=NF;i++) printf ".\"%s\"",$i}')
 
-  # Figure out what directory the current script is running in. The
-  # config file will be found in this same directory.
-  scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
   # Get the config value. Output it as our return value
-  jq "$jqArg" $scriptDir/$configFile
+  jq --raw-output "$jqArg" $scriptDir/$configFile
 }

@@ -10,7 +10,7 @@
 load( './lib/Group.js');
 
 // base name of the Google group
-const { config } = require("../../../config.js");
+const { config } = require("../../../getConfig.js");
 const group = config.wing.toLowerCase() + '-logistics';
 
 // Name of collection on which the aggregation pipeline beings search

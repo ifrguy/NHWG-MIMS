@@ -133,7 +133,7 @@ function upsert() {
 function ops() {
     [ ! -f $1 ] && return
     echo "Ops: $1"
-    mongo --quiet --authenticationDatabase=$DB --username=$MONGOUID \
+    mongosh --quiet --authenticationDatabase=$DB --username=$MONGOUID \
 		--password=$MONGOPASS $1
 }
 

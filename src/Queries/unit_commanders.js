@@ -3,7 +3,7 @@
 // 07Dec24 DJL Consolidate configuration files for single point changes.
 // 09Apr18 MEG Created
 
-const { config } = require("../config.js");
+const { config } = require("../getConfig.js");
 db = db.getSiblingDB(config.wing);
 
 var cur = db.Commanders.find( {Wing:'NH'} ).sort( {Unit:1} );

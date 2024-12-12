@@ -1,4 +1,4 @@
-const { config } = require("../config.js");
+const { config } = require("../getConfig.js");
 db = db.getSiblingDB(config.wing);
 var cur = db.Google.find({},{_id:0,orgUnitPath:1}).sort({orgUnitPath:1})
 while ( cur.hasNext() ) {

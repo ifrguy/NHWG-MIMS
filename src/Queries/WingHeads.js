@@ -1,5 +1,5 @@
 // find Wing Duty Positions
-const { config } = require("../config.js");
+const { config } = require("../getConfig.js");
 var db = db.getSiblingDB(config.wing);//var cur = db.wingheads.find({});
 // join DutyPosition to Google
 var cur = db.DutyPosition.aggregate(

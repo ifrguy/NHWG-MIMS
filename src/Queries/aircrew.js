@@ -4,7 +4,7 @@
 // 07Dec24 DJL Consolidate configuration files for single point changes.
 // 07Jul16 MEG Created.
 
-const { config } = require("../config.js");
+const { config } = require("../getConfig.js");
 db = db.getSiblingDB(config.wing);
 
 var i=null;
