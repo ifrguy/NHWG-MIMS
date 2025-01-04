@@ -1,7 +1,7 @@
 """
 MIMS Configuration File
 """
-## Copyright 2017 Marshall E. Giguere
+## Copyright 2025 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ MIMS Configuration File
 # Mongo DB host options
 MIMS_HOST = 'localhost'
 MIMS_PORT = 27017
-MIMS_DB = 'NHWG'
+MIMS_DB = 'MyWING'  # the name of your wing database
 
 # Maps CAP operational squadron/unit to Google organization path
 orgUnitPath = {
@@ -37,26 +37,33 @@ MIN_CADET_AGE = 18
 # May be a string of comma separated group email addresses, e.g. "all,cadets"
 # Default cadet groups
 CADETGROUPS = 'all'
-# Default senior member groups
+
+# Default senior member groups, comma separated list of groups as a string
 SENIORGROUPS = 'seniors@example.com'
 
 # Domain to be used when creating, deleting accounts or groups
 DOMAIN = 'example.com'
 
-# Domain calendar ID
-# This is the wing level calendar everyone should see it.
-# Put you domain wide calerdar ID (email address in this variable).
+# Domain calendar ID List
+# This is the wing level calendar(s) everyone should see it.
+# Put your domain wide calerdar ID's (email address(es) in this list).
 # You will find this by looking the calendar settings for the particular
 # calendar.
-DOMAIN_CALENDAR = None
+DOMAIN_CALENDARS = []
 
 # Grace period. The number of days beyond the LOOKBACK after which member
 # accounts will be purged
-GRACE = 30
+GRACE = 76
 
 # Look Back period - how many days back to start considering expired members
 # for suspend
-LOOKBACK = 31
+LOOKBACK = 14
+
+# Default action, create placeholder Google accounts in the Google collection
+# MIMS normally creates a placeholder account to prevent subesquent
+# account creations from creating duplicates.
+# NOTE: you should only turn this off for DEBUGGING or TESTING.
+GOOGLE_PLACEHOLDER_ACCOUNT = True
 
 # Default action for Expired members: delete|suspend
 EXPIRED_ACTION = 'suspend'
