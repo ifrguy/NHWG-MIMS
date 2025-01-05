@@ -57,12 +57,12 @@
 
   "$comment": [
     "Domain calendar ID",
-    "This is the wing level calendar everyone should see it.",
+    "These are the wing level calendars everyone should see.",
     "Put you domain wide calerdar ID (email address in this variable).",
     "You will find this by looking the calendar settings for the particular",
     "calendar."
   ],
-  "domainCalendar": null,
+  "domainCalendars": [],
 
   "$comment": [
     "Grace period. The number of days beyond the LOOKBACK after which member",
@@ -75,6 +75,14 @@
     "for suspend"
   ],
   "lookBack": 31,
+
+  "$comment": [
+    "Default action, create placeholder Google accounts in the Google collection",
+    "MIMS normally creates a placeholder account to prevent subesquent",
+    "account creations from creating duplicates.",
+    "NOTE: you should only turn this off for DEBUGGING or TESTING."
+  ],
+  "googlePlaceholderAccount": true,
 
   "$comment": "Default action for Expired members: delete|suspend",
   "expiredAction": "suspend",
