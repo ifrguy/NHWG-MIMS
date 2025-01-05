@@ -1,5 +1,5 @@
 # -*- mode: Python; coding: utf-8 -*-
-## Copyright 2023 Marshall E. Giguere
+## Copyright 2024 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 ##   limitations under the License.
 
 # History:
+# 31Dec24 MEG DOMAIN_CALENDARS is now a list.
 # 10Dec23 MEG Module version
 # 28May17 MEG Original MIMS created.
 
@@ -39,7 +40,7 @@ class NewMembers( Manager ):
     creation subclass will only need to declare the query needed to find
     potential members in the Member collection, and the name of the
     mailing list/group if any used by those members.  Each new member
-    has the wing calendar added to their personal calendar.
+    has the wing calendars added to their personal calendar list.
 
     The run method does the work of generating the commands necessary to
     create the members Gmail account and add to the mailing list supplied.
@@ -60,8 +61,10 @@ class NewMembers( Manager ):
         self.gamaccountfmt = 'gam create user {} givenname "{}" familyname "{}" orgunitpath "{}" password \'{}\' changepassword true Member.CAPID {:d} Member.Unit {} Member.Type {}'
         # GAM command to email notification to new member
         self.gamnotifyfmt = ' notify {} subject "{}" file {}'
+        # Member default calendars list
+        self.calendars = ','.join( DOMAIN_CALENDARS )
         # Calendar template command
-        self.calcmdfmt = 'gam user {} add calendar {}'
+        self.calcmdfmt = 'gam user {} add calendar calendars "{}" hidden false selected true'
         # Group or groups string, comma separted groups, to add member to
         self.groups = None
         # Add members to the newbies group, use eServices PRIMARY EMAIL
@@ -73,7 +76,7 @@ class NewMembers( Manager ):
         # calendar add job file
         self.caloutfileName = JobFilePath + self.name() + 'Calendar' + self.TS() + ".job"
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
-                             level = logging.DEBUG )
+                             level = logging.INFO )
 
     def age( self, dob ):
         """
@@ -174,21 +177,23 @@ class NewMembers( Manager ):
                                              m[ 'Type' ])
             # Write a placeholder to Google to record the new account
             # so we don't try to create a duplicate address.
-            try:
-                self.DB().Google.insert_one( { 'primaryEmail': email,
-                                               'customSchemas': {
-                                                   'Member': {
-                                                       'CAPID': m['CAPID'],
-                                                       'Unit' : m['Unit'],
-                                                       'Type' : m['Type']
-                                                   }}} )
-            except DuplicateKeyError as e:
-                print( "ERROR::NewMember.mkNewAccount",e, "primaryEmail:", email,
-                       "CAPID:", m['CAPID'] )
-                logging.error( "ERROR:Duplicate account: %s primaryEmail: %s, CAPID: %d",
-                               e, email,
-                               m['CAPID'] )
-                return None
+ 
+            if ( GOOGLE_PLACEHOLDER_ACCOUNT ):
+                try:
+                    self.DB().Google.insert_one( { 'primaryEmail': email,
+                                                   'customSchemas': {
+                                                       'Member': {
+                                                           'CAPID': m['CAPID'],
+                                                           'Unit' : m['Unit'],
+                                                           'Type' : m['Type']
+                                                       }}} )
+                except DuplicateKeyError as e:
+                    print( "ERROR::NewMember.mkNewAccount",e, "primaryEmail:",
+                           email, "CAPID:", m['CAPID'] )
+                    logging.error( "ERROR:Duplicate account: %s primaryEmail: %s, CAPID: %d",
+                                   e, email,
+                                   m['CAPID'] )
+                    return None
             # Append the default groups
             if self.groups:
                 cmd = cmd + " groups " + '"' + self.groups + '"'
@@ -213,22 +218,21 @@ class NewMembers( Manager ):
                    file = self.outfile )
         return email
 
-    def addCalendar( self, email, calEntity ):
+    def addCalendars( self, email, calendars ):
         """
-        Add a calender to the users calendars.
-        Skip if DOMAIN_CALENDAR is not defined.
+        Add a calender list to the users calendar.
         Input:
         email - user email
-        calEntity - Google calendar ID (calendars email address)
+        calendars - A string of comma separated calendar IDs
         Output - writes gam command to output file
 
         NOTE: no error checking is done
         """
-        if ( calEntity ):
-            print( self.calcmdfmt.format( email, calEntity ),
+        if ( calendars ):
+            print( self.calcmdfmt.format( email, calendars ),
                    file = self.caloutfile )
             logging.info( 'Calendar: %s add to User: %s ',
-                          email, calEntity )
+                          email, calendars )
         
     def mkpasswd( self, max=12 ):
         """
@@ -282,7 +286,7 @@ class NewMembers( Manager ):
                                 print( cmd, file = self.outfile )
                                 logging.info( 'Added member: %s to newbie group: %s',
                                               m['CAPID'], self.newbieGroup )
-                            self.addCalendar( email, DOMAIN_CALENDAR )
+                            self.addCalendars( email, self.calendars )
                             n += 1
                             
         logging.info( "New accounts created: %d", n)
