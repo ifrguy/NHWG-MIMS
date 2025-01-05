@@ -206,5 +206,28 @@
   {
     "$comment": "Google Groups file",
     "groupsFile": "./GoogleGroups.csv"
+  },
+
+  "$comment": [
+    "****************",
+    "*** capwatch ***",
+    "****************"
+  ],
+  "capwatch":
+  {
+    "$comment": "Fully qualified output filename",
+    "outfile": "/home/mims/work/MAWG/downloads/capwatch.zip",
+
+    "$comment": "The default organization to download. This is the CAP OrgId.",
+    "orgId": 99999,
+
+    "$comment": "Number of attempts to download CAPWATCH file",
+    "tries": 5,
+
+    "$comment": "Time to wait between retries in seconds",
+    "retryDelayTime": 30,
+
+    "$comment": "Max time to wait for TCP connection to time out in seconds",
+    "timeout": 120
   }
 }
