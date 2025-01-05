@@ -159,6 +159,11 @@
     "tables": "Commanders Member MbrContact MbrAddresses MbrAchievements DutyPosition equipment"
   },
 
+  "$comment": [
+    "********************",
+    "*** importTables ***",
+    "********************"
+  ],
   "importTables":
   {
     "$comment": "List of Tables to extract",
@@ -182,5 +187,16 @@
       "DutyPosition": "CAPID,Duty,FunctArea,Lvl,Asst,ORGID",
       "equipment": "assetcd"
     }
+  },
+
+  "$comment": [
+    "********************",
+    "*** importGroups ***",
+    "********************"
+  ],
+  "importGroups":
+  {
+    "$comment": "Google Groups file",
+    "groupsFile": "./GoogleGroups.csv"
   }
 }

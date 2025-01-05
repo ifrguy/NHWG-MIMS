@@ -7,6 +7,7 @@
 # If callded as unholdMember removes CAPID from Holds
 
 # History:
+# 15Dec24 DJL Consolidate configuration files for single point changes.
 # 01Jun22 MEG Fixed dangling if in "unhold()"                                   
 # 01Jun22 MEG Removed deprecated db logout function call.                       
 # 08Mar21 MEG Added date stamp to hold
@@ -17,12 +18,14 @@
 import os, sys
 from datetime import date, timedelta, datetime, timezone
 from pymongo import MongoClient
+from config.mims_conf import *
 from hold_credentials import *
 
+
 # Mongo DB connection info
-HOST = 'localhost'
-PORT = 27017
-DBNAME = 'NHWG'
+HOST = MIMS_HOST
+PORT = MIMS_PORT
+DBNAME = MIMS_DB
 PROG = os.path.basename( sys.argv[0] ).split(".")[0]
 HELP = { "holdMember" : "Usage: " + sys.argv[0] + " CAPID [comment]",
          "unholdMember" : "Usage: " + sys.argv[0] + " CAPID]",

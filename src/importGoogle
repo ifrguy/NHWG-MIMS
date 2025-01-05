@@ -65,19 +65,19 @@ function drop() {
 # indexes.
 function upsert() {
     $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
---password=$MONGOPASS --collection $1 --type json --upsertFields $KEYS --file $1.json
+--password=$MONGOPASS --collection $1 --type json --upsertFields $UPFIELDS --file $1.json
 }
 
 # Updates collection. Collection is first cleared this preserves indexes
 # and collation.
 function clear() {
-   mongo --quiet -u $MONGOUID -p $MONGOPASS --authenticationDatabase=$DB <<EOJS
+   mongosh --quiet -u $MONGOUID -p $MONGOPASS --authenticationDatabase=$DB <<EOJS
 use $DB;
 db.$COLL.remove( {} );
 exit
 EOJS
     $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
---password=$MONGOPASS --collection $1 --type json --upsertFields $KEYS --file $1.json
+--password=$MONGOPASS --collection $1 --type json --upsertFields $UPFIELDS --file $1.json
 }
 
 # options
@@ -91,7 +91,7 @@ USAGE="Usage: $(basename $0) [$OPTS]\n
 \ti - index the collection ($INDEX)\n
 \tu - update/upsert collection default is: ($CALL)\n
 \th|? - this help\n
-\t Import key fields: $KEYS\n"
+\t Import key fields: $UPFIELDS\n"
 
 while getopts $OPTS o; do
     case $o in

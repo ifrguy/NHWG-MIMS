@@ -23,6 +23,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires Workspace admin privileges.
 
 History:
+07Dec24 DJL Consolidate configuration files for single point changes.
 09Dec23 MEG Modularized base on mims version 2.0.11.
 10May17 MEG Original MIMS created.
 """
