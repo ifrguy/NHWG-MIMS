@@ -46,3 +46,50 @@ function getConfigValue()
   # Get the config value. Output it as our return value
   jq --raw-output "$jqArg" $scriptDir/$configFile
 }
+
+#
+# Get the keys of an object (or array) configuration value
+#
+# @param key {String}
+#   Dot-separated full path of a object or array value in config.json
+#
+# @param configFile {String?"config.json"}
+#   The JSON configuration file to read the value from. The path, if
+#   provided, must be relative to the directoroy in which this script
+#   is located.
+#
+# @return {String}
+#   The keys of the specified configuration key, joined into a single string
+#
+function getConfigValueKeys()
+{
+  if [ $# -lt 1 ]; then
+    echo "getConfigValueKeys: missing argument"
+    return 1
+  fi
+
+  # Figure out what directory the current script is running in. The
+  # config file will be found in this same directory.
+  scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+  # The default configuration file is config.json
+  configFile="config.json"
+  if [ $# -gt 1 ]; then
+    configFile=$2
+  fi
+
+  # Abort if configuration file doesn't exist
+  if [ ! -f $scriptDir/$configFile ]; then
+      echo "Could not find configuration file: $scriptDir/$configFile"
+      return 1
+  fi
+
+  # Take the possibly dot-separated argument and quote each component.
+  # This is necessary because we use indexes that look like numbers,
+  # e.g., in `orgunit` where each key is a 3-digit number, and numbers
+  # as keys confuse jq.
+  jqArg=$(echo $1 | awk -F . '{for(i=1;i<=NF;i++) printf ".\"%s\"",$i}')
+
+  # Get the config value. Output it as our return value
+  jq "$jqArg | keys | join(\" \")" $scriptDir/$configFile
+}
