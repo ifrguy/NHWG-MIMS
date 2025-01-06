@@ -160,9 +160,6 @@
     "$comment": "Max age in hours after which the CAPWATCH zip archive is considered stale (expired)",
     "maxZipAge": 23,
 
-    "$comment": "Default Zip file",
-    "zip": "/home/mims/work/MAWG/Downloads/MAWG.zip",
-
     "$comment": "List of Tables to extract",
     "tables": "Commanders Member MbrContact MbrAddresses MbrAchievements DutyPosition equipment"
   },
@@ -216,7 +213,7 @@
   "capwatch":
   {
     "$comment": "Fully qualified output filename",
-    "outfile": "/home/mims/work/MAWG/downloads/capwatch.zip",
+    "outfile": "/home/mims/work/MAWG/downloads/WING.zip",
 
     "$comment": "The default organization to download. This is the CAP OrgId.",
     "orgId": 99999,
