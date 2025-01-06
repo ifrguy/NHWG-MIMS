@@ -14,6 +14,7 @@
 ##   limitations under the License.
 
 # History:
+# 05Jan25 MEG helpmsg now includes default lookback days.
 # 10Dec23 MEG Module version
 # 28May17 MEG Original MIMS created.
 
@@ -45,14 +46,14 @@ class SweepExpired( Manager ):
     been deleted, but it's a small price to pay for security.
     """
 
-    helpMsg = 'Maintenance: purge expired members not already removed, args: [lookback days].'
+    helpMsg = 'Maintenance: purge expired members not already removed, args: [lookback days (' + str(LOOKBACK+GRACE) + ')]'
 
     is_a_job = True
     
     def __init__( self ):
         super().__init__()
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
-                             level = logging.DEBUG )
+                             level = logging.INFO )
         # build up query for use in run()
         try:
             look_back_days = int( sys.argv[ 2 ] )
