@@ -39,15 +39,39 @@ db.getCollection("DutyPosition").aggregate(
 
         // Stage 5
         {
+            $lookup: {
+                from: "Google",
+                localField: "CAPID",
+                foreignField: "customSchemas.Member.CAPID",
+                as: "google"
+            }
+        },
+
+        // Stage 6
+        {
+            $unwind: {
+                path: "$google",
+            }
+        },
+
+        // Stage 7
+        {
+            $match: {
+                "google.suspended" : false,
+            }
+        },
+
+        // Stage 8
+        {
             $project: {
                 // specifications
                 CAPID: 1,
                 Duty : 1,
                 Level : "$Lvl",
                 "Rank" : "$member.Rank",
-                "LastName" : "$member.NameLast",
-                "FirstName" : "$member.NameFirst",
-                "Unit": "$member.Unit",
+                "Name" : "$google.name.fullName",
+                "email" : "$google.primaryEmail",
+                "Unit" : "$member.Unit",
             }
         }
     ],
