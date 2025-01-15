@@ -26,6 +26,7 @@ with open('config.json') as f:
 MIMS_HOST                  = CONFIGURATION["mongoDb"]["host"]
 MIMS_PORT                  = CONFIGURATION["mongoDb"]["port"]
 MIMS_DB                    = CONFIGURATION["mongoDb"]["db"]
+WING                       = CONFIGURATION["wing"]
 orgUnitPath                = CONFIGURATION["orgUnit"]
 CREATE_CADET_ACCOUNTS      = CONFIGURATION["createCadetAccounts"]
 MIN_CADET_AGE              = CONFIGURATION["minCadetAge"]

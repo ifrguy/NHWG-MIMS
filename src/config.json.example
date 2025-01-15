@@ -11,8 +11,6 @@
   "$comment": "Each organizational unit in your wing",
   "orgUnit":
   {
-    "000": "/000 - HEADQRTS MASS WING HQ SQ",
-    "000": "/000 - Patrons",
     "001": "/001 - Massachusetts Wing",
     "002": "/002 - Boston Cadet Squadron",
     "005": "/005 - Bridgewater State University Composite Squadron",
@@ -24,8 +22,7 @@
     "043": "/043 - Hanscom Composite Sqdn",
     "044": "/044 - Cape Cod Coastal Patrol 18 Comp Sqdn",
     "070": "/070 - Essex County Composite Sqdn",
-    "071": "/071 - Pilgrim Composite Sqdn",
-    "999": "/999 - Massachusetts Legislative Squadron"
+    "071": "/071 - Pilgrim Composite Sqdn"
   },
 
   "$comment": "Mongo DB host options",
@@ -226,5 +223,22 @@
 
     "$comment": "Max time to wait for TCP connection to time out in seconds",
     "timeout": 120
+  },
+
+  "$comment": [
+    "***************",
+    "*** jobexec ***",
+    "***************"
+  ],
+  "jobexec":
+  {
+    "$comment": "Location of MIMS jobs",
+    "jobDir": "/home/mims/work/MAWG/job",
+
+    "$comment": "Location for jobexec to move finished jobs to",
+    "completedDir": /home/mims/work/MAWG/job/completed,
+
+    "$comment": "Recipient (address/mailing list) of jobexec reporting",
+    "mailTo": "someone@example.com"
   }
 }

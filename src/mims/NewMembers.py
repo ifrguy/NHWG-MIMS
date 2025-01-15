@@ -146,7 +146,7 @@ class NewMembers( Manager ):
         Input: member record
         Output: string email address
         """
-        email = eval(CONFIGURATION.makeMemberEmailAddress)
+        email = eval(CONFIGURATION["makeMemberEmailAddress"])
         email = re.sub( '[\' ]', '', email )  # remove apostrophes & spaces
         email = self.mkename( email, 0 )
         return email + '@' + self.domain
@@ -199,7 +199,7 @@ class NewMembers( Manager ):
                 cmd = cmd + " groups " + '"' + self.groups + '"'
             # check for primary email to notify member
             cmd = cmd + self.gamnotifyfmt.format( contact,
-                                             "Welcome to your NH Wing account",
+                                             "Welcome to your " + CONFIGURATION["WING"] + " account",
                                              WELCOMEMSG )
             print( cmd, file = self.outfile )
             logging.info( "New User: %d %s %s %s Unit: %s",
