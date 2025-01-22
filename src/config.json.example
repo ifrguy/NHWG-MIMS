@@ -8,7 +8,14 @@
   "$comment": "Top-level directory of the MIMS source.",
   "mimsSourceTopDir": "/home/mims/work/MAWG/MIMS",
 
-  "$comment": "Each organizational unit in your wing",
+  "$comment": [
+                "Each organizational unit in your wing. ",
+                "Only list units for whom accounts should be ",
+                "created. Typically, you would exclude such units ",
+                "as ",
+                "  /000 - Patrons ",
+                "  /999 - Legislative Squadron"
+              ],
   "orgUnit":
   {
     "001": "/001 - Massachusetts Wing",

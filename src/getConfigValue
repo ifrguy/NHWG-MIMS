@@ -54,7 +54,7 @@ function _getConfigValue_setup_configFile()
 #
 # @return {String}
 #   The value of the specified configuration key, if defined;
-#   
+#
 function getConfigValue()
 {
   jqArg=$(_getConfigValue_setup_jqArg $@)
