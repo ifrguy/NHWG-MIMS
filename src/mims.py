@@ -1,4 +1,4 @@
-#!/usr/bin/env /usr/bin/python
+#!/usr/bin/env python3
 # -*- mode: Python; coding: utf-8 -*-
 
 ## Copyright 2023 Marshall E. Giguere

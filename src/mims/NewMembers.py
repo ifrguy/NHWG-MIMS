@@ -199,7 +199,7 @@ class NewMembers( Manager ):
                 cmd = cmd + " groups " + '"' + self.groups + '"'
             # check for primary email to notify member
             cmd = cmd + self.gamnotifyfmt.format( contact,
-                                             "Welcome to your " + CONFIGURATION["WING"] + " account",
+                                             "Welcome to your " + CONFIGURATION["wing"] + " account",
                                              WELCOMEMSG )
             print( cmd, file = self.outfile )
             logging.info( "New User: %d %s %s %s Unit: %s",
