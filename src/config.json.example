@@ -1,0 +1,251 @@
+{
+  "$comment": "Whether to print copious debugging information",
+  "debug": false,
+
+  "$comment": "Your wing",
+  "wing": "MAWG",
+
+  "$comment": "Top-level directory of the MIMS source.",
+  "mimsSourceTopDir": "/home/mims/work/MAWG/MIMS",
+
+  "$comment": [
+                "Each organizational unit in your wing. ",
+                "Only list units for whom accounts should be ",
+                "created. Typically, you would exclude such units ",
+                "as ",
+                "  /000 - Patrons ",
+                "  /999 - Legislative Squadron"
+              ],
+  "orgUnit":
+  {
+    "001": "/001 - Massachusetts Wing",
+    "002": "/002 - Boston Cadet Squadron",
+    "005": "/005 - Bridgewater State University Composite Squadron",
+    "007": "/007 - Goddard Cadet Sqdn",
+    "013": "/013 - Brigadier General Arthur J. Pierce Squadron",
+    "015": "/015 - Westover Composite Sqdn",
+    "019": "/019 - Beverly Composite Sqdn",
+    "022": "/022 - Worcester Cadet Squadron",
+    "043": "/043 - Hanscom Composite Sqdn",
+    "044": "/044 - Cape Cod Coastal Patrol 18 Comp Sqdn",
+    "070": "/070 - Essex County Composite Sqdn",
+    "071": "/071 - Pilgrim Composite Sqdn"
+  },
+
+  "$comment": "Mongo DB host options",
+  "mongoDb":
+  {
+    "host": "localhost",
+    "port": 27017,
+    "db": "MAWG"
+  },
+
+  "$comment": "Cadet account creation control",
+  "createCadetAccounts" : false,
+
+  "$comment": "Minimum age at which Cadets are permitted to have accounts",
+  "minCadetAge": 12,
+
+  "$comment": [
+    "Default group strings",
+    "May be a string of comma separated group email addresses, e.g. 'all,cadets'",
+    "Default cadet groups"
+  ],
+  "cadetGroups": "all",
+
+  "$comment": "Default senior member groups",
+  "seniorGroups": "seniors@example.com",
+
+  "$comment": "Domain to be used when creating, deleting accounts or groups",
+  "domain": "mawg.cap.gov",
+
+  "$comment": [
+    "Domain calendar ID",
+    "These are the wing level calendars everyone should see.",
+    "Put you domain wide calerdar ID (email address in this variable).",
+    "You will find this by looking the calendar settings for the particular",
+    "calendar."
+  ],
+  "domainCalendars": [],
+
+  "$comment": [
+    "Grace period. The number of days beyond the LOOKBACK after which member",
+    "accounts will be purged"
+  ],
+  "grace": 30,
+
+  "$comment": [
+    "Look Back period - how many days back to start considering expired members",
+    "for suspend"
+  ],
+  "lookBack": 31,
+
+  "$comment": [
+    "Default action, create placeholder Google accounts in the Google collection",
+    "MIMS normally creates a placeholder account to prevent subesquent",
+    "account creations from creating duplicates.",
+    "NOTE: you should only turn this off for DEBUGGING or TESTING."
+  ],
+  "googlePlaceholderAccount": true,
+
+  "$comment": "Default action for Expired members: delete|suspend",
+  "expiredAction": "suspend",
+
+  "$comment": "Default action for ex-members, no longer on eServices rolls",
+  "purgeAction": "delete",
+
+  "$comment": "Whether to remove purged members from $WING.Google collection",
+  "deletePurged": true,
+
+  "$comment": "Where to save output",
+  "logFilePath": "./log/",
+  "jobFilePath": "./job/",
+
+  "$comment": "Whether to update the user record in local MongoDB Google collection",
+  "updateSuspend": false,
+
+  "$comment": [
+    "Welcome message template file path relaitve to ./job",
+    "May also include a flag to tell gam this is a HTML file by adding 'html true'",
+    "to the tail of file spec."
+  ],
+  "welcomeMessage": "./new-user-email-template.html html true",
+
+  "$comment": [
+    "New members groups",
+    "These are groups to which new members current primary email will be added.",
+    "newbie group addresses"
+  ],
+  "newbieGroup": null,
+  "cadetNewbieGroup": null,
+
+  "$comment": "Whether to add seniors to the newbie group",
+  "seniorNewbies": false,
+
+  "$comment": "Whether to add cadets to the newbie group",
+  "cadetNewbies": false,
+
+  "$comment": [
+    "Algorithm to generate a member's email address.",
+    "This code has access to a CAPWATCH member record, m, ",
+    "which contains, among others, the fields ",
+    "'NameFirst', 'NameLast', 'NameMiddle', and 'NameSuffix'.",
+    "",
+    "Examples:",
+    "",
+    "  First initial of first name immediately followed by last name:",
+    "  \"(m['NameFirst'][0] + m['NameLast']).lower()\" ",
+    "",
+    "  firstname-dot-lastname:",
+    "  \"(m['NameFirst'].lower() + '.' + m['NameLast']).lower()\" "
+  ],
+  "makeMemberEmailAddress": "(m['NameFirst'][0] + m['NameLast']).lower()",
+
+  "$comment": "GAM command and related config",
+  "gam":
+  {
+    "command": "/usr/local/bin/gam",
+    "log": "./log/GAM.log"
+  },
+
+  "$comment": "Mongo import tool",
+  "mongoImport": "/usr/bin/mongoimport",
+
+  "$comment": [
+    "*****************",
+    "*** getTables ***",
+    "*****************"
+  ],
+  "getTables":
+  {
+    "$comment": "Archiver - application to unzip/decompress CAPWATCH download",
+    "arc": "/usr/bin/unzip",
+
+    "$comment": "Max age in hours after which the CAPWATCH zip archive is considered stale (expired)",
+    "maxZipAge": 23,
+
+    "$comment": "List of Tables to extract",
+    "tables": "Commanders Member MbrContact MbrAddresses MbrAchievements DutyPosition equipment"
+  },
+
+  "$comment": [
+    "********************",
+    "*** importTables ***",
+    "********************"
+  ],
+  "importTables":
+  {
+    "$comment": "List of Tables to extract",
+    "$comment": "NOTE: Use getTables.tables instead of importTables.tables",
+
+    "$comment": "Path to column type definitions for each table",
+    "typePath": "./",
+
+    "$comment": [
+      "Upsert fields for each table",
+      "Fields to match on import.  If these fields match the record is updated,",
+      "if not a new record is inserted into the collection."
+    ],
+    "upsertFields":
+    {
+      "Commanders": "ORGID",
+      "Member": "CAPID",
+      "MbrContact": "CAPID,Type,Priority",
+      "MbrAddresses": "CAPID,Type,Priority",
+      "MbrAchievements": "CAPID,AchvID",
+      "DutyPosition": "CAPID,Duty,FunctArea,Lvl,Asst,ORGID",
+      "equipment": "assetcd"
+    }
+  },
+
+  "$comment": [
+    "********************",
+    "*** importGroups ***",
+    "********************"
+  ],
+  "importGroups":
+  {
+    "$comment": "Google Groups file",
+    "groupsFile": "./GoogleGroups.csv"
+  },
+
+  "$comment": [
+    "****************",
+    "*** capwatch ***",
+    "****************"
+  ],
+  "capwatch":
+  {
+    "$comment": "Fully qualified output filename",
+    "outfile": "/home/mims/work/MAWG/downloads/WING.zip",
+
+    "$comment": "The default organization to download. This is the CAP OrgId.",
+    "orgId": 99999,
+
+    "$comment": "Number of attempts to download CAPWATCH file",
+    "tries": 5,
+
+    "$comment": "Time to wait between retries in seconds",
+    "retryDelayTime": 30,
+
+    "$comment": "Max time to wait for TCP connection to time out in seconds",
+    "timeout": 120
+  },
+
+  "$comment": [
+    "***************",
+    "*** jobexec ***",
+    "***************"
+  ],
+  "jobexec":
+  {
+    "$comment": "Location of MIMS jobs",
+    "jobDir": "/home/mims/work/MAWG/job",
+
+    "$comment": "Location for jobexec to move finished jobs to",
+    "completedDir": /home/mims/work/MAWG/job/completed,
+
+    "$comment": "Recipient (address/mailing list) of jobexec reporting",
+    "mailTo": "someone@example.com"
+  }
+}

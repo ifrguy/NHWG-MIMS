@@ -71,7 +71,7 @@ function upsert() {
 # Updates collection. Collection is first cleared this preserves indexes
 # and collation.
 function clear() {
-   mongo --quiet -u $MONGOUID -p $MONGOPASS --authenticationDatabase=$DB <<EOJS
+   mongosh --quiet -u $MONGOUID -p $MONGOPASS --authenticationDatabase=$DB <<EOJS
 use $DB;
 db.$COLL.remove( {} );
 exit

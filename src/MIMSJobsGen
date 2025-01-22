@@ -18,14 +18,17 @@
 # Add new jobs as classes to mims.py, then add class name to TASK var.
 
 # HISTORY:
+# 07Dec24 DJL Consolidate configuration files for single point changes.
 # 09Aug18 MEG Added New Cadets to TASK list.
 # 24Jun18 MEG Check table import failure and abort
 # 10Jun18 MEG Specify job list on Command line.
 # 19Apr18 MEG Created.
 
-echo "NHWG MIMS Member create update batch jobs."
+. getConfigValue
 
-cd $HOME/work/NHWG/MIMS
+echo $(getConfigValue "wing") "MIMS Member create update batch jobs."
+
+cd $(getConfigValue "mimsSourceTopDir")
 
 # the list of mims jobs to be run
 TASK="NewSeniors NewCadets Expired PurgeMembers UnSuspend"
