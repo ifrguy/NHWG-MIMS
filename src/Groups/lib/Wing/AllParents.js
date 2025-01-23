@@ -1,6 +1,7 @@
 // Group: allparents
 
 // History:
+// 23Jan25 MEG NHWGStatus field name changed in DB to WingStatus.
 // 08Sep23 MEG Skip record if "DoNotContact" is true.
 // 03Apr23 MEG Project DoNotContact
 // 06Jul22 MEG Group leaf class includes mainline.
@@ -22,7 +23,7 @@ const memberpipeline = [
 	$match: {
 	    Type:'CADET',
 	    MbrStatus: { $ne: 'EXMEMBER' },
-	    NHWGStatus: { $ne: 'DROP' },
+	    WingStatus: { $ne: 'DROP' },
 	}
     },
 
