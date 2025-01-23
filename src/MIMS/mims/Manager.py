@@ -14,6 +14,7 @@
 ##   limitations under the License.
 
 # History:
+# 23Jan25 MEG NHWGStatus DB field renamed to WingStatus.
 # 02Aug24 MEG Set pymongo log level to ERROR only due logging change in 4.8.0
 # 10Dec23 MEG Module version
 # 28May17 MEG Original MIMS created.
@@ -123,7 +124,7 @@ class Manager(object):
         """
         self.DB().Member.update_one( { 'CAPID' : capid },
                                      { '$set' : { 'MbrStatus' : 'EXMEMBER',
-                                                  'NHWGStatus' : 'EXMEMBER' }})
+                                                  'WingStatus' : 'EXMEMBER' }})
     def name( self ):
         """
         Returns the name of the class.

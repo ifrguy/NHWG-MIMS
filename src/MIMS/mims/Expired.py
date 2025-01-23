@@ -14,6 +14,7 @@
 ##   limitations under the License.
 
 # History:
+# 23Jan25 MEG NHWGStatus DB field renamed to WingStatus.
 # 10Dec23 MEG Module version
 # 28May17 MEG Original MIMS created.
 
@@ -50,7 +51,7 @@ class Expired( Manager ):
         self.query = { 'Expiration' : { '$lte': expired },
                        'CAPID' : { '$gt' : 99999 } }
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
-                             level = logging.DEBUG )
+                             level = logging.INFO )
 
     def run( self ):
         """
@@ -74,7 +75,7 @@ class Expired( Manager ):
             if ( self.checkHolds( m['CAPID'] )): continue
             # Check if member is already an EXMEMBER
             try:
-                if ( m['NHWGStatus'] == "EXMEMBER" ): continue
+                if ( m['WingStatus'] == "EXMEMBER" ): continue
             except KeyError as e:
                 if ( m['MbrStatus'] == 'EXMEMBER' ): continue
 
