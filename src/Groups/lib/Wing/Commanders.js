@@ -43,7 +43,7 @@ const memberpipeline = [
         "$match" : { 
             "google.suspended" : false
         }
-    }, 
+    },
     { 
         "$project" : { 
             "CAPID" : 1, 

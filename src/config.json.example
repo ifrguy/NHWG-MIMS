@@ -179,23 +179,7 @@
     "$comment": "NOTE: Use getTables.tables instead of importTables.tables",
 
     "$comment": "Path to column type definitions for each table",
-    "typePath": "./",
-
-    "$comment": [
-      "Upsert fields for each table",
-      "Fields to match on import.  If these fields match the record is updated,",
-      "if not a new record is inserted into the collection."
-    ],
-    "upsertFields":
-    {
-      "Commanders": "ORGID",
-      "Member": "CAPID",
-      "MbrContact": "CAPID,Type,Priority",
-      "MbrAddresses": "CAPID,Type,Priority",
-      "MbrAchievements": "CAPID,AchvID",
-      "DutyPosition": "CAPID,Duty,FunctArea,Lvl,Asst,ORGID",
-      "equipment": "assetcd"
-    }
+    "typePath": "./"
   },
 
   "$comment": [

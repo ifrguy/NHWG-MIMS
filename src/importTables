@@ -63,6 +63,18 @@
 # Function to call to load CAPWATCH data into MongoDB (drop|import|upsert)
 CALL="drop"
 
+# Upsert fields for each table
+# Fields to match on import.  If these fields match the record is updated,
+# if not a new record is inserted into the collection.
+declare -A UPFIELDS
+UPFIELDS[Commanders]='ORGID'
+UPFIELDS[Member]='CAPID'
+UPFIELDS[MbrContact]='CAPID,Type,Priority'
+UPFIELDS[MbrAddresses]='CAPID,Type,Priority'
+UPFIELDS[MbrAchievements]='CAPID,AchvID'
+UPFIELDS[DutyPosition]='CAPID,Duty,FunctArea,Lvl,Asst,ORGID'
+UPFIELDS[equipment]='assetcd'
+
 # Check to see if download was successful
 if [ -f CAPWATCHFAILED ]; then
     echo "ERROR: CAPWATCH download failed not importing tables!"
