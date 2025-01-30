@@ -6,7 +6,7 @@
   "wing": "MAWG",
 
   "$comment": "Top-level directory of the MIMS source.",
-  "mimsSourceTopDir": "/home/mims/work/MAWG/MIMS",
+  "mimsSourceTopDir": "/home/mims/work/MAWG",
 
   "$comment": [
                 "Each organizational unit in your wing. ",
@@ -227,7 +227,7 @@
     "jobDir": "/home/mims/work/MAWG/job",
 
     "$comment": "Location for jobexec to move finished jobs to",
-    "completedDir": /home/mims/work/MAWG/job/completed,
+    "completedDir": "/home/mims/work/MAWG/job/completed",
 
     "$comment": "Recipient (address/mailing list) of jobexec reporting",
     "mailTo": "someone@example.com"

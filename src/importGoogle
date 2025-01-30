@@ -76,7 +76,7 @@ function upsert() {
 function clear() {
    mongosh --quiet -u $MONGOUID -p $MONGOPASS --authenticationDatabase=$DB <<EOJS
 use $DB;
-db.$COLL.remove( {} );
+db.$COLL.deleteMany( {} );
 exit
 EOJS
     $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \

@@ -49,7 +49,7 @@ class CheckGoogle ( Manager ):
             {
                "$match" : {
                    "customSchemas.Member.CAPID" : {
-                       "$gt" : 100000
+                       "$gte" : 100000
                     }
                 }
             }, 
@@ -57,8 +57,8 @@ class CheckGoogle ( Manager ):
             {
                "$lookup" : {
                   "from" : "Member",
-                  "localField" : "customSchemas.Member.CAPID",
                   "foreignField" : "CAPID",
+                  "localField" : "customSchemas.Member.CAPID",
                   "as" : "memberInfo"
                  }
             }, 
@@ -103,7 +103,7 @@ class CheckGoogle ( Manager ):
         gamCmdList = []
         for m in result:
            # Act on those records for which the Member.Unit from Google does not equal the Unit from CAPWATCH:
-           if ( m[ 'GUnit' ] != m[ 'CUnit' ] ):
+           if ( m[ 'GUnit' ] != m[ 'CUnit' ] or m[ 'OrgUnit' ] == "/"):
                # Ah, but only proceed for those members NOT in unit '000' (** do we want this? **)
                if ( m[ 'CUnit' ] != '000' ):
                    nOrgChanges += 1
