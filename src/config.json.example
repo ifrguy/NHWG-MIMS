@@ -109,7 +109,7 @@
     "May also include a flag to tell gam this is a HTML file by adding 'html true'",
     "to the tail of file spec."
   ],
-  "welcomeMessage": "./new-user-email-template.html html true",
+  "welcomeMessage": "./new-user-email-template.html",
 
   "$comment": [
     "New members groups",
