@@ -1,0 +1,78 @@
+#!/bin/bash -e
+# Prepare report of AEMs and their nearest squadrons, for Wing DAEs.
+# Then mail to the wing-ae mailing list.
+
+# History:
+# 07Dec24 DJL Consolidate configuration files for single point changes.
+# 13May24 MEG -n now no upload or email, uploads csv as GSheet now.
+# 29Aug23 MEG Upgraded to mongosh, DB passed to script on command line.
+# 18Sep20 MEG Uploads files to shared drive, sends only links
+# 06Jul19 MEG Correct sendemail message file syntax.
+# 10Mar19 MEG Fixed options order parsing.
+# 25Nov18 MEG Added options to change mailing list and message
+# 24Oct18 MEG Added option to skip sending emails
+# 02Oct18 MEG Created.
+#
+
+# Load config file
+. ../getConfigValue
+
+# Report generator MongoDB login credentials
+MONGOUID=$(getConfigValue "reporter.user" credentials.json)
+MONGOPASS=$(getConfigValue "reporter.password" credentials.json)
+
+# General configuration
+WING=$(getConfigValue "wing")
+DB=$(getConfigValue "mongoDb.db")
+
+# Make date stamp
+DATESTAMP=$(date +%Y%m%d)
+
+# Define message
+MESSAGE="Aerospace Education Members as of ${DATESTAMP}"
+
+#MAILINGLIST=wing-ae@mawg.cap.gov
+MAILINGLIST=derrell.lipman@mawg.cap.gov
+
+
+# make sure we are in the proper working directory
+cd $(getConfigValue "mimsSourceTopDir")/Reports
+
+# cmd line options
+OPTS="h?l:nN"
+
+USAGE="Usage: $(basename $0) [$OPTS]\n
+\tCreate and mail AEM report\n
+\th|? - this help\n
+\tl - mailing list ($MAILINGLIST)\n
+\tn - No post - do not upload sheet or send report to mailing list\n
+"
+
+while getopts $OPTS o; do
+    case $o in
+	l) MAILINGLIST=OPTARG;;
+	n) NOPOST="true";;
+	h|?) echo -e $USAGE;exit 1;;
+	*) echo -e $USAGE;exit 1;;
+    esac
+done
+shift $(($OPTIND - 1))
+
+echo "Preparing AEM report"
+fn=$DATESTAMP-AEM-Report.csv
+mongosh --quiet -u $MONGOUID -p $MONGOPASS --authenticationDatabase $DB \
+	$DB AEMsAndNearestSquadrons.js >$fn
+
+# If -n do not upload csv file or send notificaion email
+[[ -v NOPOST ]] && exit 0
+
+if [ $( find ./$fn -type f -size +248c 2>/dev/null ) ]; then
+    echo "Sending email to $MAILINGLIST"
+    gam sendemail "$MAILINGLIST" \
+        subject "$WING: AEM Report with nearest squadrons" \
+        message "$MESSAGE" \
+        attach $fn
+else
+    echo "No report to send."
+fi
+echo Done.

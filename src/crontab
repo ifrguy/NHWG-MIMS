@@ -25,7 +25,7 @@ CODEREDHOME=/home/mims/work/WING/CodeRed
 # Create MIMS batch job files for Google account update
 0 6 * * 5 cd $WINGHOME;./MIMSJobsGen
 # Import all Wing Google groups
-0 2 * * * echo "Importing Groups";cd $WINGHOME;./importGroups -Du
+0 2 * * * echo "Importing Groups";cd $WINGHOME;./importGroups -D
 # Gen commanders mailing list
 0 5 * * * echo Mailing list Gen;cd $REPORTHOME;./Mailing-List-Gen
 # Weekly New Member report

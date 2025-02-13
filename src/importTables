@@ -74,6 +74,8 @@ UPFIELDS[MbrAddresses]='CAPID,Type,Priority'
 UPFIELDS[MbrAchievements]='CAPID,AchvID'
 UPFIELDS[DutyPosition]='CAPID,Duty,FunctArea,Lvl,Asst,ORGID'
 UPFIELDS[equipment]='assetcd'
+UPFIELDS[Organization]='ORGID'
+UPFIELDS[OrgAddresses]='ORGID,Type'
 
 # Check to see if download was successful
 if [ -f CAPWATCHFAILED ]; then

@@ -11,7 +11,7 @@ db.getCollection("DutyPosition").aggregate(
 			    // Optional additiona attributes:
 			    // SquadIDStr - str the same as Member.Unit,
 			    // Unit - Int32 Member.Unit as number
-			//    Lvl: 'UNIT',
+			    // Lvl: 'UNIT',
 			    Asst: 0,
 			}
 		},

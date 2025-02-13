@@ -165,7 +165,7 @@
     "maxZipAge": 23,
 
     "$comment": "List of Tables to extract",
-    "tables": "Commanders Member MbrContact MbrAddresses MbrAchievements DutyPosition equipment"
+    "tables": "Commanders Member MbrContact MbrAddresses MbrAchievements DutyPosition equipment Organization OrgAddresses"
   },
 
   "$comment": [

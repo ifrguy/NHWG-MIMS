@@ -39,7 +39,7 @@ const client = new MongoClient(uri);
 async function main()
 {
   // Parse arguments
-  const { values : { help, email, notify }, positionals } = parseArgs(
+  let { values : { help, email, notify }, positionals } = parseArgs(
     {
       allowPositionals : true,
       options :
