@@ -19,7 +19,7 @@ const memberpipeline = [
     // Stage 1
     {
 	$match: {
-	    Duty: /^aerospace ed/i,
+	    Duty: /aerospace ed/i,
 	}
     },
 
