@@ -231,5 +231,27 @@
 
     "$comment": "Recipient (address/mailing list) of jobexec reporting",
     "mailTo": "someone@example.com"
-  }
+  },
+
+
+  "$comment": [
+    "**************",
+    "*** Groups ***",
+    "**************"
+  ],
+  "groups": [
+    { "name" : "all-ae",         "class" : "AE", "unit" : null  },
+    { "name" : "wing-ae",        "class" : "AE", "unit" : "001" },
+    { "name" : "boston-ae",      "class" : "AE", "unit" : "002" },
+    { "name" : "bridgewater-ae", "class" : "AE", "unit" : "005" },
+    { "name" : "goddard-ae",     "class" : "AE", "unit" : "007" },
+    { "name" : "pierce-ae",      "class" : "AE", "unit" : "013" },
+    { "name" : "westover-ae",    "class" : "AE", "unit" : "015" },
+    { "name" : "beverly-ae",     "class" : "AE", "unit" : "019" },
+    { "name" : "worcester-ae",   "class" : "AE", "unit" : "022" },
+    { "name" : "hanscom-ae",     "class" : "AE", "unit" : "043" },
+    { "name" : "cp18-ae",        "class" : "AE", "unit" : "044" },
+    { "name" : "essex-ae",       "class" : "AE", "unit" : "070" },
+    { "name" : "pilgrim-ae",     "class" : "AE", "unit" : "071" },
+  ]
 }
