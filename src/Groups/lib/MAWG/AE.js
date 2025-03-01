@@ -7,7 +7,8 @@
 // 29May22 MEG Created
 
 // Load my super class definition
-load( './Groups/lib/Group.js');
+import { Group } from '../Group.js';
+import { config } from "../../../getConfig.js";
 
 // Name of collection on which the aggregation pipeline beings search
 const pipeline_start = 'DutyPosition';
@@ -96,20 +97,14 @@ function makePipeline(unit, domain, groupname)
   return pipeline;
 }
 
-class AE extends Group
+export default class AE extends Group
 {
-  constructor(groupname,
-              unit = "")
+  constructor(db, groupname, unit = "")
   {
-    const domain = wing_domain;
+    const domain = config.domain;
     const pipeline = makePipeline(unit, domain, groupname);
     const start_agg = pipeline_start;
     
-	super( domain, groupname, pipeline, start_agg );
+	super( db, domain, groupname, pipeline, start_agg );
   }
 }
-
-// Example execution:
-// let theGroup = new AE("wing", "001");
-// theGroup.updateGroup();
-

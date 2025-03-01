@@ -118,7 +118,10 @@ async function main()
       console.log(`${BOLD_RED}CAPID ${CAPID} not found${NORMAL}\n`);
       process.exit(1);
     }
-    const member = memberContact.member;
+
+    const member = Object.assign({}, memberContact.member);
+    member.NameFirst = member.NameFirst.replace(/ /g, "-");
+    member.NameLast = member.NameLast.replace(/ /g, "-");
 
     // Create the function for generating an email address, and then generate it.
     // We eliminoate all appostrophes spaces, and append the domain

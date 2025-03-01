@@ -26,8 +26,9 @@
 // 26May22 MEG Debugged into existence.
 // 22Dec21 MEG Created.
 
-const { config } = require("./getConfig.js");
-//const db = db.getSiblingDB(config.wing);
+import { config, creds } from "../../getConfig.js";
+import fs from "fs";
+import util from "util";
 
 try {
   if ( DEBUG ) {}
@@ -49,17 +50,39 @@ const Assert = function( conditionalExpression, errorMessage ) {
   }
 }
 
-//Base FQDN
-const wing_domain = config.domain;
 // MongoDB collection that contains members on hold status
 const holdsCollection = 'GroupHolds';
 // MongoDB collection holding all groups & members
 const groupsCollectioName = 'GoogleGroups';
 
+let file = null;
+function print()
+{
+  if (! file)
+  {
+    const now = new Date;
+    const timestamp =
+          [
+            now.getFullYear(),
+            ("0" + (now.getUTCMonth() + 1)).substr(-2),
+            ("0" + now.getUTCDate()).substr(-2),
+            ("0" + now.getUTCHours()).substr(-2),
+            ("0" + now.getUTCMinutes()).substr(-2),
+            ("0" + now.getUTCSeconds()).substr(-2)
+          ].join("");
+    const filename = `${config.jobFilePath}/updateGroups${timestamp}.job`;
+    file = fs.createWriteStream(filename, { flags: 'w' });
+  }
+
+  file.write(util.format.apply(null, arguments));
+  file.write("\n");
+}
+
 // Group base class
-class Group {
+export class Group {
   // Private:
-  #_myName;
+  #myName;
+  #db;
   #authList;
   #myDomain;
   #group;
@@ -75,15 +98,16 @@ class Group {
   #agg_options =  { "allowDiskUse" : false };
 
   dump() {
-	print( "#:DUMP: DB: " + db.getName(),
+	print( "#:DUMP: DB: " + this.#db.getName(),
 	       "\n#:DUMP: Group: " + this.myGroup,
 	       "\n#:DUMP: Domain:", this.#myDomain,
 	       "\n#:DUMP: #pipeline:",this.#pipeline,
 	       "\n#:DUMP: #aggStart: " + this.#aggStart,
 	       "\n#:DUMP: #authList:", this.#authList );
   }
-  constructor( domain, name, pipeline, agg_start ) {
-	this.#_myName = name;
+  constructor( db, domain, name, pipeline, agg_start ) {
+    this.#db = db;
+	this.#myName = name;
 	this.#myDomain = domain;
 	this.#authList = {}; //uses a JS object as a cheap associative set
 	this.#group = name + '@' + domain;
@@ -111,11 +135,11 @@ class Group {
   };
 
   // Private methods
-  #isActiveMember( capid ) {
+  async #isActiveMember( capid ) {
 	// Check to see if member is active.
 	// This function needs to be changed for each group depending
 	// on what constitutes "active".
-	var m = db.getCollection( "Member").findOne( { "CAPID": capid, "MbrStatus": "ACTIVE" } );
+	var m = await this.#db.collection("Member").findOne( { "CAPID": capid, "MbrStatus": "ACTIVE" } );
 	return ( m == null )? false : true;
   }
 
@@ -125,22 +149,22 @@ class Group {
 	return ( this.#authList[ email ])?  true : false;
   }
 
-  #isGroupMember( email ) {
+  async #isGroupMember( email ) {
 	// Check if email is already in the group
 	DEBUG && print( '# DEBUG:' + this.name + ':' + 'called isGroupMember():' + email );
 	let regx = new RegExp( email, 'i' );
-	var r = db.getCollection( "GoogleGroups" ).findOne( { 'group': this.myGroup, 'email': regx } );
+	var r = await this.#db.collection("GoogleGroups").findOne( { 'group': this.myGroup, 'email': regx } );
 	DEBUG && print( '# DEBUG:' + "email:", email, "is group member:", r );
 	return ( r == null) ? false : email;
 
   }
 
-  #isOnHold( email ) {
+  async #isOnHold( email ) {
 	// Checks the "GroupHolds" collection for "email" and "group"
 	// for a hold to prevent email address removal.
 	// email - the email address to check for
 	DEBUG && print( '# DEBUG:' + this.name + ':' + 'called isOnHold():' + email );
-	let r = db.getCollection( "GroupHolds" ).findOne(
+	let r = await this.#db.collection("GroupHolds").findOne(
 	  { email: email, group: this.myGroup } );
 	return r;
   }
@@ -150,12 +174,12 @@ class Group {
 	return this.#myDomain;
   }
   get name() {
-	return this.#_myName;
+	return this.#myName;
   }
 
   cleanEmailAddress( email ) {
 	// Change all chars to lowercase and remove offensive chars.
-	// all email addresses are assumed to but UTF-8 charset.
+	// all email addresses are assumed to be UTF-8 charset.
 
 	// rex - illegal characters to remove from email address
 	const rex = /[\,\;\ ]/g;
@@ -176,7 +200,7 @@ class Group {
 	return this.#pipeline;
   }
 
-  addMembers() {
+  async addMembers() {
 	// Scans  looking for potential members based on selection pipeline.
 	// if member is not currently on the mailing list generate
 	// gam command to add member.
@@ -195,11 +219,11 @@ class Group {
 	let count = 0;
 	print( "## Add group members." );
 	// Get the list of all qualified potential members for the list
-	var cursor = db.getCollection( this.#aggStart ).aggregate( this.#pipeline, this.#agg_options );
-	while ( cursor.hasNext() ) {
-      var m = cursor.next();
+	var cursor = await this.#db.collection(this.#aggStart).aggregate( this.#pipeline, this.#agg_options );
+	while ( await cursor.hasNext() ) {
+      var m = await cursor.next();
 	  let e = this.cleanEmailAddress( m.email );
-      if ( ! this.#isActiveMember( m.CAPID ) ) { continue; }
+      if ( ! await this.#isActiveMember( m.CAPID ) ) { continue; }
 	  // if already in the auth list skip we've done them previously
 	  // if member is not in auth list add them and issue group add
 	  // this is to handle duplicates from queries.
@@ -208,7 +232,7 @@ class Group {
 	  this.#authList[ e ] = m;
 	  if ( DEBUG ) { print( "# DEBUG: Added to authList:", e ); }
 
-	  if ( this.#isGroupMember( e ) ) { continue; }
+	  if ( await this.#isGroupMember( e ) ) { continue; }
 	  // Print gam command to add new member
 	  if (DEBUG) { print( "# DEBUG: returned from #isGroupMember()" ); }
 	  print( "# Associated CAPID:", m.CAPID );
@@ -218,7 +242,7 @@ class Group {
 	print( "## Added:", count, "members." );
   }
 
-  removeMembers() {
+  async removeMembers() {
 	// compare each member of the group against the authList,
 	// if not generate a gam command to remove member.
 	// Check hold status for potential removals.
@@ -237,14 +261,15 @@ class Group {
 	  print( "# DEBUG: Group:", this.myGroup );
 	  print( '# DEBUG:' + this.name + ':' + 'called removeMembers():' );
 	}
+
 	print( "## Remove group members." );
-	var m = db.getCollection( "GoogleGroups" ).aggregate( this.#groupMemberPipeline,
-								                          this.#agg_options );
-	while ( m.hasNext() ) {
-      var e = this.cleanEmailAddress( m.next().email );
+	var cursor = await this.#db.collection("GoogleGroups").aggregate( this.#groupMemberPipeline, this.#agg_options );
+	while ( await cursor.hasNext() ) {
+      var m = await cursor.next();
+      var e = this.cleanEmailAddress( m.email );
       DEBUG && print( '# DEBUG:' + this.name + "::removeMembers:called with email:",e);
       if ( this.#isAuth( e )) { continue; }
-	  if ( this.#isOnHold( e )) {
+	  if ( await this.#isOnHold( e )) {
 		print( '# INFO:', e, 'on hold status, not removed.');
 		continue;
 	  }
@@ -255,7 +280,7 @@ class Group {
 	}
 	print( "## Removed:", count, "members." );
   };
-  updateGroup() {
+  async updateGroup() {
 	// Default update procedure
 	// Maybe overridden by subclass
 	// if NOAUTORUNGROUP is defined do not run the update, we must not
@@ -263,9 +288,10 @@ class Group {
 	if ( process.env.NOAUTORUNGROUP ) {
 	  print( "# NOAUTORUNGROUP: enabled, returning without running." );
 	  return; }
-	DEBUG && print("# DEBUG: DB:", db.getName());
+	DEBUG && print("# DEBUG: DB:", this.#db.getName());
 	print( "# Update: " + this.myGroup + " Group" );
-	this.addMembers();
-	this.removeMembers();
+
+    await this.addMembers();
+    await this.removeMembers();
   }
 }
