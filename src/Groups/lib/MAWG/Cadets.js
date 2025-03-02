@@ -1,9 +1,8 @@
-// Aerospace Education Officers group
-
+// Cadets
+//
 // History:
-// 18Feb25 DJL Derived MAWG classses from NHWG ones
-// 06Jul22 MEG Group leaf class includes mainline.
-// 29May22 MEG Created
+// 02Mar25 DJL Initial version, derived from NHWG classes
+//
 
 // Load my super class definition
 import { Group } from '../Group.js';
@@ -15,12 +14,21 @@ const pipeline_start = 'DutyPosition';
 // MongoDB aggregation pipeline to find potential group members
 function makePipeline(unit, domain, groupname)
 {
-  let pipeline =
+  //
+  // We want both DCCs and cadets (from the given unit, if specified)
+  //
+  let dccPipeline;
+  let cadetPipeline;
+
+  //
+  // First, create the DCC pipeline
+  //
+  dccPipeline =
       [
         {
 	      $match:
           {
-	        Duty: /aerospace ed/i,
+	        Duty: /deputy commander for cadets/i,
 	      }
         }
       ];
@@ -29,7 +37,7 @@ function makePipeline(unit, domain, groupname)
   // unit numbers from orgids, and then filter on the given unit
   if (unit)
   {
-    pipeline = pipeline.concat(
+    dccPipeline = dccPipeline.concat(
       [
         {
           $lookup:
@@ -56,7 +64,7 @@ function makePipeline(unit, domain, groupname)
       ]);
   }
   
-  pipeline = pipeline.concat(
+  dccPipeline = dccPipeline.concat(
     [
       {
 	    $lookup:
@@ -91,6 +99,86 @@ function makePipeline(unit, domain, groupname)
       },
     ]);
   
+
+  //
+  // Second, create the cadet pipeline
+  //
+  if (unit)
+  {
+    cadetPipeline = [
+      {
+	    $match : {
+	      CAPID     : { $gte : 100000 },
+	      Type      : "CADET",
+	      MbrStatus : "ACTIVE",
+          Unit      : unit
+	    }
+      }
+    ];
+  }
+  else
+  {
+    cadetPipeline = [
+      {
+	    $match : {
+	      CAPID     : { $gte : 100000 },
+	      Type      : "CADET",
+	      MbrStatus : "ACTIVE",
+	    }
+      }
+    ];
+  }
+  
+  cadetPipeline = cadetPipeline.concat(
+    [
+      {
+	    $lookup:
+        {
+	      "from" : "Google",
+	      "localField" : "CAPID", 
+	      "foreignField" : "customSchemas.Member.CAPID", 
+	      "as" : "google"
+	    }
+      },
+      {
+	    $unwind:
+        {
+	      "path" : "$google", 
+	      "preserveNullAndEmptyArrays" : false
+	    }
+      },
+      {
+	    $match:
+        {
+	      "google.suspended": false,
+	    }
+      },
+      {
+	    $project:
+        {
+          "_id" : 0,
+	      "CAPID" : 1,
+	      "Name" : "$google.name.fullName", 
+	      "email" : "$google.primaryEmail",    
+	    }
+      },
+    ]);
+
+
+  //
+  // Finally, combine thet two pipelines
+  //
+  const pipeline = dccPipeline.concat(
+    [
+      {
+        $unionWith :
+        {
+          coll : "Member",
+          pipeline : cadetPipeline
+        }
+      }
+    ]);
+
   return pipeline;
 }
 

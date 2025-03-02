@@ -35,18 +35,18 @@ try {
 }
 catch( exp ) {
   if ( exp instanceof ReferenceError ) {
-	var DEBUG = false;
+    var DEBUG = false;
   }
   else {
-	throw exp;
+    throw exp;
   }
 }
 
 // Assert debugging function
 const Assert = function( conditionalExpression, errorMessage ) {
   if ( ! conditionalExpression ) {
-	throw new Error( 'ASSERT FAILED: ' + (
-	  errorMessage || '' ));
+    throw new Error( 'ASSERT FAILED: ' + (
+      errorMessage || '' ));
   }
 }
 
@@ -98,198 +98,201 @@ export class Group {
   #agg_options =  { "allowDiskUse" : false };
 
   dump() {
-	print( "#:DUMP: DB: " + this.#db.getName(),
-	       "\n#:DUMP: Group: " + this.myGroup,
-	       "\n#:DUMP: Domain:", this.#myDomain,
-	       "\n#:DUMP: #pipeline:",this.#pipeline,
-	       "\n#:DUMP: #aggStart: " + this.#aggStart,
-	       "\n#:DUMP: #authList:", this.#authList );
+    print( "#:DUMP: Group: " + this.myGroup,
+           "\n#:DUMP: Domain:", this.#myDomain,
+           "\n#:DUMP: #pipeline:",this.#pipeline,
+           "\n#:DUMP: #aggStart: " + this.#aggStart,
+           "\n#:DUMP: #authList:", this.#authList );
   }
   constructor( db, domain, name, pipeline, agg_start ) {
     this.#db = db;
-	this.#myName = name;
-	this.#myDomain = domain;
-	this.#authList = {}; //uses a JS object as a cheap associative set
-	this.#group = name + '@' + domain;
-	this.#pipeline = pipeline;
-	this.#aggStart = agg_start;
-	// Ignores managers and groups
-	this.#groupMemberPipeline = [
+    this.#myName = name;
+    this.#myDomain = domain;
+    this.#authList = {}; //uses a JS object as a cheap associative set
+    this.#group = name + '@' + domain;
+    this.#pipeline = pipeline;
+    this.#aggStart = agg_start;
+    // Ignores managers and groups
+    this.#groupMemberPipeline = [
       {
-		"$match" : {
+        "$match" : {
           "group" : this.#group,
-		  "role" : 'MEMBER',
-		  // Only select USER & OTHER member types
-		  $expr: { $or: [ { $eq: [ "$type", "USER"] }, { $eq: [ "$type", "OTHER" ] } ] },
+          "role" : 'MEMBER',
+          // Only select USER & OTHER member types
+          $expr: { $or: [ { $eq: [ "$type", "USER"] }, { $eq: [ "$type", "OTHER" ] } ] },
           //  Marginally slower using REGEX
-          //		    "type" : /(USER|OTHER)/,
-		}
+          //            "type" : /(USER|OTHER)/,
+        }
       },
       {
-		"$project" : {
-		  "email" : "$email",
-		  "type" : "$type",
-		}
+        "$project" : {
+          "email" : "$email",
+          "type" : "$type",
+        }
       }
-	];
+    ];
   };
 
   // Private methods
   async #isActiveMember( capid ) {
-	// Check to see if member is active.
-	// This function needs to be changed for each group depending
-	// on what constitutes "active".
-	var m = await this.#db.collection("Member").findOne( { "CAPID": capid, "MbrStatus": "ACTIVE" } );
-	return ( m == null )? false : true;
+    // Check to see if member is active.
+    // This function needs to be changed for each group depending
+    // on what constitutes "active".
+    var m = await this.#db.collection("Member").findOne( { "CAPID": capid, "MbrStatus": "ACTIVE" } );
+    return ( m == null )? false : true;
   }
 
   #isAuth( email ) {
-	// Check if the member is in the auth List
-	DEBUG && print( '# DEBUG:' + this.name + ':' + 'called isAuth():' + email );
-	return ( this.#authList[ email ])?  true : false;
+    // Check if the member is in the auth List
+    DEBUG && console.log( '# DEBUG:' + this.name + ':' + 'called isAuth():' + email );
+    return ( this.#authList[ email ])?  true : false;
   }
 
   async #isGroupMember( email ) {
-	// Check if email is already in the group
-	DEBUG && print( '# DEBUG:' + this.name + ':' + 'called isGroupMember():' + email );
-	let regx = new RegExp( email, 'i' );
-	var r = await this.#db.collection("GoogleGroups").findOne( { 'group': this.myGroup, 'email': regx } );
-	DEBUG && print( '# DEBUG:' + "email:", email, "is group member:", r );
-	return ( r == null) ? false : email;
+    // Check if email is already in the group
+    DEBUG && console.log( '# DEBUG:' + this.name + ':' + 'called isGroupMember():' + email );
+    let regx = new RegExp( email, 'i' );
+    var r = await this.#db.collection("GoogleGroups").findOne( { 'group': this.myGroup, 'email': regx } );
+    DEBUG && console.log( '# DEBUG:' + "email:", email, "is group member:", r );
+    return ( r == null) ? false : email;
 
   }
 
   async #isOnHold( email ) {
-	// Checks the "GroupHolds" collection for "email" and "group"
-	// for a hold to prevent email address removal.
-	// email - the email address to check for
-	DEBUG && print( '# DEBUG:' + this.name + ':' + 'called isOnHold():' + email );
-	let r = await this.#db.collection("GroupHolds").findOne(
-	  { email: email, group: this.myGroup } );
-	return r;
+    // Checks the "GroupHolds" collection for "email" and "group"
+    // for a hold to prevent email address removal.
+    // email - the email address to check for
+    DEBUG && console.log( '# DEBUG:' + this.name + ':' + 'called isOnHold():' + email );
+    let r = await this.#db.collection("GroupHolds").findOne(
+      { email: email, group: this.myGroup } );
+    return r;
   }
 
   // Public methods
   get domain() {
-	return this.#myDomain;
+    return this.#myDomain;
   }
   get name() {
-	return this.#myName;
+    return this.#myName;
   }
 
   cleanEmailAddress( email ) {
-	// Change all chars to lowercase and remove offensive chars.
-	// all email addresses are assumed to be UTF-8 charset.
+    // Change all chars to lowercase and remove offensive chars.
+    // all email addresses are assumed to be UTF-8 charset.
 
-	// rex - illegal characters to remove from email address
-	const rex = /[\,\;\ ]/g;
-	Assert( email, this.name + ":cleanEmailAddress: invalid email" );
-	let e = email.toLowerCase();
-	e = e.replace( rex, "" );
-	return e;
+    // rex - illegal characters to remove from email address
+    const rex = /[\,\;\ ]/g;
+    Assert( email, this.name + ":cleanEmailAddress: invalid email" );
+    let e = email.toLowerCase();
+    e = e.replace( rex, "" );
+    return e;
   }
 
   get myGroup() {
-	return this.#group;
+    return this.#group;
   }
   get AuthList() {
-	return this.#authList;
+    return this.#authList;
   }
 
   get pipeline() {
-	return this.#pipeline;
+    return this.#pipeline;
   }
 
   async addMembers() {
-	// Scans  looking for potential members based on selection pipeline.
-	// if member is not currently on the mailing list generate
-	// gam command to add member.
-	// Creates a set {}, #authList, of members qualified to be on the list.
-	// The set #authList contains all of the data returned by the
-	// aggregation pipeline for each member.
-	// Uses a JS object as a , cheap and dirty set.
+    // Scans  looking for potential members based on selection pipeline.
+    // if member is not currently on the mailing list generate
+    // gam command to add member.
+    // Creates a set {}, #authList, of members qualified to be on the list.
+    // The set #authList contains all of the data returned by the
+    // aggregation pipeline for each member.
+    // Uses a JS object as a , cheap and dirty set.
 
-	Assert( this.#pipeline, this.name + "::addMembers: Find candidate members pipeline undefined." );
-	if ( DEBUG ) {
-      print( "# DEBUG: Group::addMembers");
-	  print( "# DEBUG: DB:", db );
-	  print( "# DEBUG: Group:", this.myGroup );
-	  print( '# DEBUG:' + this.name + ':' + 'called addMembers():' );
-	}
-	let count = 0;
-	print( "## Add group members." );
-	// Get the list of all qualified potential members for the list
-	var cursor = await this.#db.collection(this.#aggStart).aggregate( this.#pipeline, this.#agg_options );
-	while ( await cursor.hasNext() ) {
+    Assert( this.#pipeline, this.name + "::addMembers: Find candidate members pipeline undefined." );
+    if ( DEBUG ) {
+      console.log( "# DEBUG: Group::addMembers");
+      console.log( "# DEBUG: Group:", this.myGroup );
+      console.log( '# DEBUG:' + this.name + ':' + 'called addMembers():' );
+    }
+    let count = 0;
+    print( "## Add group members." );
+    // Get the list of all qualified potential members for the list
+    var cursor = await this.#db.collection(this.#aggStart).aggregate( this.#pipeline, this.#agg_options );
+    while ( await cursor.hasNext() ) {
       var m = await cursor.next();
-	  let e = this.cleanEmailAddress( m.email );
+      if (! m || ! m.email) {
+        continue;
+      }
+      let e = this.cleanEmailAddress( m.email );
       if ( ! await this.#isActiveMember( m.CAPID ) ) { continue; }
-	  // if already in the auth list skip we've done them previously
-	  // if member is not in auth list add them and issue group add
-	  // this is to handle duplicates from queries.
-	  if ( this.#isAuth( e )) { continue; }
-	  // haven't seen you before add to auth and group
-	  this.#authList[ e ] = m;
-	  if ( DEBUG ) { print( "# DEBUG: Added to authList:", e ); }
+      // if already in the auth list skip we've done them previously
+      // if member is not in auth list add them and issue group add
+      // this is to handle duplicates from queries.
+      if ( this.#isAuth( e )) { continue; }
+      // haven't seen you before add to auth and group
+      this.#authList[ e ] = m;
+      if ( DEBUG ) { console.log( "# DEBUG: Added to authList:", e ); }
 
-	  if ( await this.#isGroupMember( e ) ) { continue; }
-	  // Print gam command to add new member
-	  if (DEBUG) { print( "# DEBUG: returned from #isGroupMember()" ); }
-	  print( "# Associated CAPID:", m.CAPID );
-	  print("gam update group", this.myGroup, "add member", e );
-	  count++;
-	}
-	print( "## Added:", count, "members." );
+      if ( await this.#isGroupMember( e ) ) { continue; }
+      // Print gam command to add new member
+      if (DEBUG) { console.log( "# DEBUG: returned from #isGroupMember()" ); }
+      print( "# Associated CAPID:", m.CAPID );
+      print("gam update group", this.myGroup, "add member", e );
+      count++;
+    }
+    print( "## Added:", count, "members." );
   }
 
   async removeMembers() {
-	// compare each member of the group against the authList,
-	// if not generate a gam command to remove member.
-	// Check hold status for potential removals.
-	// group - group to be updated
-	// authList - set of authorized and possible members
-	// NOTES:
-	// 1. TEMPORAL ORDERING IS IMPORTANT!  "addMembers() must be run prior
-	//    to "removeMembers() in order to set the authList.
-	// 2. All email addresses must be cleansed prior to use, no uppercase,
-	//    no spaces.
+    // compare each member of the group against the authList,
+    // if not generate a gam command to remove member.
+    // Check hold status for potential removals.
+    // group - group to be updated
+    // authList - set of authorized and possible members
+    // NOTES:
+    // 1. TEMPORAL ORDERING IS IMPORTANT!  "addMembers() must be run prior
+    //    to "removeMembers() in order to set the authList.
+    // 2. All email addresses must be cleansed prior to use, no uppercase,
+    //    no spaces.
 
-	let count = 0;
-	if ( DEBUG ) {
-	  print( "# DEBUG: Group::removeMembers" );
-	  print( "# DEBUG: AuthList: ", Object.getOwnPropertyNames( this.AuthList ) );
-	  print( "# DEBUG: Group:", this.myGroup );
-	  print( '# DEBUG:' + this.name + ':' + 'called removeMembers():' );
-	}
+    let count = 0;
+    if ( DEBUG ) {
+      console.log( "# DEBUG: Group::removeMembers" );
+      console.log( "# DEBUG: AuthList: ", Object.getOwnPropertyNames( this.AuthList ) );
+      console.log( "# DEBUG: Group:", this.myGroup );
+      console.log( '# DEBUG:' + this.name + ':' + 'called removeMembers():' );
+    }
 
-	print( "## Remove group members." );
-	var cursor = await this.#db.collection("GoogleGroups").aggregate( this.#groupMemberPipeline, this.#agg_options );
-	while ( await cursor.hasNext() ) {
+    print( "## Remove group members." );
+    var cursor = await this.#db.collection("GoogleGroups").aggregate( this.#groupMemberPipeline, this.#agg_options );
+    while ( await cursor.hasNext() ) {
       var m = await cursor.next();
+      if (! m || ! m.email) {
+        continue;
+      }
       var e = this.cleanEmailAddress( m.email );
-      DEBUG && print( '# DEBUG:' + this.name + "::removeMembers:called with email:",e);
+      DEBUG && console.log( '# DEBUG:' + this.name + "::removeMembers:called with email:",e);
       if ( this.#isAuth( e )) { continue; }
-	  if ( await this.#isOnHold( e )) {
-		print( '# INFO:', e, 'on hold status, not removed.');
-		continue;
-	  }
-	  DEBUG && print("# DEBUG: Member to be removed:", e );
+      if ( await this.#isOnHold( e )) {
+        print( '# INFO:', e, 'on hold status, not removed.');
+        continue;
+      }
+      DEBUG && console.log("# DEBUG: Member to be removed:", e );
       print( '# INFO:Remove:', e );
       print( 'gam update group', this.myGroup, 'delete member', e );
-	  count++;
-	}
-	print( "## Removed:", count, "members." );
+      count++;
+    }
+    print( "## Removed:", count, "members." );
   };
   async updateGroup() {
-	// Default update procedure
-	// Maybe overridden by subclass
-	// if NOAUTORUNGROUP is defined do not run the update, we must not
-	// be in batch mode.
-	if ( process.env.NOAUTORUNGROUP ) {
-	  print( "# NOAUTORUNGROUP: enabled, returning without running." );
-	  return; }
-	DEBUG && print("# DEBUG: DB:", this.#db.getName());
-	print( "# Update: " + this.myGroup + " Group" );
+    // Default update procedure
+    // Maybe overridden by subclass
+    // if NOAUTORUNGROUP is defined do not run the update, we must not
+    // be in batch mode.
+    if ( process.env.NOAUTORUNGROUP ) {
+      print( "# NOAUTORUNGROUP: enabled, returning without running." );
+      return; }
+    print( "# Update: " + this.myGroup + " Group" );
 
     await this.addMembers();
     await this.removeMembers();

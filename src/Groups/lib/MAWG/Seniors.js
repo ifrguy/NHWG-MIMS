@@ -1,59 +1,46 @@
-// Aerospace Education Officers group
-
+// Seniors
+//
 // History:
-// 18Feb25 DJL Derived MAWG classses from NHWG ones
-// 06Jul22 MEG Group leaf class includes mainline.
-// 29May22 MEG Created
+// 01Mar25 DJL Initial version, derived from NHWG classes
+//
 
 // Load my super class definition
 import { Group } from '../Group.js';
 import { config } from "../../../getConfig.js";
 
 // Name of collection on which the aggregation pipeline beings search
-const pipeline_start = 'DutyPosition';
+const pipeline_start = 'Member';
 
 // MongoDB aggregation pipeline to find potential group members
 function makePipeline(unit, domain, groupname)
 {
-  let pipeline =
-      [
-        {
-	      $match:
-          {
-	        Duty: /aerospace ed/i,
-	      }
-        }
-      ];
+  // MongoDB aggregation pipeline to find potential members
+  let pipeline;
   
-  // If we're given a unit, we need to join with Organization to get
-  // unit numbers from orgids, and then filter on the given unit
   if (unit)
   {
-    pipeline = pipeline.concat(
-      [
-        {
-          $lookup:
-          {
-            "from" : "Organization",
-            "localField" : "ORGID",
-            "foreignField" : "ORGID",
-            "as" : "organization"
-          }
-        },
-        {
-          $unwind:
-          {
-            "path" : "$organization",
-            "preserveNullAndEmptyArrays" : false
-          }
-        },
-        {
-          $match:
-          {
-            "organization.Unit" : unit
-          }
-        }
-      ]);
+    pipeline = [
+      {
+	    $match : {
+	      CAPID     : { $gte : 100000 },
+	      Type      : "SENIOR",
+	      MbrStatus : "ACTIVE",
+          Unit      : unit
+	    }
+      }
+    ];
+  }
+  else
+  {
+    pipeline = [
+      {
+	    $match : {
+	      CAPID     : { $gte : 100000 },
+	      Type      : "SENIOR",
+	      MbrStatus : "ACTIVE",
+	    }
+      }
+    ];
   }
   
   pipeline = pipeline.concat(

@@ -244,6 +244,7 @@ const groups =
             "description": `"Pilgrim Squadron members"`
           }
         },
+*/
         
         //
         // Seniors
@@ -359,6 +360,7 @@ const groups =
           }
         },
         
+/*
         //
         // Cadets
         //

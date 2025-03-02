@@ -240,6 +240,32 @@
     "**************"
   ],
   "groups": [
+    { "name" : "all-seniors",         "file" : "MAWG/Seniors.js", "unit" : ""    },
+    { "name" : "wing-seniors",        "file" : "MAWG/Seniors.js", "unit" : "001" },
+    { "name" : "boston-seniors",      "file" : "MAWG/Seniors.js", "unit" : "002" },
+    { "name" : "bridgewater-seniors", "file" : "MAWG/Seniors.js", "unit" : "005" },
+    { "name" : "goddard-seniors",     "file" : "MAWG/Seniors.js", "unit" : "007" },
+    { "name" : "pierce-seniors",      "file" : "MAWG/Seniors.js", "unit" : "015" },
+    { "name" : "beverly-seniors",     "file" : "MAWG/Seniors.js", "unit" : "019" },
+    { "name" : "worcester-seniors",   "file" : "MAWG/Seniors.js", "unit" : "022" },
+    { "name" : "hanscom-seniors",     "file" : "MAWG/Seniors.js", "unit" : "043" },
+    { "name" : "cp18-seniors",        "file" : "MAWG/Seniors.js", "unit" : "044" },
+    { "name" : "essex-seniors",       "file" : "MAWG/Seniors.js", "unit" : "070" },
+    { "name" : "pilgrim-seniors",     "file" : "MAWG/Seniors.js", "unit" : "071" },
+
+    { "name" : "all-cadets",         "file" : "MAWG/Cadets.js", "unit" : ""    },
+    { "name" : "wing-cadets",        "file" : "MAWG/Cadets.js", "unit" : "001" },
+    { "name" : "boston-cadets",      "file" : "MAWG/Cadets.js", "unit" : "002" },
+    { "name" : "bridgewater-cadets", "file" : "MAWG/Cadets.js", "unit" : "005" },
+    { "name" : "goddard-cadets",     "file" : "MAWG/Cadets.js", "unit" : "007" },
+    { "name" : "pierce-cadets",      "file" : "MAWG/Cadets.js", "unit" : "015" },
+    { "name" : "beverly-cadets",     "file" : "MAWG/Cadets.js", "unit" : "019" },
+    { "name" : "worcester-cadets",   "file" : "MAWG/Cadets.js", "unit" : "022" },
+    { "name" : "hanscom-cadets",     "file" : "MAWG/Cadets.js", "unit" : "043" },
+    { "name" : "cp18-cadets",        "file" : "MAWG/Cadets.js", "unit" : "044" },
+    { "name" : "essex-cadets",       "file" : "MAWG/Cadets.js", "unit" : "070" },
+    { "name" : "pilgrim-cadets",     "file" : "MAWG/Cadets.js", "unit" : "071" },
+
     { "name" : "all-ae",         "file" : "MAWG/AE.js", "unit" : ""    },
     { "name" : "wing-ae",        "file" : "MAWG/AE.js", "unit" : "001" },
     { "name" : "boston-ae",      "file" : "MAWG/AE.js", "unit" : "002" },
@@ -251,6 +277,6 @@
     { "name" : "hanscom-ae",     "file" : "MAWG/AE.js", "unit" : "043" },
     { "name" : "cp18-ae",        "file" : "MAWG/AE.js", "unit" : "044" },
     { "name" : "essex-ae",       "file" : "MAWG/AE.js", "unit" : "070" },
-    { "name" : "pilgrim-ae",     "file" : "MAWG/AE.js", "unit" : "071" },
+    { "name" : "pilgrim-ae",     "file" : "MAWG/AE.js",  "unit" : "071" },
   ]
 }
