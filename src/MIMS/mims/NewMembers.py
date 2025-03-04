@@ -1,11 +1,11 @@
 # -*- mode: Python; coding: utf-8 -*-
-## Copyright 2024 Marshall E. Giguere
+## Copyright 2025 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
 ##   You may obtain a copy of the License at
 ##
-##       http://www.apache.org/licenses/LICENSE-2.0
+##       https://www.apache.org/licenses/LICENSE-2.0
 ##
 ##   Unless required by applicable law or agreed to in writing, software
 ##   distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,6 +14,7 @@
 ##   limitations under the License.
 
 # History:
+# 04Mar25 MEG Added delay before adding calendars to allow Google to catch up.
 # 31Dec24 MEG DOMAIN_CALENDARS is now a list.
 # 10Dec23 MEG Module version
 # 28May17 MEG Original MIMS created.
@@ -265,6 +266,7 @@ class NewMembers( Manager ):
         if self.query == None: return
         cur = self.DB().Member.find( self.query )
         n = 0  # number of new member accounts created
+        once = 1
         with open( self.outfileName, 'w' ) as self.outfile:
             with open( self.caloutfileName, 'w' ) as self.caloutfile:
                 for m in cur:
@@ -277,6 +279,11 @@ class NewMembers( Manager ):
                     g = self.DB().Google.find_one( {
                         'customSchemas.Member.CAPID': m['CAPID'] } )
                     if ( g == None ): # if user does not exist make new account
+                        if once :  # insert delay before adding calendars
+                            if CALENDAR_ADD_DELAY:
+                                print( "sleep ", CALENDAR_ADD_DELAY,
+                                       file=self.caloutfile )
+                            once = 0
                         email = self.mkNewAccount( m )
                         if email:
                             if self.newbies:
