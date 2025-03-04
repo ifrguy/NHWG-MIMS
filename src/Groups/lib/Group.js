@@ -154,7 +154,7 @@ export class Group {
     let regx = new RegExp( email, 'i' );
     var r = await this.#db.collection("GoogleGroups").findOne( { 'group': this.myGroup, 'email': regx } );
     DEBUG && console.log( '# DEBUG:' + "email:", email, "is group member:", r );
-    return ( r == null) ? false : email;
+    return r;
   }
 
   async #isOnHold( email ) {
@@ -272,7 +272,7 @@ export class Group {
         DEBUG && console.log("Adding moderator", e);
         print( `# Member ${m.email} (${m.CAPID}) is a moderator of group ${this.name}` );
         print("gam update group", this.myGroup, "update manager", e );
-      } else if ( ! isModerator && groupMemberInfo.role == "MANAGER" ) {
+      } else if ( ! isModerator && groupMemberInfo?.role == "MANAGER" ) {
         DEBUG && console.log("Removing moderator", e);
         print( `# Member ${m.email} (${m.CAPID}) is no longer a moderator of group ${this.name}` );
         print("gam update group", this.myGroup, "update member", e );
