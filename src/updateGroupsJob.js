@@ -56,7 +56,7 @@ async function main()
   {
     console.log(
       [
-        "updateGroups",
+        "updateGroupsJob.js",
         "  [-h|--help]",
         "  [-l|--lib <libDir>]"
       ].join("\n"));

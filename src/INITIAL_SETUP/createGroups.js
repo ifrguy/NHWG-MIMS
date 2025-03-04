@@ -125,8 +125,7 @@ const CONFIG_DEFAULT =
 
 
 /**
- *  The groups to be created, including any manager (moderator)
- *  security groups
+ *  The groups to be created
  */
 const groups =
       [
@@ -142,11 +141,7 @@ const groups =
             "description": `"All members of MAWG"`,
             
             "messageModerationLevel": "MODERATE_ALL_MESSAGES",
-          },
-          managers :
-          [
-            "moderators-all-members@mawg.cap.gov"
-          ]
+          }
         },
         {
           attributes :
@@ -257,11 +252,7 @@ const groups =
             "description": `"All senior members of MAWG"`,
             
             "messageModerationLevel": "MODERATE_ALL_MESSAGES",
-          },
-          managers :
-          [
-            "moderators-all-seniors@mawg.cap.gov"
-          ]
+          }
         },
         {
           attributes :
@@ -372,11 +363,7 @@ const groups =
             "description": `"All cadet members and DCCs of MAWG"`,
             
             "messageModerationLevel": "MODERATE_ALL_MESSAGES",
-          },
-          managers :
-          [
-            "moderators-all-cadets@mawg.cap.gov"
-          ]
+          }
         },
         {
           attributes :

@@ -7,4 +7,5 @@
 gam add schema Member \
     field CAPID type int64 restricted endfield \
     field Unit type string restricted endfield \
-    field Type type string restricted endfield
+    field Type type string restricted endfield \
+    field Moderates type string multivalued indexed endfield

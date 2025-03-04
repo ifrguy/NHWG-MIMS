@@ -148,14 +148,13 @@ export class Group {
     return ( this.#authList[ email ])?  true : false;
   }
 
-  async #isGroupMember( email ) {
+  async #getGroupMemberInfo( email ) {
     // Check if email is already in the group
     DEBUG && console.log( '# DEBUG:' + this.name + ':' + 'called isGroupMember():' + email );
     let regx = new RegExp( email, 'i' );
     var r = await this.#db.collection("GoogleGroups").findOne( { 'group': this.myGroup, 'email': regx } );
     DEBUG && console.log( '# DEBUG:' + "email:", email, "is group member:", r );
     return ( r == null) ? false : email;
-
   }
 
   async #isOnHold( email ) {
@@ -166,6 +165,21 @@ export class Group {
     let r = await this.#db.collection("GroupHolds").findOne(
       { email: email, group: this.myGroup } );
     return r;
+  }
+
+  async #isModerator( email ) {
+    // Check if user is a moderator of this group
+    DEBUG && console.log( '# DEBUG:' + this.name + ':' + 'called isModerator():' + email );
+    let regx = new RegExp( email, 'i' );
+    var r =
+        !! await this.#db.collection('Google')
+          .findOne(
+            {
+              "customSchemas.Member.Moderates.value": this.name,
+              "primaryEmail": email
+            });
+    DEBUG && console.log( '# DEBUG:' + "email:", email, "is moderator:", r );
+    return ( r );
   }
 
   // Public methods
@@ -224,21 +238,45 @@ export class Group {
         continue;
       }
       let e = this.cleanEmailAddress( m.email );
+
+      // We don't want to include inactive members
       if ( ! await this.#isActiveMember( m.CAPID ) ) { continue; }
+
+      // Determine if this member is a moderator of this group
+      let isModerator = await this.#isModerator( m.email );
+
       // if already in the auth list skip we've done them previously
       // if member is not in auth list add them and issue group add
       // this is to handle duplicates from queries.
-      if ( this.#isAuth( e )) { continue; }
-      // haven't seen you before add to auth and group
-      this.#authList[ e ] = m;
-      if ( DEBUG ) { console.log( "# DEBUG: Added to authList:", e ); }
+      let isAuth = this.#isAuth( e );
+      DEBUG && console.log(e, "isAuth(${e}) returned", isAuth);
+      if (! isAuth) {
+        // haven't seen you before add to auth and group
+        this.#authList[ e ] = m;
+      }
 
-      if ( await this.#isGroupMember( e ) ) { continue; }
+      // Determine if member is already in the group
+      let groupMemberInfo = await this.#getGroupMemberInfo( e );
+      DEBUG && console.log(e, "getGroupMemberInfo(${e}) returned", groupMemberInfo);
+
       // Print gam command to add new member
-      if (DEBUG) { console.log( "# DEBUG: returned from #isGroupMember()" ); }
-      print( "# Associated CAPID:", m.CAPID );
-      print("gam update group", this.myGroup, "add member", e );
-      count++;
+      if (! isAuth && ! groupMemberInfo) {
+        DEBUG && console.log("Adding member", e);
+        print( "# Associated CAPID:", m.CAPID );
+        print("gam update group", this.myGroup, "add member", e );
+        count++;
+      }
+
+      // If this member is a moderator, change them from member to manager
+      if ( isModerator ) {
+        DEBUG && console.log("Adding moderator", e);
+        print( `# Member ${m.email} (${m.CAPID}) is a moderator of group ${this.name}` );
+        print("gam update group", this.myGroup, "update manager", e );
+      } else if ( ! isModerator && groupMemberInfo.role == "MANAGER" ) {
+        DEBUG && console.log("Removing moderator", e);
+        print( `# Member ${m.email} (${m.CAPID}) is no longer a moderator of group ${this.name}` );
+        print("gam update group", this.myGroup, "update member", e );
+      }
     }
     print( "## Added:", count, "members." );
   }
