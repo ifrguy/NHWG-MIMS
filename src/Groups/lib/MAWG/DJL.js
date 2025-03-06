@@ -54,14 +54,12 @@ function makePipeline(unit, domain, groupname)
   return pipeline;
 }
 
-export default class DJL extends Group
+export default class extends Group
 {
   constructor(db, groupname, unit = "")
   {
-    const domain = config.domain;
-    const pipeline = makePipeline(unit, domain, groupname);
-    const start_agg = pipeline_start;
+    const pipeline = makePipeline(unit, config.domain, groupname);
     
-	super( db, domain, groupname, pipeline, start_agg );
+	super( db, config.domain, groupname, pipeline, pipeline_start );
   }
 }

@@ -1,4 +1,4 @@
-// Aerospace Education Officers group
+// IT Officers group
 
 // Load my super class definition
 import { Group } from '../Group.js';
@@ -15,7 +15,7 @@ function makePipeline(unit, domain, groupname)
         {
 	      $match:
           {
-	        Duty: /aerospace ed/i,
+	        Duty : /(^information)|(director of it)/i,
 	      }
         }
       ];

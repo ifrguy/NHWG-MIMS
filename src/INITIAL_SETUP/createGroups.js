@@ -239,7 +239,6 @@ const groups =
             "description": `"Pilgrim Squadron members"`
           }
         },
-*/
         
         //
         // Seniors
@@ -351,7 +350,6 @@ const groups =
           }
         },
         
-/*
         //
         // Cadets
         //
@@ -453,7 +451,6 @@ const groups =
             "description": `"Pilgrim Squadron cadet members and DCCs"`
           }
         },
-*/
         
         //
         // AE
@@ -560,6 +557,19 @@ const groups =
             "name": "pilgrim-ae",
             "email": "pilgrim-ae@mawg.cap.gov",
             "description": `"Pilgrim Squadron aerospace education officers"`
+          }
+        },
+*/
+
+        //
+        // AEM
+        //
+        {
+          attributes :
+          {
+            "name": "all-aem",
+            "email": "all-aem@mawg.cap.gov",
+            "description": `"All aerospace education members"`
           }
         },
       ];
