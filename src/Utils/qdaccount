@@ -1,4 +1,19 @@
 #!/bin/bash -e
+## Copyright 2025 Marshall E. Giguere
+##
+##   Licensed under the Apache License, Version 2.0 (the "License");
+##   you may not use this file except in compliance with the License.
+##   You may obtain a copy of the License at
+##
+##       https://www.apache.org/licenses/LICENSE-2.0
+##
+##   Unless required by applicable law or agreed to in writing, software
+##   distributed under the License is distributed on an "AS IS" BASIS,
+##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+##   See the License for the specific language governing permissions and
+##   limitations under the License.
+
+
 # Quick & Dirty build a Google G-Suite wing account
 # Outputs a the appropriate gam command to create an account
 
@@ -20,10 +35,10 @@
 # OUTPUT: appropriate gam command to create an account
 
 # Path to email message template
-EMAIL_TEMPLATE=$HOME/work/NHWG/Templates/new-user-email-template.html
+EMAIL_TEMPLATE="../Templates/new-user-email-template.html"
 
 # Domain in which to create account
-DOMAIN="nhwg.cap.gov"
+DOMAIN="<yourSubDomain>.cap.gov"
 
 # Help message
 USAGE="Usage: $(basename $0) args\n
@@ -41,17 +56,8 @@ WARNING: $0 does NOT check for duplicate account names.\n
 \t\$8 - Notification email address\n"
 
 declare -A ORGUNIT
-ORGUNIT[000]="/000 - New Hampshire Wing"
-ORGUNIT[001]="/001 - New Hampshire Wing"
-ORGUNIT[010]="/010 - Portsmouth Squadron"
-ORGUNIT[014]="/014 - Lebanon Squadron"
-ORGUNIT[016]="/016 - Nashua Squadron"
-ORGUNIT[032]="/032 - Concord Squadron"
-ORGUNIT[037]="/037 - Highlanders Squadron - Rochester"
-ORGUNIT[053]="/053 - Monadnock Squadron - Keene"
-ORGUNIT[054]="/054 - Manchester Squadron"
-ORGUNIT[056]="/056 - Hawk Squadron - Laconia"
-ORGUNIT[075]="/075 - Whitefield"
+ORGUNIT[000]="/000 - Patrons and Inactive Members"
+ORGUNIT[001]="/001 - "Wing"
 ORGUNIT[999]="/999 - State Legislators"
 
 if (( $# < 8 )); then

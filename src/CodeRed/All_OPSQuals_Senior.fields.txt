@@ -1,9 +1,0 @@
-CAPID
-NameLast
-NameFirst
-NameSuffix
-Type
-Qual_ID
-QualStat
-Qualification
-FunctionArea

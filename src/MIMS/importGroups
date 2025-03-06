@@ -1,11 +1,11 @@
 #!/bin/bash -e
-## Copyright 2022 Marshall E. Giguere
+## Copyright 2025 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
 ##   You may obtain a copy of the License at
 ##
-##       http://www.apache.org/licenses/LICENSE-2.0
+##       https://www.apache.org/licenses/LICENSE-2.0
 ##
 ##   Unless required by applicable law or agreed to in writing, software
 ##   distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,9 @@
 # convert to JSON and import into MongoDB.
 #
 # History:
+# 17Oct22 MEG MongoDB Connection/Auth changed to URI form.
+# 11Oct22 MEG Old mongo shell (mongo) replaced by mongosh.
+#             Upgraded for MongoDB 6.x.
 # 02Jun22 MEG Move config var's to a config file
 # 16Oct21 MEG use cigroups to get create & update time for group members
 # 04Sep19 MEG Simplified moved to flat csv file group collection.
@@ -54,10 +57,15 @@ if [ -v D ]; then
 fi
 
 # import groups into MongoDB
-$IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
-	--password=$MONGOPASS --collection GoogleGroups --drop --type csv \
+#$IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
+#	--password=$MONGOPASS --collection GoogleGroups --drop --type csv \
+#	--headerline --file $GROUPSFILE
+
+$IMPORT "mongodb://$MONGOUID:$MONGOPASS@localhost/$DB?authSource=$DB" \
+	--collection GoogleGroups --drop --type csv \
 	--headerline --file $GROUPSFILE
 
 # After import convert "createTime" and "updateTime" strings to ISO dates
-mongo $DB -u $MONGOUID -p $MONGOPASS --authenticationDatabase=$DB --eval \
-      'db.getCollection("GoogleGroups").updateMany( {}, [{ $set: { createTime: { $dateFromString: { dateString: "$createTime"}}}},{ $set: { updateTime: { $dateFromString: { dateString: "$updateTime"}}}}]);'
+#mongosh --quiet $DB -u $MONGOUID -p $MONGOPASS --authenticationDatabase=$DB --eval \
+mongosh --quiet "mongodb://$MONGOUID:$MONGOPASS@localhost/$DB?authSource=$DB" --eval \
+      'db.getCollection("GoogleGroups").updateMany( {}, [{ $set: { createTime: { $dateFromString: { dateString: "$createTime"}}}},{ $set: { updateTime: { $dateFromString: { dateString: "$updateTime"}}}}]);;'
