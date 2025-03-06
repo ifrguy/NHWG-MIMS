@@ -52,7 +52,7 @@ function makePipeline(unit, domain, groupname)
           }
         }
       ];
-  
+
   if (unit)
   {
     pipeline = pipeline.concat(
@@ -65,7 +65,7 @@ function makePipeline(unit, domain, groupname)
         }
       ]);
   }
-  
+
   pipeline = pipeline.concat(
     [
       {
@@ -77,7 +77,7 @@ function makePipeline(unit, domain, groupname)
         }
       }
     ]);
-  
+
   return pipeline;
 }
 
@@ -86,7 +86,7 @@ export default class extends Group
   constructor(db, groupname, unit = "")
   {
     const pipeline = makePipeline(unit, config.domain, groupname);
-    
+
 	super( db, config.domain, groupname, pipeline, pipeline_start );
   }
 }
