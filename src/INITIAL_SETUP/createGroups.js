@@ -129,7 +129,6 @@ const CONFIG_DEFAULT =
  */
 const groups =
       [
-/*
         //
         // Members
         //
@@ -559,7 +558,6 @@ const groups =
             "description": `"Pilgrim Squadron aerospace education officers"`
           }
         },
-*/
 
         //
         // AEM
