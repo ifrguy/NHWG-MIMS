@@ -572,6 +572,1206 @@ const groups =
             "description": `"All aerospace education members"`
           }
         },
+
+        //
+        // AP
+        //
+        {
+          attributes :
+          {
+            "name": "all-ap",
+            "email": "all-ap@mawg.cap.gov",
+            "description": `"All airborne photographers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "wing-ap",
+            "email": "wing-ap@mawg.cap.gov",
+            "description": `"MAWG HQ airborne photographers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "boston-ap",
+            "email": "boston-ap@mawg.cap.gov",
+            "description": `"Boston Squadron airborne photographers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "bridgewater-ap",
+            "email": "bridgewater-ap@mawg.cap.gov",
+            "description": `"Bridgewater Squadron airborne photographers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "goddard-ap",
+            "email": "goddard-ap@mawg.cap.gov",
+            "description": `"Goddard Squadron airborne photographers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pierce-ap",
+            "email": "pierce-ap@mawg.cap.gov",
+            "description": `"Pierce Squadron  airborne photographers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "westover-ap",
+            "email": "westover-ap@mawg.cap.gov",
+            "description": `"Westover Squadron airborne photographers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": " beverly-ap",
+            "email": "beverly-ap@mawg.cap.gov",
+            "description": `"Beverly Squadron airborne photographers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "worcester-ap",
+            "email": "worcester-ap@mawg.cap.gov",
+            "description": `"Worcester Cadet Squadron airborne photographers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "hanscom-ap",
+            "email": "hanscom-ap@mawg.cap.gov",
+            "description": `"Hanscom Squadron airborne photographers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "cp18-ap",
+            "email": "cp18-ap@mawg.cap.gov",
+            "description": `"CP18 airborne photographers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "essex-ap",
+            "email": "essex-ap@mawg.cap.gov",
+            "description": `"Essex Composite Squadron airborne photographers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pilgrim-ap",
+            "email": "pilgrim-ap@mawg.cap.gov",
+            "description": `"Pilgrim Squadron airborne photographers"`
+          }
+        },
+
+        //
+        // Aircrew
+        //
+        {
+          attributes :
+          {
+            "name": "all-aircrew",
+            "email": "all-aircrew@mawg.cap.gov",
+            "description": `"All aircrew"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "wing-aircrew",
+            "email": "wing-aircrew@mawg.cap.gov",
+            "description": `"MAWG HQ aircrew"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "boston-aircrew",
+            "email": "boston-aircrew@mawg.cap.gov",
+            "description": `"Boston Squadron aircrew"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "bridgewater-aircrew",
+            "email": "bridgewater-aircrew@mawg.cap.gov",
+            "description": `"Bridgewater Squadron aircrew"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "goddard-aircrew",
+            "email": "goddard-aircrew@mawg.cap.gov",
+            "description": `"Goddard Squadron aircrew"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pierce-aircrew",
+            "email": "pierce-aircrew@mawg.cap.gov",
+            "description": `"Pierce Squadron  aircrew"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "westover-aircrew",
+            "email": "westover-aircrew@mawg.cap.gov",
+            "description": `"Westover Squadron aircrew"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": " beverly-aircrew",
+            "email": "beverly-aircrew@mawg.cap.gov",
+            "description": `"Beverly Squadron aircrew"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "worcester-aircrew",
+            "email": "worcester-aircrew@mawg.cap.gov",
+            "description": `"Worcester Cadet Squadron aircrew"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "hanscom-aircrew",
+            "email": "hanscom-aircrew@mawg.cap.gov",
+            "description": `"Hanscom Squadron aircrew"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "cp18-aircrew",
+            "email": "cp18-aircrew@mawg.cap.gov",
+            "description": `"CP18 aircrew"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "essex-aircrew",
+            "email": "essex-aircrew@mawg.cap.gov",
+            "description": `"Essex Composite Squadron aircrew"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pilgrim-aircrew",
+            "email": "pilgrim-aircrew@mawg.cap.gov",
+            "description": `"Pilgrim Squadron aircrew"`
+          }
+        },
+
+        //
+        // Instructor pilots
+        //
+        {
+          attributes :
+          {
+            "name": "all-cfi",
+            "email": "all-cfi@mawg.cap.gov",
+            "description": `"All instructor pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "wing-cfi",
+            "email": "wing-cfi@mawg.cap.gov",
+            "description": `"MAWG HQ instructor pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "boston-cfi",
+            "email": "boston-cfi@mawg.cap.gov",
+            "description": `"Boston Squadron instructor pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "bridgewater-cfi",
+            "email": "bridgewater-cfi@mawg.cap.gov",
+            "description": `"Bridgewater Squadron instructor pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "goddard-cfi",
+            "email": "goddard-cfi@mawg.cap.gov",
+            "description": `"Goddard Squadron instructor pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pierce-cfi",
+            "email": "pierce-cfi@mawg.cap.gov",
+            "description": `"Pierce Squadron  instructor pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "westover-cfi",
+            "email": "westover-cfi@mawg.cap.gov",
+            "description": `"Westover Squadron instructor pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": " beverly-cfi",
+            "email": "beverly-cfi@mawg.cap.gov",
+            "description": `"Beverly Squadron instructor pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "worcester-cfi",
+            "email": "worcester-cfi@mawg.cap.gov",
+            "description": `"Worcester Cadet Squadron instructor pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "hanscom-cfi",
+            "email": "hanscom-cfi@mawg.cap.gov",
+            "description": `"Hanscom Squadron instructor pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "cp18-cfi",
+            "email": "cp18-cfi@mawg.cap.gov",
+            "description": `"CP18 instructor pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "essex-cfi",
+            "email": "essex-cfi@mawg.cap.gov",
+            "description": `"Essex Composite Squadron instructor pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pilgrim-cfi",
+            "email": "pilgrim-cfi@mawg.cap.gov",
+            "description": `"Pilgrim Squadron instructor pilots"`
+          }
+        },
+
+        //
+        // Commanders
+        //
+        {
+          attributes :
+          {
+            "name": "all-commanders",
+            "email": "all-commanders@mawg.cap.gov",
+            "description": `"All commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "wing-commanders",
+            "email": "wing-commanders@mawg.cap.gov",
+            "description": `"MAWG HQ commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "boston-commanders",
+            "email": "boston-commanders@mawg.cap.gov",
+            "description": `"Boston Squadron commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "bridgewater-commanders",
+            "email": "bridgewater-commanders@mawg.cap.gov",
+            "description": `"Bridgewater Squadron commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "goddard-commanders",
+            "email": "goddard-commanders@mawg.cap.gov",
+            "description": `"Goddard Squadron commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pierce-commanders",
+            "email": "pierce-commanders@mawg.cap.gov",
+            "description": `"Pierce Squadron  commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "westover-commanders",
+            "email": "westover-commanders@mawg.cap.gov",
+            "description": `"Westover Squadron commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": " beverly-commanders",
+            "email": "beverly-commanders@mawg.cap.gov",
+            "description": `"Beverly Squadron commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "worcester-commanders",
+            "email": "worcester-commanders@mawg.cap.gov",
+            "description": `"Worcester Cadet Squadron commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "hanscom-commanders",
+            "email": "hanscom-commanders@mawg.cap.gov",
+            "description": `"Hanscom Squadron commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "cp18-commanders",
+            "email": "cp18-commanders@mawg.cap.gov",
+            "description": `"CP18 commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "essex-commanders",
+            "email": "essex-commanders@mawg.cap.gov",
+            "description": `"Essex Composite Squadron commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pilgrim-commanders",
+            "email": "pilgrim-commanders@mawg.cap.gov",
+            "description": `"Pilgrim Squadron commanders"`
+          }
+        },
+
+        //
+        // Directors
+        //
+        {
+          attributes :
+          {
+            "name": "wing-directors",
+            "email": "wing-directors@mawg.cap.gov",
+            "description": `"MAWG HQ directors"`
+          }
+        },
+
+        //
+        // Incident commanders
+        //
+        {
+          attributes :
+          {
+            "name": "all-ic",
+            "email": "all-ic@mawg.cap.gov",
+            "description": `"All incident commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "wing-ic",
+            "email": "wing-ic@mawg.cap.gov",
+            "description": `"MAWG HQ incident commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "boston-ic",
+            "email": "boston-ic@mawg.cap.gov",
+            "description": `"Boston Squadron incident commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "bridgewater-ic",
+            "email": "bridgewater-ic@mawg.cap.gov",
+            "description": `"Bridgewater Squadron incident commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "goddard-ic",
+            "email": "goddard-ic@mawg.cap.gov",
+            "description": `"Goddard Squadron incident commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pierce-ic",
+            "email": "pierce-ic@mawg.cap.gov",
+            "description": `"Pierce Squadron  incident commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "westover-ic",
+            "email": "westover-ic@mawg.cap.gov",
+            "description": `"Westover Squadron incident commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": " beverly-ic",
+            "email": "beverly-ic@mawg.cap.gov",
+            "description": `"Beverly Squadron incident commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "worcester-ic",
+            "email": "worcester-ic@mawg.cap.gov",
+            "description": `"Worcester Cadet Squadron incident commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "hanscom-ic",
+            "email": "hanscom-ic@mawg.cap.gov",
+            "description": `"Hanscom Squadron incident commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "cp18-ic",
+            "email": "cp18-ic@mawg.cap.gov",
+            "description": `"CP18 incident commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "essex-ic",
+            "email": "essex-ic@mawg.cap.gov",
+            "description": `"Essex Composite Squadron incident commanders"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pilgrim-ic",
+            "email": "pilgrim-ic@mawg.cap.gov",
+            "description": `"Pilgrim Squadron incident commanders"`
+          }
+        },
+
+        //
+        // IT
+        //
+        {
+          attributes :
+          {
+            "name": "all-it",
+            "email": "all-it@mawg.cap.gov",
+            "description": `"All IT (Information Technology)"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "wing-it",
+            "email": "wing-it@mawg.cap.gov",
+            "description": `"MAWG HQ IT (Information Technology)"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "boston-it",
+            "email": "boston-it@mawg.cap.gov",
+            "description": `"Boston Squadron IT (Information Technology)"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "bridgewater-it",
+            "email": "bridgewater-it@mawg.cap.gov",
+            "description": `"Bridgewater Squadron IT (Information Technology)"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "goddard-it",
+            "email": "goddard-it@mawg.cap.gov",
+            "description": `"Goddard Squadron IT (Information Technology)"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pierce-it",
+            "email": "pierce-it@mawg.cap.gov",
+            "description": `"Pierce Squadron  IT (Information Technology)"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "westover-it",
+            "email": "westover-it@mawg.cap.gov",
+            "description": `"Westover Squadron IT (Information Technology)"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": " beverly-it",
+            "email": "beverly-it@mawg.cap.gov",
+            "description": `"Beverly Squadron IT (Information Technology)"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "worcester-it",
+            "email": "worcester-it@mawg.cap.gov",
+            "description": `"Worcester Cadet Squadron IT (Information Technology)"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "hanscom-it",
+            "email": "hanscom-it@mawg.cap.gov",
+            "description": `"Hanscom Squadron IT (Information Technology)"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "cp18-it",
+            "email": "cp18-it@mawg.cap.gov",
+            "description": `"CP18 IT (Information Technology)"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "essex-it",
+            "email": "essex-it@mawg.cap.gov",
+            "description": `"Essex Composite Squadron IT (Information Technology)"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pilgrim-it",
+            "email": "pilgrim-it@mawg.cap.gov",
+            "description": `"Pilgrim Squadron IT (Information Technology)"`
+          }
+        },
+
+        //
+        // Logistics
+        //
+        {
+          attributes :
+          {
+            "name": "all-logistics",
+            "email": "all-logistics@mawg.cap.gov",
+            "description": `"All Logistics"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "wing-logistics",
+            "email": "wing-logistics@mawg.cap.gov",
+            "description": `"MAWG HQ Logistics"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "boston-logistics",
+            "email": "boston-logistics@mawg.cap.gov",
+            "description": `"Boston Squadron Logistics"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "bridgewater-logistics",
+            "email": "bridgewater-logistics@mawg.cap.gov",
+            "description": `"Bridgewater Squadron Logistics"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "goddard-logistics",
+            "email": "goddard-logistics@mawg.cap.gov",
+            "description": `"Goddard Squadron Logistics"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pierce-logistics",
+            "email": "pierce-logistics@mawg.cap.gov",
+            "description": `"Pierce Squadron  Logistics"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "westover-logistics",
+            "email": "westover-logistics@mawg.cap.gov",
+            "description": `"Westover Squadron Logistics"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": " beverly-logistics",
+            "email": "beverly-logistics@mawg.cap.gov",
+            "description": `"Beverly Squadron Logistics"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "worcester-logistics",
+            "email": "worcester-logistics@mawg.cap.gov",
+            "description": `"Worcester Cadet Squadron Logistics"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "hanscom-logistics",
+            "email": "hanscom-logistics@mawg.cap.gov",
+            "description": `"Hanscom Squadron Logistics"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "cp18-logistics",
+            "email": "cp18-logistics@mawg.cap.gov",
+            "description": `"CP18 Logistics"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "essex-logistics",
+            "email": "essex-logistics@mawg.cap.gov",
+            "description": `"Essex Composite Squadron Logistics"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pilgrim-logistics",
+            "email": "pilgrim-logistics@mawg.cap.gov",
+            "description": `"Pilgrim Squadron Logistics"`
+          }
+        },
+
+        //
+        // Mission staff
+        //
+        {
+          attributes :
+          {
+            "name": "all-missionstaff",
+            "email": "all-missionstaff@mawg.cap.gov",
+            "description": `"All mission staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "wing-missionstaff",
+            "email": "wing-missionstaff@mawg.cap.gov",
+            "description": `"MAWG HQ mission staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "boston-missionstaff",
+            "email": "boston-missionstaff@mawg.cap.gov",
+            "description": `"Boston Squadron mission staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "bridgewater-missionstaff",
+            "email": "bridgewater-missionstaff@mawg.cap.gov",
+            "description": `"Bridgewater Squadron mission staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "goddard-missionstaff",
+            "email": "goddard-missionstaff@mawg.cap.gov",
+            "description": `"Goddard Squadron mission staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pierce-missionstaff",
+            "email": "pierce-missionstaff@mawg.cap.gov",
+            "description": `"Pierce Squadron  mission staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "westover-missionstaff",
+            "email": "westover-missionstaff@mawg.cap.gov",
+            "description": `"Westover Squadron mission staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": " beverly-missionstaff",
+            "email": "beverly-missionstaff@mawg.cap.gov",
+            "description": `"Beverly Squadron mission staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "worcester-missionstaff",
+            "email": "worcester-missionstaff@mawg.cap.gov",
+            "description": `"Worcester Cadet Squadron mission staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "hanscom-missionstaff",
+            "email": "hanscom-missionstaff@mawg.cap.gov",
+            "description": `"Hanscom Squadron mission staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "cp18-missionstaff",
+            "email": "cp18-missionstaff@mawg.cap.gov",
+            "description": `"CP18 mission staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "essex-missionstaff",
+            "email": "essex-missionstaff@mawg.cap.gov",
+            "description": `"Essex Composite Squadron mission staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pilgrim-missionstaff",
+            "email": "pilgrim-missionstaff@mawg.cap.gov",
+            "description": `"Pilgrim Squadron mission staff"`
+          }
+        },
+
+        //
+        // Public affairs
+        //
+        {
+          attributes :
+          {
+            "name": "all-pa",
+            "email": "all-pa@mawg.cap.gov",
+            "description": `"All Public Affairs officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "wing-pa",
+            "email": "wing-pa@mawg.cap.gov",
+            "description": `"MAWG HQ Public Affairs officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "boston-pa",
+            "email": "boston-pa@mawg.cap.gov",
+            "description": `"Boston Squadron Public Affairs officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "bridgewater-pa",
+            "email": "bridgewater-pa@mawg.cap.gov",
+            "description": `"Bridgewater Squadron Public Affairs officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "goddard-pa",
+            "email": "goddard-pa@mawg.cap.gov",
+            "description": `"Goddard Squadron Public Affairs officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pierce-pa",
+            "email": "pierce-pa@mawg.cap.gov",
+            "description": `"Pierce Squadron  Public Affairs officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "westover-pa",
+            "email": "westover-pa@mawg.cap.gov",
+            "description": `"Westover Squadron Public Affairs officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": " beverly-pa",
+            "email": "beverly-pa@mawg.cap.gov",
+            "description": `"Beverly Squadron Public Affairs officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "worcester-pa",
+            "email": "worcester-pa@mawg.cap.gov",
+            "description": `"Worcester Cadet Squadron Public Affairs officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "hanscom-pa",
+            "email": "hanscom-pa@mawg.cap.gov",
+            "description": `"Hanscom Squadron Public Affairs officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "cp18-pa",
+            "email": "cp18-pa@mawg.cap.gov",
+            "description": `"CP18 Public Affairs officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "essex-pa",
+            "email": "essex-pa@mawg.cap.gov",
+            "description": `"Essex Composite Squadron Public Affairs officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pilgrim-pa",
+            "email": "pilgrim-pa@mawg.cap.gov",
+            "description": `"Pilgrim Squadron Public Affairs officers"`
+          }
+        },
+
+        //
+        // Pilots
+        //
+        {
+          attributes :
+          {
+            "name": "all-pilots",
+            "email": "all-pilots@mawg.cap.gov",
+            "description": `"All pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "wing-pilots",
+            "email": "wing-pilots@mawg.cap.gov",
+            "description": `"MAWG HQ pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "boston-pilots",
+            "email": "boston-pilots@mawg.cap.gov",
+            "description": `"Boston Squadron pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "bridgewater-pilots",
+            "email": "bridgewater-pilots@mawg.cap.gov",
+            "description": `"Bridgewater Squadron pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "goddard-pilots",
+            "email": "goddard-pilots@mawg.cap.gov",
+            "description": `"Goddard Squadron pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pierce-pilots",
+            "email": "pierce-pilots@mawg.cap.gov",
+            "description": `"Pierce Squadron  pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "westover-pilots",
+            "email": "westover-pilots@mawg.cap.gov",
+            "description": `"Westover Squadron pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": " beverly-pilots",
+            "email": "beverly-pilots@mawg.cap.gov",
+            "description": `"Beverly Squadron pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "worcester-pilots",
+            "email": "worcester-pilots@mawg.cap.gov",
+            "description": `"Worcester Cadet Squadron pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "hanscom-pilots",
+            "email": "hanscom-pilots@mawg.cap.gov",
+            "description": `"Hanscom Squadron pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "cp18-pilots",
+            "email": "cp18-pilots@mawg.cap.gov",
+            "description": `"CP18 pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "essex-pilots",
+            "email": "essex-pilots@mawg.cap.gov",
+            "description": `"Essex Composite Squadron pilots"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pilgrim-pilots",
+            "email": "pilgrim-pilots@mawg.cap.gov",
+            "description": `"Pilgrim Squadron pilots"`
+          }
+        },
+
+        //
+        // Safety officers
+        //
+        {
+          attributes :
+          {
+            "name": "all-safety",
+            "email": "all-safety@mawg.cap.gov",
+            "description": `"All Safety officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "wing-safety",
+            "email": "wing-safety@mawg.cap.gov",
+            "description": `"MAWG HQ Safety officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "boston-safety",
+            "email": "boston-safety@mawg.cap.gov",
+            "description": `"Boston Squadron Safety officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "bridgewater-safety",
+            "email": "bridgewater-safety@mawg.cap.gov",
+            "description": `"Bridgewater Squadron Safety officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "goddard-safety",
+            "email": "goddard-safety@mawg.cap.gov",
+            "description": `"Goddard Squadron Safety officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pierce-safety",
+            "email": "pierce-safety@mawg.cap.gov",
+            "description": `"Pierce Squadron  Safety officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "westover-safety",
+            "email": "westover-safety@mawg.cap.gov",
+            "description": `"Westover Squadron Safety officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": " beverly-safety",
+            "email": "beverly-safety@mawg.cap.gov",
+            "description": `"Beverly Squadron Safety officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "worcester-safety",
+            "email": "worcester-safety@mawg.cap.gov",
+            "description": `"Worcester Cadet Squadron Safety officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "hanscom-safety",
+            "email": "hanscom-safety@mawg.cap.gov",
+            "description": `"Hanscom Squadron Safety officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "cp18-safety",
+            "email": "cp18-safety@mawg.cap.gov",
+            "description": `"CP18 Safety officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "essex-safety",
+            "email": "essex-safety@mawg.cap.gov",
+            "description": `"Essex Composite Squadron Safety officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pilgrim-safety",
+            "email": "pilgrim-safety@mawg.cap.gov",
+            "description": `"Pilgrim Squadron Safety officers"`
+          }
+        },
       ];
 
 

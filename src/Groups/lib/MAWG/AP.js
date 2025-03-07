@@ -1,4 +1,4 @@
-// Airborn Photographers group
+// Airborne Photographers group
 
 // Load my super class definition
 import { Group } from '../Group.js';
