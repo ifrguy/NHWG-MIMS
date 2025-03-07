@@ -1,4 +1,4 @@
-// Incident Commander group
+// Mission Staff group
 
 // Load my super class definition
 import { Group } from '../Group.js';
@@ -20,9 +20,19 @@ function makePipeline(unit, domain, groupname)
             {
               "$in" :
               [
-                61,             // IC3
-                125,            // IC2
-                128             // IC1
+			    61,                 // IC3
+			    63,                 // OSC
+			    64,                 // PSC
+			    67,                 // AOBD
+			    68,                 // GBD
+			    72,                 // PIO
+			    75,                 // CUL
+			    76,                 // MRO
+			    77,                 // MSO
+			    78,                 // LO
+			    80,                 // MSA
+			    125,                // IC2
+			    128,                // IC1
               ]
             },
             "$or" :

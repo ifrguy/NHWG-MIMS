@@ -1,8 +1,4 @@
-// Seniors
-//
-// History:
-// 01Mar25 DJL Initial version, derived from NHWG classes
-//
+// Seniors group
 
 // Load my super class definition
 import { Group } from '../Group.js';

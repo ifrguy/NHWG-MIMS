@@ -1,4 +1,4 @@
-// Commanders and Deputies group
+// Logistics Officer group
 
 // Load my super class definition
 import { Group } from '../Group.js';
@@ -6,6 +6,7 @@ import { config } from "../../../getConfig.js";
 
 // Name of collection on which the aggregation pipeline beings search
 const pipeline_start = 'DutyPosition';
+
 
 // MongoDB aggregation pipeline to find potential group members
 function makePipeline(unit, domain, groupname)
@@ -15,7 +16,7 @@ function makePipeline(unit, domain, groupname)
         {
 	      $match:
           {
-            "Duty" : /^(commander|vice commander|deputy commander|chief of staff)/i, 
+            FunctArea : "LG"
 	      }
         }
       ];

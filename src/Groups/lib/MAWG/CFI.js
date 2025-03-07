@@ -1,4 +1,4 @@
-// Instructor Pilots
+// Instructor Pilots group
 
 // Load my super class definition
 import { Group } from '../Group.js';

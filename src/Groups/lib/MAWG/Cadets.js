@@ -1,8 +1,4 @@
-// Cadets
-//
-// History:
-// 02Mar25 DJL Initial version, derived from NHWG classes
-//
+// Cadets and DCCs group
 
 // Load my super class definition
 import { Group } from '../Group.js';

@@ -1,4 +1,4 @@
-// Incident Commander group
+// Pilot group
 
 // Load my super class definition
 import { Group } from '../Group.js';
@@ -16,24 +16,8 @@ function makePipeline(unit, domain, groupname)
         {
           "$match" :
           {
-            "AchvID" :
-            {
-              "$in" :
-              [
-                61,             // IC3
-                125,            // IC2
-                128             // IC1
-              ]
-            },
-            "$or" :
-            [
-              {
-                "Status" : "ACTIVE"
-              },
-              {
-                "Status" : "TRAINING"
-              }
-            ]
+            "AchvID" : 44,
+            "Status" : "ACTIVE"
           }
         },
         {

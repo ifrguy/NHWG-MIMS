@@ -1,4 +1,4 @@
-// Commanders and Deputies group
+// Public Affairs officer group
 
 // Load my super class definition
 import { Group } from '../Group.js';
@@ -15,7 +15,7 @@ function makePipeline(unit, domain, groupname)
         {
 	      $match:
           {
-            "Duty" : /^(commander|vice commander|deputy commander|chief of staff)/i, 
+            Duty : /safety/i,
 	      }
         }
       ];

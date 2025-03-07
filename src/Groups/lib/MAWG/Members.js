@@ -1,54 +1,40 @@
-// Commanders and Deputies group
+// Members group
 
 // Load my super class definition
 import { Group } from '../Group.js';
 import { config } from "../../../getConfig.js";
 
 // Name of collection on which the aggregation pipeline beings search
-const pipeline_start = 'DutyPosition';
+const pipeline_start = 'Member';
 
 // MongoDB aggregation pipeline to find potential group members
 function makePipeline(unit, domain, groupname)
 {
-  let pipeline =
-      [
-        {
-	      $match:
-          {
-            "Duty" : /^(commander|vice commander|deputy commander|chief of staff)/i, 
-	      }
-        }
-      ];
+  // MongoDB aggregation pipeline to find potential members
+  let pipeline;
 
-  // If we're given a unit, we need to join with Organization to get
-  // unit numbers from orgids, and then filter on the given unit
   if (unit)
   {
-    pipeline = pipeline.concat(
-      [
-        {
-          $lookup:
-          {
-            "from" : "Organization",
-            "localField" : "ORGID",
-            "foreignField" : "ORGID",
-            "as" : "organization"
-          }
-        },
-        {
-          $unwind:
-          {
-            "path" : "$organization",
-            "preserveNullAndEmptyArrays" : false
-          }
-        },
-        {
-          $match:
-          {
-            "organization.Unit" : unit
-          }
-        }
-      ]);
+    pipeline = [
+      {
+	    $match : {
+	      CAPID     : { $gte : 100000 },
+	      MbrStatus : "ACTIVE",
+          Unit      : unit
+	    }
+      }
+    ];
+  }
+  else
+  {
+    pipeline = [
+      {
+	    $match : {
+	      CAPID     : { $gte : 100000 },
+	      MbrStatus : "ACTIVE",
+	    }
+      }
+    ];
   }
 
   pipeline = pipeline.concat(
