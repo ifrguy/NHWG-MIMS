@@ -39,7 +39,7 @@ function makePipeline(unit, domain, groupname)
           "$match" :
           {
             "contact.Type" : "CADET PARENT EMAIL",
-            "contact.Priority" : "PRIMARY",
+            // "contact.Priority" : "PRIMARY",
 		    "contact.DoNotContact" : false,
           }
         },
