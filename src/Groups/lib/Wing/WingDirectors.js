@@ -12,7 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-// Group: nh-wing-directors@nhwg.cap.gov
+// Group: wing-directors
 // Purpose: Wing Directors, no assistants
 
 // History:
@@ -23,7 +23,7 @@
 load( './lib/Group.js');
 
 // base name of the group
-const group = 'nh-wing-directors';
+const group = 'wing-directors';
 
 // Name of collection on which the aggregation pipeline beings search
 const pipeline_start = 'DutyPosition';
@@ -36,7 +36,7 @@ const memberpipeline = [
     {
 	$match: {
 	    Duty:/director/i,
-	    Asst: 0,
+	    Asst: 0,  //comment out to include assistants
 	}
     },
 

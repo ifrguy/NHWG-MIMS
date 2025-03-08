@@ -12,7 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-// Group: safetyofficers@nhwg.cap.gov
+// Group: safetyofficers
 // Purpose: List of all safety officers and assistants across all units
 
 // History:
@@ -37,6 +37,7 @@ const memberpipeline = [
 	$match: {
 	    // enter query here
 	    Duty: /safety/i,
+//	    Asst: 0  //uncomment to exclude assistants
 	}
     },
 

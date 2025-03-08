@@ -12,7 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-// Group: nh-logistics@nhwg.cap.gov
+// Group: logistics
 // Purpose: Corral wing logistics officers into a group
 
 // History:
@@ -23,7 +23,7 @@
 load( './lib/Group.js');
 
 // base name of the Google group
-const group = 'nhwg-logistics';
+const group = 'logistics';
 
 // Name of collection on which the aggregation pipeline beings search
 const pipeline_start = 'DutyPosition';

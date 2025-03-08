@@ -12,20 +12,21 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-// Group: Public Affairs
-// Purpose: Update the list of Public Affairs Officers wing wide.
+
+// Group: Transportation Officers
+// Purpose: Collect all Transportation Officre's in the wing
 
 // At a minimum the memberpipeline (join) must emit the field "email" contain
 //the members email address.  Other fields are optional.
 
 // History:
-// 09Jan25 MEG Created
+// 12Jan25 MEG Created
 
 // Load my super class definition
 load( './lib/Group.js');
 
 // base name of the Google group
-const group = 'publicaffairs';
+const group = 'transportation';
 
 // Name of collection on which the aggregation pipeline beings search
 const pipeline_start = 'DutyPosition';
@@ -34,62 +35,62 @@ const pipeline_start = 'DutyPosition';
 // The pipeline must result in objects that contain a valid email address
 // for candidate members in the attribute named "email"
 const memberpipeline = [
-        {
-            "$match" : {
-                "Duty" : /Public Affairs/,
-                "Asst" : NumberInt(0) //comment out if you want to include assistants
-            }
-        }, 
-        {
-            "$lookup" : {
-                "from" : "Member",
-                "localField" : "CAPID",
-                "foreignField" : "CAPID",
-                "as" : "member"
-            }
-        }, 
-        {
-            "$unwind" : {
-                "path" : "$member"
-            }
-        }, 
-        {
-            "$match" : {
-                "member.MbrStatus" : "ACTIVE"
-            }
-        }, 
-        {
-            "$lookup" : {
-                "from" : "Google",
-                "localField" : "CAPID",
-                "foreignField" : "customSchemas.Member.CAPID",
-                "as" : "google"
-            }
-        }, 
-        {
-            "$unwind" : {
-                "path" : "$google"
-            }
-        }, 
-        {
-            "$match" : {
-                "google.suspended" : false,
-            }
-        }, 
-        {
-            "$project" : {
-                "CAPID" : NumberInt(1),
-                "Duty" : NumberInt(1),
-                "Level" : "$Lvl",
-                "Rank" : "$member.Rank",
-                "Name" : "$google.name.fullName",
-                "email" : "$google.primaryEmail",
-                "Unit" : "$member.Unit"
-            }
+    {
+        "$match" : {
+            "Duty" : /Transportation/,
+//            "Asst" : NumberInt(0) //uncomment to exclude assistants
         }
+    }, 
+    {
+        "$lookup" : {
+            "from" : "Member",
+            "localField" : "CAPID",
+            "foreignField" : "CAPID",
+            "as" : "member"
+        }
+    }, 
+    {
+        "$unwind" : {
+            "path" : "$member"
+        }
+    }, 
+    {
+        "$match" : {
+            "member.MbrStatus" : "ACTIVE"
+        }
+    }, 
+    {
+        "$lookup" : {
+            "from" : "Google",
+            "localField" : "CAPID",
+            "foreignField" : "customSchemas.Member.CAPID",
+            "as" : "google"
+        }
+    }, 
+    {
+        "$unwind" : {
+            "path" : "$google"
+        }
+    }, 
+    {
+        "$match" : {
+            "google.suspended" : false
+        }
+    }, 
+    {
+        "$project" : {
+            "CAPID" : NumberInt(1),
+            "Duty" : NumberInt(1),
+            "Level" : "$Lvl",
+            "Rank" : "$member.Rank",
+            "Name" : "$google.name.fullName",
+            "email" : "$google.primaryEmail",
+            "Unit" : "$member.Unit"
+        }
+    }
 ];
 
-class PublicAffairs extends Group {
+class Transportation extends Group {
     constructor( domain = wing_domain, groupname = group, pipeline = memberpipeline,
 	         start_agg = pipeline_start ) {
 	super( domain, groupname, pipeline, start_agg );
@@ -100,8 +101,10 @@ class PublicAffairs extends Group {
 
 // If we got here we must be in batch mode, so run the update.
 // Instantiate the group object to start everything
-let theGroup = new PublicAffairs();
+let theGroup = new Transportation();
 
 // if NOAUTORUNGROUP env var is set updateGroup() will simply return,
 // this will allow for manual debugging in a mongosh session.
 theGroup.updateGroup();
+
+

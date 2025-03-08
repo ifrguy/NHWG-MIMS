@@ -12,18 +12,18 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-// Group: itofficers@nhwg.cap.gov
-// Purpose: IT Officers and assistants
+
+// Group: opsofficers@nhwg.cap.gov
+// Purpose: List of all operations directors,  officers and assistants across all units
 
 // History:
-// 06Jul22 MEG Group leaf class includes mainline.
-// 29May22 MEG Created
+// 21Dec23 MEG Created
 
 // Load my super class definition
 load( './lib/Group.js');
 
 // base name of the group
-const group = 'itofficers';
+const group = 'opsofficers';
 
 // Name of collection on which the aggregation pipeline beings search
 const pipeline_start = 'DutyPosition';
@@ -35,52 +35,47 @@ const memberpipeline = [
     // Stage 1
     {
 	$match: {
-	    Duty : /(^information)|(director of it)/i,
-//	    Asst: 0  //uncomment to restrict to assistants
+	    // enter query here
+	    Duty: /operations/i,
+//	    Asst: 0  //uncomment to exclude assistants
 	}
     },
 
     // Stage 2
     {
-	$lookup: {
-	    "from" : "Google",
-	    "localField" : "CAPID", 
-	    "foreignField" : "customSchemas.Member.CAPID", 
-	    "as" : "google"
+	$lookup: // Equality Match
+	{
+	    from: "Google",
+	    localField: "CAPID",
+	    foreignField: "customSchemas.Member.CAPID",
+	    as: "google"
 	}
     },
 
-    // Stage 3
+    // Stage 3 - flatten the google array
     {
 	$unwind: {
-	    "path" : "$google", 
-	    "preserveNullAndEmptyArrays" : false
+	    path: "$google",
+	    preserveNullAndEmptyArrays: false, // optional
 	}
     },
 
     // Stage 4
     {
-	$match: {
-	    "google.suspended": false,
-	}
-    },
-
-    // Stage 5
-    {
 	$project: {
-	    "CAPID" : 1,
-	    "Name" : "$google.name.fullName", 
-	    "email" : "$google.primaryEmail",    
-	    "Duty" : 1, 
-	    "Asst" : 1,
-	    "Level" : "$Lvl", 
-	    "ORGID" : 1,
+	    // specifications
+	    CAPID:1,
+	    Asst: 1,
+	    Duty: 1,
+	    Name: "$google.name.fullName",
+	    email: "$google.primaryEmail",
+	    Unit: "$google.orgUnitPath",
 	}
     },
 ];
 
-// itofficers group
-class ITOfficers extends Group {
+// Operations Officers group
+class OpsOfficers extends Group {
     constructor( domain = wing_domain, groupname = group, pipeline = memberpipeline,
 	         start_agg = pipeline_start ) {
 	super( domain, groupname, pipeline, start_agg );
@@ -89,6 +84,7 @@ class ITOfficers extends Group {
 
 // Main
 
-let theGroup = new ITOfficers();
+let theGroup = new OpsOfficers();
 theGroup.updateGroup();
+
 

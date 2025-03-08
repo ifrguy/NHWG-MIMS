@@ -37,7 +37,7 @@ const memberpipeline = [
     { 
         "$match" : { 
             "Duty" : /^(Commander|vice commander|Deputy Commander|Chief of staff|Director of op|inspector general)/i, 
-            "Asst" : 0,
+            "Asst" : 0,  //comment out to include assistants
         }
     }, 
     { 
