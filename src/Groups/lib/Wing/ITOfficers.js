@@ -12,7 +12,8 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-// Group: itofficers@nhwg.cap.gov
+
+// Group: itofficers
 // Purpose: IT Officers and assistants
 
 // History:
@@ -36,7 +37,7 @@ const memberpipeline = [
     {
 	$match: {
 	    Duty : /(^information)|(director of it)/i,
-//	    Asst: 0  //uncomment to restrict to assistants
+//	    Asst: 0   //uncomment to include assistants
 	}
     },
 

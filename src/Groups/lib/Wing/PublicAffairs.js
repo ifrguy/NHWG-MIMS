@@ -12,6 +12,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+
 // Group: Public Affairs
 // Purpose: Update the list of Public Affairs Officers wing wide.
 
@@ -37,7 +38,7 @@ const memberpipeline = [
         {
             "$match" : {
                 "Duty" : /Public Affairs/,
-                "Asst" : NumberInt(0) //comment out if you want to include assistants
+                "Asst" : NumberInt(0)  //comment out to include assistants
             }
         }, 
         {
