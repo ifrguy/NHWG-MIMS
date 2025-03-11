@@ -1,16 +1,14 @@
 #!/bin/bash -eE
-# Download and install a specified version of GAM.
-# This script is intended to make it simple to keep GAM up-to-date.
-# GAM must have been previous installed and configured with project,
-# and serivice account.
+# Download and install a specified version of GAMADV-XTD3.
+# GAM must have been previous installed and configured with project.
 #
-## Copyright 2025 Marshall E. Giguere
+## Copyright 2020 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
 ##   You may obtain a copy of the License at
 ##
-##       https://www.apache.org/licenses/LICENSE-2.0
+##       http://www.apache.org/licenses/LICENSE-2.0
 ##
 ##   Unless required by applicable law or agreed to in writing, software
 ##   distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +17,7 @@
 ##   limitations under the License.
 
 # History:
+# 10Mar25 MEG $# = 0; print USAGE and exit with failure.
 # 27Apr22 MEG $ARCH now calls cmd arch to get system architecture.
 # 10Oct21 MEG -L takes precedence over specified version.
 # 14Jul21 MEG -L now checks for latest, installs if not up to date.
@@ -54,6 +53,11 @@ Download and install GAMADV-XTD3\n
 \tu - URL to GAMADVX repo ($GAMURL)\n
 Note: you must have privileges to copy to the install directory.\n
 \tuse setfacl to set acls for user. Example: setfacl -m u:user1:rwx /usr/local/bin\n"
+
+if [ $# = 0 ];then
+    echo -e $USAGE
+    exit 1
+fi
 
 while getopts $OPTS o; do
     case $o in
