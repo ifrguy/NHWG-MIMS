@@ -17,6 +17,7 @@
 ##   limitations under the License.
 
 # History:
+# 22Mar25 MEG Switched to GAM Team GAM7 from GAMADV-XTD3 repo.
 # 10Mar25 MEG $# = 0; print USAGE and exit with failure.
 # 27Apr22 MEG $ARCH now calls cmd arch to get system architecture.
 # 10Oct21 MEG -L takes precedence over specified version.
@@ -39,18 +40,19 @@ OPTS="Dd:i:l:Lh?u:"
 ARCH=$(arch)
 DLPATH=$HOME/downloads
 GLIBCVERSION=$(ldd --version|head -1|while read a b c d e;do echo $e;done)
-GAMURL="https://github.com/taers232c/GAMADV-XTD3/releases/download/v"
+#GAMURL="https://github.com/taers232c/GAMADV-XTD3/releases/download/v"
+GAMURL="https://github.com/GAM-team/GAM/releases/download/v"
 INSTALLDIR="/usr/local/bin"
 USAGE="Usage: $(basename $0) [$OPTS] [\"gam-version-number\"]\n
-Download and install GAMADV-XTD3\n
+Download and install GAM\n
 \tD - Download only, do not install\n
 \td - Download target path ($DLPATH)\n
 \ti - Installation target directory ($INSTALLDIR)\n
 \th|? - Help - this message\n
 
 \tl - Glibc version ($GLIBCVERSION)\n
-\tL - get GAMADV-XTD3 Latest version (takes precedence)\n
-\tu - URL to GAMADVX repo ($GAMURL)\n
+\tL - get GAM Latest version (takes precedence)\n
+\tu - URL to GAM repo ($GAMURL)\n
 Note: you must have privileges to copy to the install directory.\n
 \tuse setfacl to set acls for user. Example: setfacl -m u:user1:rwx /usr/local/bin\n"
 
@@ -128,7 +130,7 @@ tar Jxf $ARCHIVE
 
 # you must have access privilege to do the copy to system directories
 # See man setfacl
-cp $DLPATH/gamadv-xtd3/* $INSTALLDIR
+cp -pr $DLPATH/gam7/* $INSTALLDIR
 echo "Done."
 
 popd &>/dev/null
