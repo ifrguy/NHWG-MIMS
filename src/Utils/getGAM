@@ -90,7 +90,7 @@ else
     GAMVERSION=$1
 fi
 
-ARCHIVE="gamadv-xtd3-$GAMVERSION-linux-$ARCH-glibc$GLIBCVERSION.tar.xz"
+ARCHIVE="gam-$GAMVERSION-linux-$ARCH-glibc$GLIBCVERSION.tar.xz"
 
 if [ -v DEBUG ]; then
     echo ARCH: $ARCH
