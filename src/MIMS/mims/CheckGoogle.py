@@ -5,7 +5,7 @@
 ##   you may not use this file except in compliance with the License.
 ##   You may obtain a copy of the License at
 ##
-##       https://www.apache.org/licenses/LICENSE-2.0
+##       http://www.apache.org/licenses/LICENSE-2.0
 ##
 ##   Unless required by applicable law or agreed to in writing, software
 ##   distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,6 +14,7 @@
 ##   limitations under the License.
 
 # History:
+# 15May25 JCV Remove test for org = '000': it turns out we really do want to keep Google collection in sync with CAPWATCH even for '000' members
 # 10Dec23 MEG Module version
 # 28May17 MEG Original MIMS created.
 
@@ -104,12 +105,10 @@ class CheckGoogle ( Manager ):
         for m in result:
            # Act on those records for which the Member.Unit from Google does not equal the Unit from CAPWATCH:
            if ( m[ 'GUnit' ] != m[ 'CUnit' ] ):
-               # Ah, but only proceed for those members NOT in unit '000' (** do we want this? **)
-               if ( m[ 'CUnit' ] != '000' ):
-                   nOrgChanges += 1
-                   logging.info("The Unit is different for CAPID [%d] %s versus %s", m['Gid'], m['GUnit'], m['CUnit'])
-                   # Add gam update command to our list:
-                   gamCmdList.append('gam update user {} orgUnitPath \"{}\" Member.Unit \"{}\"'.format( m['primaryEmail'], orgUnitPath[ m[ 'CUnit' ] ], m[ 'CUnit' ]))
+               nOrgChanges += 1
+               logging.info("The Unit is different for CAPID [%d] %s versus %s", m['Gid'], m['GUnit'], m['CUnit'])
+               # Add gam update command to our list:
+               gamCmdList.append('gam update user {} orgUnitPath \"{}\" Member.Unit \"{}\"'.format( m['primaryEmail'], orgUnitPath[ m[ 'CUnit' ] ], m[ 'CUnit' ]))
 
            # Now look for differing Member Types:
            if ( m[ 'gType' ] != m[ 'mType' ] ):
