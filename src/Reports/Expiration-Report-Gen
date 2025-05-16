@@ -15,16 +15,22 @@
 #
 
 # Load config file
-CONF=./$(basename $0).conf
-if [ -f  $CONF ]; then
-    . $CONF
-else
-    echo "Error: missing configuration file: $CONF"
-    exit 1
-fi
+. ../getConfigValue
 
-# make sure we are standing in the working directory
-cd $WORKDIR
+# General configuration
+WING=$(getConfigValue "wing")
+DB=$(getConfigValue "mongoDb.db")
+MAILTO=$(getConfigValue "reports.Expiration.mailTo")
+MESSAGE=$(getConfigValue "reports.Expiration.emailTemplate")
+SHAREDDRIVE=$(getConfigValue "reports.Expiration.sharedDrive")
+DRIVEFOLDER=$(getConfigValue "reports.Expiration.driveFolder")
+
+# Report generator MongoDB login credentials
+USERID=$(getConfigValue "reporter.user" "credentials.json")
+PASSWD=$(getConfigValue "reporter.password" "credentials.json")
+
+# make sure we are in the proper working directory
+cd $(getConfigValue "mimsSourceTopDir")/Reports
 
 # File ID's. Contains the immuteable Google file id for each file uploaded,
 # keyed by the basename of the file from the $REPORTS list
@@ -36,7 +42,7 @@ OPTS="h?l:m:n"
 USAGE="Usage: $(basename $0) [$OPTS]\n
 \tCreate and mail member expiration reports\n
 \th|? - this help\n
-\tl - mailing list filename ($MAILINGLIST)\n
+\tl - mailing list filename ($MAILTO)\n
 \tm - new message or message file ($MESSAGE)\n
 \tn - No email - skip sending report to mailing list\n
 "
@@ -45,7 +51,7 @@ DATESTAMP=$(date +%Y%m%d)
 
 while getopts $OPTS o; do
     case $o in
-	l) MAILINGLIST=OPTARG;;
+	l) MAILTO=OPTARG;;
 	m) MESSAGE=OPTARG;;
 	n) NOEMAIL="true";;
 	h|?) echo -e $USAGE;exit 1;;
@@ -74,6 +80,6 @@ done
 
 echo "Sending reports."
 # Use GAM to email reports to commanders mailing list
-WING=$(getConfigValue("wing")
-gam sendemail file $MAILINGLIST subject "$WING:Monthly Expiration Reports" $MESSAGE replace expired ${FILEID[Expired]} replace 30Day ${FILEID[Expiring30Days]} replace 60Day ${FILEID[Expiring60Days]}
+WING=$(getConfigValue "wing")
+gam sendemail file $MAILTO subject "$WING:Monthly Expiration Reports" $MESSAGE replace expired ${FILEID[Expired]} replace 30Day ${FILEID[Expiring30Days]} replace 60Day ${FILEID[Expiring60Days]}
 echo Done.

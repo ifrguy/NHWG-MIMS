@@ -18,6 +18,7 @@
               ],
   "orgUnit":
   {
+    "000": "/000 - Unit Unassigned",
     "001": "/001 - Massachusetts Wing",
     "002": "/002 - Boston Cadet Squadron",
     "005": "/005 - Bridgewater State University Composite Squadron",
@@ -95,11 +96,12 @@
   "purgeAction": "delete",
 
   "$comment": "Whether to remove purged members from $WING.Google collection",
-  "deletePurged": true,
+  "deletePurged": false,
 
   "$comment": "Where to save output",
-  "logFilePath": "./log/",
-  "jobFilePath": "./job/",
+  "logFilePath": "/home/mims/work/MAWG/job/log/",
+  "jobFilePath": "/home/mims/work/MAWG/job/queue/",
+  "completedFilePath": "/home/mims/work/MAWG/job/completed/",
 
   "$comment": "Whether to update the user record in local MongoDB Google collection",
   "updateSuspend": false,
@@ -223,12 +225,6 @@
   ],
   "jobexec":
   {
-    "$comment": "Location of MIMS jobs",
-    "jobDir": "/home/mims/work/MAWG/job",
-
-    "$comment": "Location for jobexec to move finished jobs to",
-    "completedDir": "/home/mims/work/MAWG/job/completed",
-
     "$comment": "Recipient (address/mailing list) of jobexec reporting",
     "mailTo": "someone@example.com"
   },
@@ -449,5 +445,25 @@
     { "name" : "cp18-parents",        "file" : "MAWG/Parents.js", "unit" : "044" },
     { "name" : "essex-parents",       "file" : "MAWG/Parents.js", "unit" : "070" },
     { "name" : "pilgrim-parents",     "file" : "MAWG/Parents.js", "unit" : "071" }
-  ]
+  ],
+
+  "$comment": [
+    "***************",
+    "*** Reports ***",
+    "***************"
+  ],
+  "reports" :
+  {
+    "AEM" :
+    {
+      "mailTo" : "wing-ae@mawg.ap.gov"
+    },
+    "Expiration" :
+    {
+      "mailTo" : "all-cc@mawg.cap.gov",
+      "emailTemplate" : "./expiration-report-email-template.html",
+      "sharedDrive" : "Commanders",
+      "driveFolder" : "Expiration Reports"
+    }
+  }
 }

@@ -31,8 +31,7 @@ DATESTAMP=$(date +%Y%m%d)
 # Define message
 MESSAGE="Aerospace Education Members as of ${DATESTAMP}"
 
-#MAILINGLIST=wing-ae@mawg.cap.gov
-MAILINGLIST=derrell.lipman@mawg.cap.gov
+MAILTO=$(getConfigValue "reports.AEM.mailTo")
 
 
 # make sure we are in the proper working directory
@@ -44,13 +43,13 @@ OPTS="h?l:nN"
 USAGE="Usage: $(basename $0) [$OPTS]\n
 \tCreate and mail AEM report\n
 \th|? - this help\n
-\tl - mailing list ($MAILINGLIST)\n
+\tl - mailing list ($MAILTO)\n
 \tn - No post - do not upload sheet or send report to mailing list\n
 "
 
 while getopts $OPTS o; do
     case $o in
-	l) MAILINGLIST=OPTARG;;
+	l) MAILTO=OPTARG;;
 	n) NOPOST="true";;
 	h|?) echo -e $USAGE;exit 1;;
 	*) echo -e $USAGE;exit 1;;
@@ -67,8 +66,8 @@ mongosh --quiet -u $MONGOUID -p $MONGOPASS --authenticationDatabase $DB \
 [[ -v NOPOST ]] && exit 0
 
 if [ $( find ./$fn -type f -size +248c 2>/dev/null ) ]; then
-    echo "Sending email to $MAILINGLIST"
-    gam sendemail "$MAILINGLIST" \
+    echo "Sending email to $MAILTO"
+    gam sendemail "$MAILTO" \
         subject "$WING: AEM Report with nearest squadrons" \
         message "$MESSAGE" \
         attach $fn

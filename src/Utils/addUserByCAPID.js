@@ -90,8 +90,7 @@ async function main()
                 {
                   CAPID        : CAPID,
 	              Priority     : "PRIMARY",
-	              Type         : "EMAIL",
-	              DoNotContact : false
+	              Type         : "EMAIL"
                 }
               },
               {
@@ -120,8 +119,8 @@ async function main()
     }
 
     const member = Object.assign({}, memberContact.member);
-    member.NameFirst = member.NameFirst.replace(/ /g, "-");
-    member.NameLast = member.NameLast.replace(/ /g, "-");
+    member.NameFirst = member.NameFirst.trim().replace(/ /g, "-");
+    member.NameLast = member.NameLast.trim().replace(/ /g, "-");
 
     // Create the function for generating an email address, and then generate it.
     // We eliminoate all appostrophes spaces, and append the domain
@@ -153,6 +152,8 @@ async function main()
             `Member.Unit "${member.Unit}"`,
             `password uniquerandom`,
             `changepassword true`,
+            `recoveryemail "${notify || memberContact.Contact}"`,
+            `otheremail home "${notify || memberContact.Contact}"`,
             `notify "${notify || memberContact.Contact}"`,
             `subject "Welcome to your ${config.wing} account"`,
             `file ${config.mimsSourceTopDir}/${config.welcomeMessage}`,

@@ -57,7 +57,8 @@ function makePipeline(unit, domain, groupname)
         {
           "CAPID" : 1,
 	      "Name" : "$google.name.fullName",
-          "email" : "$google.primaryEmail"
+          "email" : "$google.primaryEmail",
+          "Unit" : "$google.customSchemas.Member.Unit"
         }
       }
     ]);

@@ -199,6 +199,7 @@ export class Group {
     Assert( email, this.name + ":cleanEmailAddress: invalid email" );
     let e = email.toLowerCase();
     e = e.replace( rex, "" );
+    e = e.replace( /''/g, "'" );
     return e;
   }
 
@@ -262,8 +263,13 @@ export class Group {
       // Print gam command to add new member
       if (! isAuth && ! groupMemberInfo) {
         DEBUG && console.log("Adding member", e);
-        print( "# Associated CAPID:", m.CAPID );
-        print("gam update group", this.myGroup, "add member", e );
+        let comment = [ "#", "CAPID:", m.CAPID ];
+        if (m.Unit) comment.push("Unit:", m.Unit);
+        if (m.Duty) comment.push("Duty:", m.Asst ? "Asst " + m.Duty : m.Duty);
+        if (m.Achv) comment.push("Achv:", m.Achv);
+        if (m.Status) comment.push("Status:", m.Status);
+        print( comment.join(" ") );
+        print("gam update group", this.myGroup, "add member", '"' + e + '"' );
         count++;
       }
 
@@ -271,11 +277,11 @@ export class Group {
       if ( isModerator ) {
         DEBUG && console.log("Adding moderator", e);
         print( `# Member ${m.email} (${m.CAPID}) is a moderator of group ${this.name}` );
-        print("gam update group", this.myGroup, "update manager", e );
+        print("gam update group", this.myGroup, "update manager", '"' + e + '"' );
       } else if ( ! isModerator && groupMemberInfo?.role == "MANAGER" ) {
         DEBUG && console.log("Removing moderator", e);
         print( `# Member ${m.email} (${m.CAPID}) is no longer a moderator of group ${this.name}` );
-        print("gam update group", this.myGroup, "update member", e );
+        print("gam update group", this.myGroup, "update member", '"' + e + '"' );
       }
     }
     print( "## Added:", count, "members." );
@@ -317,7 +323,7 @@ export class Group {
       }
       DEBUG && console.log("# DEBUG: Member to be removed:", e );
       print( '# INFO:Remove:', e );
-      print( 'gam update group', this.myGroup, 'delete member', e );
+      print( 'gam update group', this.myGroup, 'delete member', '"' + e + '"' );
       count++;
     }
     print( "## Removed:", count, "members." );

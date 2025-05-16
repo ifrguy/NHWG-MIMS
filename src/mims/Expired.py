@@ -106,5 +106,5 @@ class Expired( Manager ):
         if ( len( outputCmds) > 0 ):
             with open( self.outfileName, 'w' ) as outfile:
                 [ print( cmd, file = outfile ) for cmd in outputCmds ]
-        logging.info( "Accounts suspended: %d", len( outputCmds) )
+        logging.info( "Accounts suspended/deleted: %d", len( outputCmds) )
         return

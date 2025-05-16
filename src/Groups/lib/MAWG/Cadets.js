@@ -28,7 +28,7 @@ function makePipeline(unit, domain, groupname)
 	      }
         }
       ];
-  
+
   // If we're given a unit, we need to join with Organization to get
   // unit numbers from orgids, and then filter on the given unit
   if (unit)
@@ -59,22 +59,22 @@ function makePipeline(unit, domain, groupname)
         }
       ]);
   }
-  
+
   dccPipeline = dccPipeline.concat(
     [
       {
 	    $lookup:
         {
 	      "from" : "Google",
-	      "localField" : "CAPID", 
-	      "foreignField" : "customSchemas.Member.CAPID", 
+	      "localField" : "CAPID",
+	      "foreignField" : "customSchemas.Member.CAPID",
 	      "as" : "google"
 	    }
       },
       {
 	    $unwind:
         {
-	      "path" : "$google", 
+	      "path" : "$google",
 	      "preserveNullAndEmptyArrays" : false
 	    }
       },
@@ -89,12 +89,12 @@ function makePipeline(unit, domain, groupname)
         {
           "_id" : 0,
 	      "CAPID" : 1,
-	      "Name" : "$google.name.fullName", 
-	      "email" : "$google.primaryEmail",    
+	      "Name" : "$google.name.fullName",
+	      "email" : "$google.primaryEmail",
 	    }
       },
     ]);
-  
+
 
   //
   // Second, create the cadet pipeline
@@ -124,22 +124,22 @@ function makePipeline(unit, domain, groupname)
       }
     ];
   }
-  
+
   cadetPipeline = cadetPipeline.concat(
     [
       {
 	    $lookup:
         {
 	      "from" : "Google",
-	      "localField" : "CAPID", 
-	      "foreignField" : "customSchemas.Member.CAPID", 
+	      "localField" : "CAPID",
+	      "foreignField" : "customSchemas.Member.CAPID",
 	      "as" : "google"
 	    }
       },
       {
 	    $unwind:
         {
-	      "path" : "$google", 
+	      "path" : "$google",
 	      "preserveNullAndEmptyArrays" : false
 	    }
       },
@@ -154,8 +154,9 @@ function makePipeline(unit, domain, groupname)
         {
           "_id" : 0,
 	      "CAPID" : 1,
-	      "Name" : "$google.name.fullName", 
-	      "email" : "$google.primaryEmail",    
+	      "Name" : "$google.name.fullName",
+	      "email" : "$google.primaryEmail",
+          "Unit" : "$google.customSchemas.Member.Unit"
 	    }
       },
     ]);
@@ -183,7 +184,7 @@ export default class extends Group
   constructor(db, groupname, unit = "")
   {
     const pipeline = makePipeline(unit, config.domain, groupname);
-    
+
 	super( db, config.domain, groupname, pipeline, pipeline_start );
   }
 }

@@ -49,6 +49,7 @@ function makePipeline(unit, domain, groupname)
             "CAPID" : 1,
 		    "Name": { $concat: [ "$NameFirst", " ", "$NameLast" ]},
             "email" : "$contact.Contact",
+            "Unit" : "$Unit"
           }
         }
       ];

@@ -1,0 +1,16 @@
+#!/bin/bash -e
+
+. ../getConfigValue
+
+WING=$(getConfigValue "wing")
+WORKDIR=$HOME/work/$WING/Reports
+cd $WORKDIR
+
+# Report generator MongoDB login credentials
+CREDS=./reporter-creds
+. $CREDS
+
+# target database
+DB=$WING
+
+mongosh --quiet -u $USERID -p $PASSWD --authenticationDatabase $DB $DB MembersWithoutGoogleAccount.js

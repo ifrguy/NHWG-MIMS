@@ -129,6 +129,7 @@ const CONFIG_DEFAULT =
  */
 const groups =
       [
+/*
         //
         // Members
         //
@@ -1768,6 +1769,99 @@ const groups =
             "name": "pilgrim-safety",
             "email": "pilgrim-safety@mawg.cap.gov",
             "description": `"Pilgrim Squadron Safety officers"`
+          }
+        },
+*/
+
+        //
+        // Parents
+        //
+        {
+          attributes :
+          {
+            "name": "boston-parents",
+            "email": "boston-parents@mawg.cap.gov",
+            "description": `"Boston Squadron Parents officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "bridgewater-parents",
+            "email": "bridgewater-parents@mawg.cap.gov",
+            "description": `"Bridgewater Squadron Parents officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "goddard-parents",
+            "email": "goddard-parents@mawg.cap.gov",
+            "description": `"Goddard Squadron Parents officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pierce-parents",
+            "email": "pierce-parents@mawg.cap.gov",
+            "description": `"Pierce Squadron  Parents officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "westover-parents",
+            "email": "westover-parents@mawg.cap.gov",
+            "description": `"Westover Squadron Parents officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": " beverly-parents",
+            "email": "beverly-parents@mawg.cap.gov",
+            "description": `"Beverly Squadron Parents officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "worcester-parents",
+            "email": "worcester-parents@mawg.cap.gov",
+            "description": `"Worcester Cadet Squadron Parents officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "hanscom-parents",
+            "email": "hanscom-parents@mawg.cap.gov",
+            "description": `"Hanscom Squadron Parents officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "cp18-parents",
+            "email": "cp18-parents@mawg.cap.gov",
+            "description": `"CP18 Parents officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "essex-parents",
+            "email": "essex-parents@mawg.cap.gov",
+            "description": `"Essex Composite Squadron Parents officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pilgrim-parents",
+            "email": "pilgrim-parents@mawg.cap.gov",
+            "description": `"Pilgrim Squadron Parents officers"`
           }
         },
       ];

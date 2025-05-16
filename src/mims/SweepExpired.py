@@ -85,8 +85,8 @@ class SweepExpired( Manager ):
                 g = self.DB().Google.find_one(
                     { 'customSchemas.Member.CAPID' : member['CAPID'] } )
                 if ( g ):
-                    purgeList.append( 'gam delete user {}'.format(
-                        g['primaryEmail']))
+                    purgeList.append( 'gam delete user "{}"'.format(
+                        g['primaryEmail'].replace("''", "'")))
                     if ( DELETE_PURGED ):
                         self.DB().Google.delete_one( { '_id': g[ '_id' ] } )
                         logging.info( "Member: %d Purged from Google: %s",

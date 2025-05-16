@@ -53,7 +53,6 @@ function makePipeline(unit, domain, groupname)
             {
               "_id" : 0,
               "CAPID" : 1,
-              "MbrType" : "$Type",
               "email" : "$contacts.Contact",
               "Name" :
               {

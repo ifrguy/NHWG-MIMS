@@ -41,7 +41,7 @@
 . ./$(basename $0).conf
 
 # Default operation to use to import collection
-CALL=upsert
+CALL=drop
 
 # Download Google json
 D=NO

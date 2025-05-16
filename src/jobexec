@@ -43,13 +43,14 @@ if [ ! -d $JOBS ]; then
     exit 1
 fi
 
-# move to the jobs directory before further action
-cd $JOBS
-
 # Make sure completed job directory exists, if not create it
 if [ ! -d $COMPJOBS ]; then
-    /bin/mkdir -p $COMPJOBS
+    echo ERROR: completed jobs directory: $COMPJOBS not found.
+    exit 1
 fi
+
+# move to the jobs directory before further action
+cd $JOBS
 
 # Check to see if there are any jobs, if not bail
 /bin/ls *.job &>/dev/null || exit
@@ -57,18 +58,20 @@ fi
 echo Running jobexec $(date)|tee job-report.txt
 echo "GAM Run Log" > runlog
 # loop over job files in sort order, skip files ^HOLD-*
+
 for j in *.job; do
     # sweep job queue, remove job files with no executable gam commands
     if ! grep -q "^gam " $j; then
-	/bin/rm $j
-	continue
+        echo "Job: $j: no gam commands" | tee -a job-report.txt
+        /bin/mv $j $COMPJOBS
+	    continue
     fi
     echo $j|grep -qi '^hold-' && continue
     [ ! -f $j ] && continue
     echo "Job: " $j|tee -a job-report.txt
     l="${j%.*}".log
-    [ -f ../log/$l ] && tail -1 ../log/$l | tee -a job-report.txt
-        /usr/bin/tr -d '\r' <$j |gam batch - >>runlog
+    [ -f $LOGDIR/$l ] && tail -1 $LOGDIR/$l | tee -a job-report.txt
+    cat $j | sed '1,$s/^\(.*\)$/print \1\n\1/' | /usr/bin/tr -d '\r' | gam batch - >>runlog 2>&1
     /bin/mv $j $COMPJOBS
     if [ $? != "0" ]; then
 	echo "WARNING: Job: $j aborted with errors."|tee -a job-report.txt
