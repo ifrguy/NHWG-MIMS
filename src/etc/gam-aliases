@@ -1,0 +1,192 @@
+## Some useful bash command line functions for GAM for when
+## you need to do something quickly, but can't remember
+## the GAM syntax
+
+# META
+# list all gam functions
+function lsgam () {
+	 grep '^function' /home/meg/etc/gam-aliases
+}
+	
+########  GAM Functions ###############
+
+### DRIVES ###
+
+# Find acls for specific email account
+function findallacls () {
+	 gam redirect csv ./$1.csv all users show filelist query "'$1' in writers or '$1' in readers" id
+}
+	 
+# delete all acls for a specified user
+function delacls () {
+   gam all users show filelist query "'$1' in writers or '$1' in readers" id |gam csv - gam user "~Owner" delete drivefileacl ~id "$1";
+}
+
+# find a shared drive ID by drive name
+# Return ID of Google WorkSpace shared/team drive ID from name
+#function teamdriveid() {
+#	 echo $(gam redirect stderr /dev/null print teamdrive matchname "$1" fields id| \
+#	 tail +2|gawk -F\, '{print $2;}')
+# }
+
+# $1 is a Python pattern, you may get more than one drive ID back
+function teamdriveid() {
+	 echo $(IFS=\,;gam redirect stderr /dev/null print teamdrive matchname "$1" fields id| \
+	 tail +2|while read owner id drive ;do echo $id;done)
+ }
+# List all WorkSpace shared/team drives
+function allteamdrives () {
+	 gam print teamdrives fields name,id;
+}
+
+### GAM SHARED DRIVE ACL MANAGEMENT  ###
+
+# List teamdrive top-level ACLs
+
+function driveacls ()
+{
+   gam print drivefileacls teamdrive "$1" fields id,displayname,role,type  oneitemperrow
+}
+
+function gamAddOrganizer () {
+if (( $# < 2 )); then
+        echo -e "USAGE: ${FUNCNAME[0]} <shared drive name>  <user>\n";
+        return 1;
+fi
+    gam add drivefileacls teamdrive "$1" user $2 role organizer
+}
+
+function gamRmOrganizer () { 
+if (( $# < 2 )); then
+        echo -e "USAGE: ${FUNCNAME[0]} <shared drive name>  <user>\n";
+        return 1;
+fi
+    gam delete drivefileacls teamdrive "$1" $2
+}
+
+function gamUpdateDriveACL (){
+if (( $# < 3 )); then
+        echo -e "USAGE: ${FUNCNAME[0]} <shared drive name> <user> <role>\n
+	Change a users drive role"
+        return 1;
+fi
+# $1 drive name string; $2 user emailaddress; $3 permission
+   gam delete drivefileacls teamdrive "$1" $2
+   gam add drivefileacls teamdrive  "$1" user $2 role $3
+}
+
+### CALENDARS ###
+
+function getCalIds () {
+    if (( $# = 0 )); then
+        echo -e "USAGE: ${FUNCNAME[0]} <userEmail>\n"
+        return 1;
+fi
+	 gam config csv_output_quote_char '"' user $1 print calendars|gawk -F\, '{print $2;}';
+}
+
+### GROUP ALIASES ###
+
+# print list of groups for a member
+function gamUserGroups () {
+if (( $# < 1 )); then
+   echo -e "USAGE: ${FUNCNAME[0]} <userEmail>\n
+   Print all groups for a user\n";
+   return 1;
+fi
+gam redirect stderr /dev/null print groups member $1
+}
+
+# print list of all members in group
+alias gammembers='gam redirect stderr /dev/null print group-members fields email group'
+# Add a user to a group(s) quoted comma separated group list
+function gamAddUserToGroups () {
+if (( $# < 2 )); then
+        echo -e "USAGE: ${FUNCNAME[0]} <userEmail>  group|\"group,..\"\n
+	Add a user to a group or groups"
+        return 1;
+fi
+	 gam user $1 add groups member "$2"
+}
+# print a users aliases
+function memberaliases () {
+	 gam user $1 print fields aliases
+}
+alias dumpmembers='gam info users all users &>/dev/null'
+
+# rename user account
+function gamrenameuser () {
+	 gam user update $1 email $2
+}
+
+# add member to group
+function gamaddtogroup () {
+	 gam update group $1 add member $2
+}
+
+# delete member from group
+function gamRmFromGroup () {
+if (( $# < 2 )); then
+   echo -e "USAGE: ${FUNCNAME[0]} <group> <userEmail>\n
+   Remove a user from a group\n";
+   return 1;
+fi
+	 gam update group $1 add member $2
+}
+
+
+### USERS ###
+
+# reset a user password, require change at login
+
+function gamChangePassword () {
+if (( $# < 2 )); then
+   echo -e "USAGE: ${FUNCNAME[0]} <userEmail> "<new password>"\n
+   Change a users password. Requires user to create new password at login\n";
+   return 1;
+fi
+    gam update user $1 password "$2" changepassword true;
+}
+
+# get quota usage for a single user
+
+function getUserQuota () {
+if (( $# < 1 )); then
+   echo -e "USAGE: ${FUNCNAME[0]} <userEmail>\n
+   Print a users quota\n";
+   return 1;
+fi
+    gam report users user $1 fulldatarequired all fields "accounts:used_quota_in_mb,accounts:drive_used_quota_in_mb,accounts:gmail_used_quota_in_mb,accounts:gplus_photos_used_quota_in_mb"
+}
+
+# get the quota usage for all users
+
+function gamAllUsersQuota () {
+    gam report users fulldatarequired all fields "accounts:used_quota_in_mb,accounts:drive_used_quota_in_mb,accounts:gmail_used_quota_in_mb,accounts:gplus_photos_used_quota_in_mb"
+}
+
+## show a message from Google workspace
+function gamShowMessage ()
+{ 
+    if (( $# < 2 )); then
+        echo -e "USAGE: ${FUNCNAME[0]} <userEmail>  <RFC822 MessageID>\n";
+        return 1;
+fi
+	gam user $1 show messages query "rfc822msgid:$2" showbody showattachments includespamtrash;
+}
+
+### Files ###
+
+# Download a file with conversion type
+
+function gamDownloadFile () 
+{ 
+    if (( $# < 4 )); then
+        echo -e "USAGE: ${FUNCNAME[0]} <userEntity> drivefilename \"<filename>\"|id <fileID> <local file path> <convert_to_type>\n
+	Download a file from a drive\n
+	\tconvert_to_type - csv|doc|docx|epub|html|jpeg|odp|ods|odt|pdf|png|ppt|pptx|rtf|svg|tsv|xls|xlsx";
+        return 1;
+    fi;
+    gam user $1 get drivefile $2 "$3" targetname "$4" format $5
+}
+

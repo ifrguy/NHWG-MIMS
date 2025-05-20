@@ -1,0 +1,161 @@
+#!/bin/bash -e
+## Copyright 2025 Marshall E. Giguere
+##
+##   Licensed under the Apache License, Version 2.0 (the "License");
+##   you may not use this file except in compliance with the License.
+##   You may obtain a copy of the License at
+##
+##       https://www.apache.org/licenses/LICENSE-2.0
+##
+##   Unless required by applicable law or agreed to in writing, software
+##   distributed under the License is distributed on an "AS IS" BASIS,
+##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+##   See the License for the specific language governing permissions and
+##   limitations under the License.
+
+
+# Create the standard directory hierarchy for a squadron shared drive or drives
+# Writes to STDOUT.
+# Shared drive must exist prior to running this script.
+# DRIVE_ORAGIZER must be set to the email of a user with organizer
+# privileges on each shared drive.  I usually just add myself as an organizer
+# to all Workspace shared drives, or our IT role user.
+
+# History:
+# 27Jun24 MEG Skip non-existent drive.
+# 23Jun24 MEG Created.
+
+OPTS="o:h?"
+
+# Authorized drive manager, must be organizer on all drives in ${DRIVES}
+DRIVE_ORGANIZER="<Shared Drive Organizer emailaddress here>"
+
+USAGE="$basename $0 [$OPTS] shared_drive [shared_drive]...>outputfile\n
+\t Create the standard squadron folder hierarchy, drive must exist\n
+\t share_drive - the name of the drive\n
+\t o - drive organizer email ($DRIVE_ORGANIZER)\n
+\t h|? this help message\n"
+
+if [ $# -lt 1 ]; then
+    echo -e $USAGE
+    exit 1
+fi    
+
+# Process options
+while getopts $OPTS o; do
+    case $o in
+	o) DRIVER_ORGANIZER=$OPTARG;;
+	h|?) echo -e $USAGE;exit 1;;
+	*) echo -e $USAGE;exit 1;;
+    esac
+done
+shift $(( $OPTIND - 1 ))
+
+# Squadron shared drive(s) to create folder hierarchies on from command line.
+DRIVES=( $@ )
+
+# Full folder hierarchy
+# All top level folders must come at the beginning of the create process
+# due to temporal issues on Google with the time between create is called
+# and when the Google storage manager acutally creates the requested director.
+# The create API returns an ID, but it may still be sitting in the storage
+# managers queue waiting to actually be instantiated.
+
+# Test folder set
+#DRIVE_FOLDERS=( '/A1 - Aerospace Education' '/B1 - Cadet Programs' '/D1 - Professional Development' '/D3 - Finance' '/D4 - Administration' '/D5 - Personnel' '/D6 - Public Affairs' '/D7 - Supply' '/D8 - Transportation' '/E1 - Commander' '/E2 - Safety' )
+
+DRIVE_FOLDERS=( 
+'/A1 - Aerospace Education'
+'/B1 - Cadet Programs'
+'/D1 - Professional Development'
+'/D3 - Finance'
+'/D4 - Administration'
+'/D5 - Personnel'
+'/D6 - Public Affairs'
+'/D7 - Supply'
+'/D8 - Transportation'
+'/E1 - Commander'
+'/E2 - Safety'
+'/A1 - Aerospace Education/AE Activity Reports'
+'/A1 - Aerospace Education/AE POAs'
+'/A1 - Aerospace Education/RC Training'
+'/A1 - Aerospace Education/Rocket Badge'
+'/B1 - Cadet Programs/Cadet Great Start'
+'/B1 - Cadet Programs/Evaluations'
+'/B1 - Cadet Programs/Goals Tracking'
+'/B1 - Cadet Programs/Org Chart'
+'/B1 - Cadet Programs/Other'
+'/B1 - Cadet Programs/SUI Reports'
+'/B1 - Cadet Programs/Schedules'
+'/B1 - Cadet Programs/Squadron Activities'
+'/D3 - Finance/Budget Reports (T6 R5)'
+'/D3 - Finance/Chart(s) of Accounts'
+'/D3 - Finance/Check Requests & Receipts_NHWF 173-A/173-1C (T6 R3)'
+'/D3 - Finance/Check Requests & Receipts_NHWF 173-A/173-1C (T6 R3)/CR&R - Working Docs'
+'/D3 - Finance/Checking & Credit Card Account Reports (T6 R7)'
+'/D3 - Finance/Contracts & Related Documents'
+'/D3 - Finance/Credit Card Transmittals & Receipts_NHWF 173-D/173-1D (T6 R3)'
+'/D3 - Finance/Credit Card Transmittals & Receipts_NHWF 173-D/173-1D (T6 R3)/CCT&R - FY2022/Other Vendors'
+'/D3 - Finance/Credit Card Transmittals & Receipts_NHWF 173-D/173-1D (T6 R3)/CCT&R - Working Docs'
+'/D3 - Finance/Deposits_NHWF 173-1B (T6 R3)'
+'/D3 - Finance/Deposits_NHWF 173-1B (T6 R3)/D - Working Docs'
+'/D3 - Finance/Finance Authorizations_CAPF 172 (T6 R9)'
+'/D3 - Finance/Finance Authorizations_CAPF 172 (T6 R9)/FA - Working Docs'
+'/D3 - Finance/Finance Committee Meeting Agenda/Minutes (T6 R3)'
+'/D3 - Finance/Finance Committee Meeting Agenda/Minutes (T6 R3)/FCMA/M - Working Docs'
+'/D3 - Finance/Forms'
+'/D3 - Finance/Forms/Corporate & Other Forms'
+'/D3 - Finance/Forms/Wing Forms'
+'/D3 - Finance/Fundraising Records_NHWF 173-4A&4B (T6 R3)'
+'/D3 - Finance/Fundraising Records_NHWF 173-4A&4B (T6 R3)/FR - Working Docs'
+'/D3 - Finance/Other Financial Reports (T6 R9)'
+'/D3 - Finance/Other Financial Reports (T6 R9)/OFR - Working Docs'
+'/D3 - Finance/Regulations & Instructions/Procedures'
+'/D3 - Finance/Regulations & Instructions/Procedures/Instructions/Procedures/Corporate Finance Instructions/Procedures'
+'/D3 - Finance/Regulations & Instructions/Procedures/Instructions/Procedures/Wing/Squadron Specific Instructions/Procedures'
+'/D3 - Finance/Regulations & Instructions/Procedures/Regulations'
+'/D3 - Finance/Regulations & Instructions/Procedures/Regulations/Corporate Finance Regulations'
+'/D3 - Finance/Regulations & Instructions/Procedures/Regulations/Wing Finance Supplements'
+'/D3 - Finance/Regulations & Instructions/Procedures/Regulations/Wing Finance Supplements/WFS-Prior Years'
+'/D3 - Finance/Sub-Unit Inspection Documents (T6 R4)'
+'/D3 - Finance/Travel & Expense Reports_NHWF 173-1A (T6 R3)'
+'/D3 - Finance/Travel & Expense Reports_NHWF 173-1A (T6 R3)/T&ER - Working Docs'
+'/D4 - Administration/Schedules and  Hand Books'
+'/D4 - Administration/Seniors Training'
+'/D4 - Administration/Squaron Org Charts'
+'/D5 - Personnel/Personnel Misc/Transferred T11'
+'/D5 - Personnel/Active Members'
+'/D5 - Personnel/Active Members/Cadets'
+'/D5 - Personnel/Active Members/Patrons'
+'/D5 - Personnel/Active Members/Seniors'
+'/D5 - Personnel/Inactive Members'
+'/D5 - Personnel/Personnel Misc'
+'/D6 - Public Affairs/Back up EMAIL Squadron Commander'
+'/D6 - Public Affairs/Newsletters'
+'/D7 - Supply/Property Tag Photos'
+'/E1 - Commander/Member suspension paperwork (if applicable)'
+'/E1 - Commander/Proof of Non-Discrimination annual briefing (roster or sign in sheet or copy of e-mail sent to membership)'
+'/E1 - Commander/Rosters for all cadet activities for the past year'
+'/E1 - Commander/Signed fundraising approval forms'
+)
+
+#echo ${DRIVES[@]}
+#echo ${#DRIVES[@]}
+#echo ${#DRIVE_FOLDERS[@]}
+
+for d in ${DRIVES[@]}; do
+    if ! gam info teamdrive teamdrive:$d asadmin &>/dev/null; then
+	echo "Drive: $d not found, skipping."
+	continue
+    fi
+     l=${#DRIVE_FOLDERS[@]}
+    i=0
+#    echo "Drive: $d"
+    while (( $i < $l )); do
+#	echo i: $i Full path: "SharedDrives/$d"\'${DRIVE_FOLDERS[$i]}\'
+	#create folder hierarchy on squadron's drive
+	echo "gam user $DRIVE_ORGANIZER create drivefolderpath fullpath \"SharedDrives/$d${DRIVE_FOLDERS[$i]}\""
+	echo "sleep 5"
+	i=$(( $i + 1 ))
+    done
+done

@@ -35,18 +35,36 @@ like.  MIMS can be run on either a local dedicated server or a cloud
 instance.  I personally use a Linux cloud instance reachable only via
 a secure and encrypted connection.
 
+The design of the MIMS processing environment is minimal in terms of
+additional requirements. It is deliberately implemented without the
+necessity to hunt down and install lots of additional development
+packages or environments.  Everything is programmed as close to the
+operating system and environment as possbile to achieve that goal, so
+you will find everthing MIMS does is composed of MonogDB JS code,
+using Mongo shell (mongosh), mediated and managed by bash shell
+scripts, and member management is housed in a single Python
+application. Finally using shell scripts that are runnable directly
+was purposeful in allowing recovery from failed tasks and operations.
+
+You may consider MIMS as a demonstration of how to manage your Google
+Workspace users and other tasks.  Use it out of the box, just add some
+upfront work to understand it, and get it up and running.  Or, you may
+think of it as an inspirational guide to dive into the challenges of
+automating your day-to-day Workspace management tasks.  Either way is
+fine.  The hours developing MIMS were spent in order to save hours of
+tedious labor keeping our Workspace up to date and running smoothly.
+I have not regretted it.  "Share and enjoy."
+
 #### Note: ####
 
 MongoDB JS scripts have been updated to work with the newer Mongo
 Shell (mongosh) 1.5>
 
 #### Requirements:
-* O/S: Linux, Windows 10>*
+* O/S: Linux (if you choose to use Windows I suggest installing cygwin)
 * Python 3.5>
-* [GAMADV-XTD3](https://github.com/taers232c/GAMADV-XTD3) Ross Scroggs
-  excellent fork of the original [GAM](https://github.com/jay0lee/GAM)
-  tool by Jay Lee.
-* [MongoDB](https://www.mongodb.com/download-center#community) document database manager 4.2>
+* [GAM7](https://github.com/GAM-team/GAM)
+* [MongoDB](https://www.mongodb.com/download-center#community) document database manager 5.0>
 * Mongo Shell (mongosh) 1.5>
 * Google Workspace admin account.
 

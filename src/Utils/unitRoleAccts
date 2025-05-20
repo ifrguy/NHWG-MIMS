@@ -1,0 +1,45 @@
+#!/bin/bash -e
+## Copyright 2025 Marshall E. Giguere
+##
+##   Licensed under the Apache License, Version 2.0 (the "License");
+##   you may not use this file except in compliance with the License.
+##   You may obtain a copy of the License at
+##
+##       https://www.apache.org/licenses/LICENSE-2.0
+##
+##   Unless required by applicable law or agreed to in writing, software
+##   distributed under the License is distributed on an "AS IS" BASIS,
+##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+##   See the License for the specific language governing permissions and
+##   limitations under the License.
+
+# This script will create the basic unit role accounts for each 
+# 
+# 
+# Unit email addresses are assigned by subdomain.  Each unit has
+# a subdomain under the Wing domain.  Subdomain names are the three
+# digit charter number for each unit, e.g. "010"
+
+# Units needing role based accounts
+# List of unit charter numbers as strings
+UNITS=("010" "014" "023" "032" "037" "054")
+
+# Accounts to create
+ACCTS=("commander" "deputy-commander" "deputy-commander-cadets" "it")
+
+# Workspace org unit paths
+# For each unit there must be a Workspace organization unit, declare
+# the org unit path in this array indexed by the unit charter number.
+# You must create your Workspace organization hierarchy before hand.
+declare -A ORGUNIT
+ORGUNIT[000]="/000 - Patrons and Inactive Members"
+ORGUNIT[001]="/001 - Wing"
+# ... as needed
+ORGUNIT[999]="/999 - State Legislators"
+
+for u in ${UNITS[@]};do
+    echo "# Unit: $u"
+    for a in ${ACCTS[@]};do
+    	echo "gam create user $a@$u.nhwg.cap.gov ou \"${ORGUNIT[$u]}\" Member.Unit "$u" Member.Type "ROLE" "
+    done
+done

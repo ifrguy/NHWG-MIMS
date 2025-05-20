@@ -1,0 +1,77 @@
+#!/bin/bash -eE
+## Copyright 2025 Marshall E. Giguere
+##
+##   Licensed under the Apache License, Version 2.0 (the "License");
+##   you may not use this file except in compliance with the License.
+##   You may obtain a copy of the License at
+##
+##       https://www.apache.org/licenses/LICENSE-2.0
+##
+##   Unless required by applicable law or agreed to in writing, software
+##   distributed under the License is distributed on an "AS IS" BASIS,
+##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+##   See the License for the specific language governing permissions and
+##   limitations under the License.
+
+
+# Runs through a list of groups I allow people to "unsubscribe"
+# from but since groups are automatically update from eServices
+# regularly and I don't keep track of unsubscribers in the database
+# members can't really unsubscribe.
+# As a workaround set memebers delivery status to "No email", this
+# will stop the complaints and resolve itself when those members
+# leave the organization.
+#
+
+# History:
+# 05Aug24 MEG Created.
+
+# Reads the groups to be scanned from a CSV file, reads output CSV file
+# and updates the group members delivery option to "No email"
+
+# Default input CSV file to read the group email addresses from
+# The column MUST be NAMED "group", each following row is the
+# email address of the target group.
+#
+# Example CSV file:
+# group
+# group1@example.com
+# group2@example.com
+# group3@example.com
+# ...
+
+# Default csv input for groups to look at
+INPUT_CSV_FILE="./groupsToScanForUnsubscribeEvents.csv"
+
+# Default time period (d)ays/(w)eeks/(m)onths from today to look back
+# for unsubscribe events
+LOOKBACK_PERIOD=7d  #7 days
+
+OPTS='h?I:'
+
+USAGE="Usage: $(basename $0) [$OPTS] <lookback>\n
+Scan the permitted groups for unsubscribe events, then set member delivery to No Email\n
+\t <lookback> n(d)ays|(w)eeks|(m)onths (Default: $LOOKBACK_PERIOD)\n
+\t NOTE: Google event logging only goes back 180 days.\n
+\t\tExample: look back 30 days: 30d\n
+\t I - input CSV with groups to query ($INPUT_CSV_FILE)\n
+\t h? - this message.\n"
+
+while getopts $OPTS o; do
+    case $o in
+	I) INPUT_CSV_FILE=$OPTARG;;
+	h|?) echo -e $USAGE;exit 1;;
+	*) echo -e $USAGE;exit 1;;
+    esac
+done
+shift $(( $OPTIND - 1 ))
+
+# Search the permitted groups for unsubscribe events
+# PLEASE NOTE: the redirect of stderr to /dev/null at the end
+# is necessary because gam will insist on showing progress no matter how
+# you tell it not to.  According to the author it's "a feature", so you will
+# be able to tell if a very long running task is still actually running.
+gam config show_gettings false csv_output_header_filter name,actor.callerType,actor.email,group_email,id.time csv_output_row_filter "name:text=unsubscribe_via_mail id.time:date>-$LOOKBACK_PERIOD" redirect csv ./groups_unsubscribe_events.csv multiprocess csv $INPUT_CSV_FILE gam report groups filter "group_email==~~group~~" &>/dev/null
+
+# Update group members selected to "No Email" delivery option
+gam csv ./groups_unsubscribe_events.csv gam update group "~group_email" update member delivery nomail "~actor.email"

@@ -1,9 +1,27 @@
-#!/bin/bash -e
-# Quick & Dirty build a Google G-Suite wing account
-# Outputs a the appropriate gam command to create an account
+#!/bin/bash
+## Copyright 2025 Marshall E. Giguere
+##
+##   Licensed under the Apache License, Version 2.0 (the "License");
+##   you may not use this file except in compliance with the License.
+##   You may obtain a copy of the License at
+##
+##       https://www.apache.org/licenses/LICENSE-2.0
+##
+##   Unless required by applicable law or agreed to in writing, software
+##   distributed under the License is distributed on an "AS IS" BASIS,
+##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+##   See the License for the specific language governing permissions and
+##   limitations under the License.
+
+
+# Quick & Dirty build a Google Workspace wing account
+# Outputs an appropriate gam command to create an account
 
 # History:
+# 06Apr25 MEG Member Type can now be a quoted string, e.g. "CADET SPONSOR"
 # 07Dec24 DJL Consolidate configuration files for single point changes.
+# 15Mar23 MEG Add new unit 023
+# 25Jul22 MEG Checks for duplicate account name.
 # 10Mar21 MEG Fixed gam create syntax error.
 # 05Sep20 MEG Removed Google schema, replaced with custom schema values
 # 17Aug19 MEG Included custom schema att's.
@@ -15,7 +33,7 @@
 # $3 - first name
 # $4 - last name
 # $5 - Unit number 
-# $6 - Member Type: CADET|SENIOR
+# $6 - Member Type: CADET|SENIOR|"<string>"
 # $7 - Password
 # $8 - Notification email address
 # OUTPUT: appropriate gam command to create an account
@@ -31,26 +49,28 @@ DOMAIN=$(getConfigValue "domain")
 # Help message
 USAGE="Usage: $(basename $0) args\n
 Build a gam command to create a Google account\n
----You must have gamadv-xtd installed and have a Google application key---\n
-WARNING: $0 does NOT check for duplicate account names.\n
+---You must have GAMADV-XTD installed and have a Google application key---\n
 \tARGS:\n
 \t\$1 - new account base name\n
 \t\$2 - CAPID\n
 \t\$3 - First name\n
 \t\$4 - Last name \"last name\"\n
 \t\$5 - Unit number: 000-999\n
-\t\$6 - Member Type: CADET|SENIOR\n
+\t\$6 - Member Type: CADET|SENIOR|\"<string>\"\n
 \t\$7 - Password\n
 \t\$8 - Notification email address\n"
 
-
 if (( $# < 8 )); then
     echo -e $USAGE
+    echo "Units: " ${ORGUNIT[@]}
     exit 1
 fi
 
-echo "WARNING: $(basename $0) does NOT check for account name collisions!"
-echo "Be absolutely sure the account name is unique to $DOMAIN before executing"
-echo "(Doh! This is a bit late to be telling you to be absolutely sure...)"
-ORGUNIT=$(getConfigValue "orgUnit.$5")
-gam create user $1@$DOMAIN givenname "\"$3"\" familyname \""$4"\" orgunitpath "${ORGUNIT}" Member.CAPID $2 Member.Type $6 Member.Unit $5 password $7 changepassword true notify "$8" subject "\"Welcome to your NH Wing account\"" file $EMAIL_TEMPLATE html true
+# check for duplicate account
+gam info user $1@$DOMAIN >/dev/null &>/dev/null
+if [[ $? = 0 ]]; then
+    echo "ERROR:Duplicate account: $1"
+    exit 1
+fi    
+
+/usr/local/bin/gam create user $1@$DOMAIN givenname "$3" familyname "$4" orgunitpath "${ORGUNIT[$5]}" Member.CAPID $2 Member.Type "$6" Member.Unit $5 password $7 changepassword true notify "$8" subject "Welcome to your NH Wing account" file $EMAIL_TEMPLATE html true

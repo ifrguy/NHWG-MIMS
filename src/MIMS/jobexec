@@ -1,0 +1,98 @@
+#!/bin/bash
+## Copyright 2025 Marshall E. Giguere
+##
+##   Licensed under the Apache License, Version 2.0 (the "License");
+##   you may not use this file except in compliance with the License.
+##   You may obtain a copy of the License at
+##
+##       https://www.apache.org/licenses/LICENSE-2.0
+##
+##   Unless required by applicable law or agreed to in writing, software
+##   distributed under the License is distributed on an "AS IS" BASIS,
+##   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+##   See the License for the specific language governing permissions and
+##   limitations under the License.
+
+
+# jobexec is designed to be run as a cron job, when awakened it
+# scans the JOBS directory for .job files.  The jobs are executed in sort
+# order, successfully completed job files are move to the completed
+# directory.  Job files that begin with "HOLD-" | "hold-"  are skipped. Jobs
+# that run with errors are moved from the queue to completed and errors
+# are reported, this is to prevent unintended re-runs.
+#
+# History:
+# 04Apr23 MEG Exit if no jobs found.
+# 09Mar23 MEG jobexec now deletes job files that contain no gam actions.
+# 02Jan22 MEG If job aborts continue, report and skip to next job.
+# 10Oct20 MEG Moved reporting mailing list to conf file
+# 28Apr18 MEG bash replaced with gam batch to execute jobs.
+# 13Mar18 MEG Skip missing job or log files.
+# 05Feb18 MEG print tail of log file as report.
+# 02Sep17 MEG Jobs that have errors now sent to "completed" regardless.
+# 07Jul17 MEG Created.
+#
+
+# Location of config file
+
+CONF=./jobexec.conf
+
+# check for config file, source configuration if it exists
+if [ ! -f $CONF ]; then
+    echo $(basename $0)": Missing config file: $CONF"
+    exit 1
+fi
+# source config
+. $CONF
+
+# Set default locations if conf file missing
+# Path to .job files
+ [ -z $JOBS ] && JOBS=./job
+
+# location for completed jobs
+ [ -z $COMPJOBS ] && COMPJOBS=$JOB/completed
+
+# Check that jobs directory exists before we do anything
+if [ ! -d $JOBS ]; then
+    echo ERROR: jobs directory: $JOBS not found.
+    exit 1
+fi
+
+# Make sure completed job directory exists, if not create it
+if [ ! -d $COMPJOBS ]; then
+    echo ERROR: completed jobs directory: $COMPJOBS not found.
+    exit 1
+fi
+
+# move to the jobs directory before further action
+cd $JOBS
+
+# Check to see if there are any jobs, if not bail
+/bin/ls *.job &>/dev/null || exit
+
+echo Running jobexec $(date)|tee job-report.txt
+echo "GAM Run Log" > runlog
+# loop over job files in sort order, skip files ^HOLD-*
+
+for j in *.job; do
+    # sweep job queue, remove job files with no executable gam commands
+    if ! grep -q "^gam " $j; then
+        echo "Job: $j: no gam commands" | tee -a job-report.txt
+        /bin/mv $j $COMPJOBS
+	    continue
+    fi
+    echo $j|grep -qi '^hold-' && continue
+    [ ! -f $j ] && continue
+    echo "Job: " $j|tee -a job-report.txt
+    l="${j%.*}".log
+    [ -f $LOGDIR/$l ] && tail -1 $LOGDIR/$l | tee -a job-report.txt
+    cat $j | sed '1,$s/^\(.*\)$/print \1\n\1/' | /usr/bin/tr -d '\r' | gam batch - >>runlog 2>&1
+    /bin/mv $j $COMPJOBS
+    if [ $? != "0" ]; then
+	echo "WARNING: Job: $j aborted with errors."|tee -a job-report.txt
+    fi
+done
+echo Completed $(date)|tee -a job-report.txt
+
+gam sendemail $MAILTO subject 'MIMS runlog' file runlog
+gam sendemail $MAILTO subject 'MIMS run report' file job-report.txt

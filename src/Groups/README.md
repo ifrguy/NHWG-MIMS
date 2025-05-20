@@ -14,8 +14,8 @@ series of GAM commands to update the specified group.
 #### Naming convention:
 
 Each group to be updated must be defined by a  MongoDB
-javascript class file in ./lib.  By convention the  of the
-script reflect the name of the group, e.g. aircrew group
+javascript class file in ./lib.  By convention the name of the
+script reflects the name of the group, e.g. aircrew group
 class script is Aircrew.js.  It is also possible to have different
 scripts one say to add new members and one to remove lapsed members.
 It is purely a design choice.
@@ -38,12 +38,14 @@ along with the group name and starting DB collection are placed in a
 new group class file.  See the template class file in the ./lib directory.
 
 #### Scripts:
-* 2updateGroup - update a single wing level group
-* 2updateGroup.conf - configuration file
-* 2doAllGroups -  update all wing level groups calls 2updateGroup
+* 2updateWingGroup - update a single wing level group type
+* 2updateWingGroup.conf - configuration file
+* 2doAllWingGroups -  update all wing level groups calls 2updateWingGroup
 * 2doAllUnitGroups - update all unit level groups calls 2updateUnitGroup
-* 2updateUnitGroup - group update a single unit level group type
+* 2updateUnitGroup - update a single unit level group type for all units.
 * 2updateUnitGroup.conf - configuration file
+* 2updateOneUnitGroup - update a single unit level group type for list of units.
+* 2updateOneUnitGroup.conf - configuration file
 * groupmanager.creds - MongoDB login credentials
 
 

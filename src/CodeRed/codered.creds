@@ -1,4 +1,0 @@
-# Code Red MongoDB user credentials
-. ../getConfigValue
-USER=$(getConfigValue "codered.user" "credentials.json")
-PASSWD=$(getConfigValue "codered.password" "credentials.json")
