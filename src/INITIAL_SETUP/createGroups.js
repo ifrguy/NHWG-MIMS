@@ -1774,6 +1774,115 @@ const groups =
 */
 
         //
+        // PD
+        //
+        {
+          attributes :
+          {
+            "name": "all-pd",
+            "email": "all-pd@mawg.cap.gov",
+            "description": `"All education and training (professional development) officers and directors"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "wing-pd",
+            "email": "wing-pd@mawg.cap.gov",
+            "description": `"MAWG HQ Directors of professional development"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "boston-pd",
+            "email": "boston-pd@mawg.cap.gov",
+            "description": `"Boston Squadron education and training (professional development) officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "bridgewater-pd",
+            "email": "bridgewater-pd@mawg.cap.gov",
+            "description": `"Bridgewater Squadron education and training (professional development) officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "goddard-pd",
+            "email": "goddard-pd@mawg.cap.gov",
+            "description": `"Goddard Squadron education and training (professional development) officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pierce-pd",
+            "email": "pierce-pd@mawg.cap.gov",
+            "description": `"Pierce Squadron  education and training (professional development) officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "westover-pd",
+            "email": "westover-pd@mawg.cap.gov",
+            "description": `"Westover Squadron education and training (professional development) officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": " beverly-pd",
+            "email": "beverly-pd@mawg.cap.gov",
+            "description": `"Beverly Squadron education and training (professional development) officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "worcester-pd",
+            "email": "worcester-pd@mawg.cap.gov",
+            "description": `"Worcester Cadet Squadron education and training (professional development) officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "hanscom-pd",
+            "email": "hanscom-pd@mawg.cap.gov",
+            "description": `"Hanscom Squadron education and training (professional development) officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "cp18-pd",
+            "email": "cp18-pd@mawg.cap.gov",
+            "description": `"CP18 education and training (professional development) officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "essex-pd",
+            "email": "essex-pd@mawg.cap.gov",
+            "description": `"Essex Composite Squadron education and training (professional development) officers"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pilgrim-pd",
+            "email": "pilgrim-pd@mawg.cap.gov",
+            "description": `"Pilgrim Squadron education and training (professional development) officers"`
+          }
+        },
+
+/*
+        //
         // Parents
         //
         {
@@ -1864,6 +1973,7 @@ const groups =
             "description": `"Pilgrim Squadron Parents officers"`
           }
         },
+*/
       ];
 
 
