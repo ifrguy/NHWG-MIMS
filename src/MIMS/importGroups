@@ -17,6 +17,7 @@
 # convert to JSON and import into MongoDB.
 #
 # History:
+# 29May25 MEG Switched back to non-URI connection/Auth method.
 # 17Oct22 MEG MongoDB Connection/Auth changed to URI form.
 # 11Oct22 MEG Old mongo shell (mongo) replaced by mongosh.
 #             Upgraded for MongoDB 6.x.
@@ -61,11 +62,7 @@ $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
 	--password=$MONGOPASS --collection GoogleGroups --drop --type csv \
 	--headerline --file $GROUPSFILE
 
-#$IMPORT "mongodb://$MONGOUID:$MONGOPASS@localhost/$DB?authSource=$DB" \
-#	--collection GoogleGroups --drop --type csv \
-#	--headerline --file $GROUPSFILE
 
 # After import convert "createTime" and "updateTime" strings to ISO dates
-#mongosh --quiet "mongodb://$MONGOUID:$MONGOPASS@localhost/$DB?authSource=$DB" --eval \
-mongosh --quiet $DB -u $MONGOUID -p $MONGOPASS --authenticationDatabase=$DB --eval \
-      'db.getCollection("GoogleGroups").updateMany( {}, [{ $set: { createTime: { $dateFromString: { dateString: "$createTime"}}}},{ $set: { updateTime: { $dateFromString: { dateString: "$updateTime"}}}}]);;'
+mongosh  $DB -u $MONGOUID -p $MONGOPASS --authenticationDatabase=$DB --eval \
+      'db.getCollection("GoogleGroups").updateMany( {}, [{ $set: { createTime: { $dateFromString: { dateString: "$createTime"}}}},{ $set: { updateTime: { $dateFromString: { dateString: "$updateTime"}}}}]);print("Date conversions complete.");'
