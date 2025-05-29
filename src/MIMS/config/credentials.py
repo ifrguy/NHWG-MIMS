@@ -23,5 +23,5 @@ with open('../credentials.json') as f:
   CREDENTIALS = json.load(f)
 
 # Mongo DB cred's
-MIMSUSER = CREDENTIALS.mims.user
-MIMSPASS = CREDENTIALS.mims.password
+MIMSUSER = CREDENTIALS["mims"]["user"]
+MIMSPASS = CREDENTIALS["mims"]["password"]
