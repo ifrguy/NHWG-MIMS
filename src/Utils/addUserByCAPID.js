@@ -5,7 +5,7 @@ import Confirm from "prompt-confirm";
 import { parseArgs } from "node:util";
 import { exec } from "child_process";
 import { MongoClient } from "mongodb";
-import { config, creds } from "../getConfig.js";
+import { config, creds } from "../MIMS/config/getConfig.js";
 
 const execP = util.promisify(exec);
 

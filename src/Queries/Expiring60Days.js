@@ -2,7 +2,7 @@
 // Sorted output by Unit, expiration date, last name
 // 12Apr2017 MEG Updated
 //
-const { config } = require("../getConfig.js");
+const { config } = require("../MIMS/config/getConfig.js");
 db = db.getSiblingDB(config.wing);
 var dfns = db.ENV.findOne({name:'DATEFNS'}).value;
 //print(dfns);

@@ -4,7 +4,7 @@
 // 07Dec24 DJL Consolidate configuration files for single point changes.
 // 11Dec17 MEG Created.
 //
-const { config } = require("../getConfig.js");
+const { config } = require("../MIMS/config/getConfig.js");
 db = db.getSiblingDB(config.wing);
 
 // find all non-wing emails in collection

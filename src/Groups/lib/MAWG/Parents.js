@@ -2,7 +2,7 @@
 
 // Load my super class definition
 import { Group } from '../Group.js';
-import { config } from "../../../getConfig.js";
+import { config } from "../../../MIMS/config/getConfig.js";
 
 // Name of collection on which the aggregation pipeline beings search
 const pipeline_start = 'Member';

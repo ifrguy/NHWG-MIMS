@@ -4,7 +4,7 @@
 // 07Dec24 DJL Consolidate configuration files for single point changes.
 // 05May17 MEG Created.
 //
-const { config } = require("../getConfig.js");
+const { config } = require("../MIMS/config/getConfig.js");
 db = db.getSiblingDB(config.wing);
 var cur = db.Google.find( {externalIds:{$elemMatch:{value:{$ne:null}}}} );
 var m; //member

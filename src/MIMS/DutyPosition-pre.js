@@ -1,3 +1,3 @@
-const { config } = require("./getConfig.js");
+const { config } = require("./config/getConfig.js");
 db=db.getSiblingDB(config.wing);
 db.DutyPosition.deleteMany({});

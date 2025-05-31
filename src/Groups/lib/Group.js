@@ -40,7 +40,7 @@
 // 26May22 MEG Debugged into existence.
 // 22Dec21 MEG Created.
 
-import { config, creds } from "../../getConfig.js";
+import { config, creds } from "../../MIMS/config/getConfig.js";
 import fs from "fs";
 import util from "util";
 

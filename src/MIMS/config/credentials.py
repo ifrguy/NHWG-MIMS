@@ -19,7 +19,7 @@ MIMS MongoDB Credentials File
 
 # Read the credentials file
 import json
-with open('../credentials.json') as f:
+with open('./credentials.json') as f:
   CREDENTIALS = json.load(f)
 
 # Mongo DB cred's

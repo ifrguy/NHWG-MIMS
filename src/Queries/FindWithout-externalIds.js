@@ -1,5 +1,5 @@
 // Find Google accounts that do NOT have an "externalIds" field
-const { config } = require("../getConfig.js");
+const { config } = require("../MIMS/config/getConfig.js");
 db = db.getSiblingDB(config.wing);
 var cur = db.Google.find({externalIds:{$exists:false}});
 while( cur.hasNext() ) {

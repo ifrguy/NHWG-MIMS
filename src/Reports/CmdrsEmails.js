@@ -1,4 +1,4 @@
-const { config } = require("../getConfig.js");
+const { config } = require("../MIMS/config/getConfig.js");
 
 db.getCollection("DutyPosition").aggregate(
 

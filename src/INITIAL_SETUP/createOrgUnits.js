@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { config } = require("../getConfig.js");
+const { config } = require("../MIMS/config/getConfig.js");
 
 console.log("# Run these commands to create your organizational units:\n");
 Object.values(config.orgUnit).forEach(

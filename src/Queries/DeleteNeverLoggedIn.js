@@ -1,5 +1,5 @@
 // Scan Google for Cadet accounts never logged in, emit gam delete user commands
-const { config } = require("../getConfig.js");
+const { config } = require("../MIMS/config/getConfig.js");
 db = db.getSiblingDB(config.wing);
 var cur = db.Google.find({ 
     "organizations.description" : "CADET", 

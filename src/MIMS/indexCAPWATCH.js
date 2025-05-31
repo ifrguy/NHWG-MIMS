@@ -1,4 +1,4 @@
-const { config } = require("./getConfig.js");
+const { config } = require("./config/getConfig.js");
 
 db = db.getSiblingDB( config.wing );
 db.Member.createIndex( {'NameLast':1} );
