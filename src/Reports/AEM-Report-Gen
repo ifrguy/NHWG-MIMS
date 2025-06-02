@@ -15,7 +15,7 @@
 #
 
 # Load config file
-. ../getConfigValue
+. ../MIMS/getConfigValue
 
 # Report generator MongoDB login credentials
 MONGOUID=$(getConfigValue "reporter.user" credentials.json)
@@ -58,11 +58,12 @@ done
 shift $(($OPTIND - 1))
 
 echo "Preparing AEM report"
-fn=$DATESTAMP-AEM-Report.csv
+fn=AEM-Report_$DATESTAMP.csv
 mongosh --quiet -u $MONGOUID -p $MONGOPASS --authenticationDatabase $DB \
 	$DB AEMsAndNearestSquadrons.js >$fn
 
-# If -n do not upload csv file or send notificaion email
+# If -n do not send report email nor move generated report to
+# completed directory
 [[ -v NOPOST ]] && exit 0
 
 if [ $( find ./$fn -type f -size +248c 2>/dev/null ) ]; then
@@ -74,4 +75,5 @@ if [ $( find ./$fn -type f -size +248c 2>/dev/null ) ]; then
 else
     echo "No report to send."
 fi
+mv $fn ../job/completed
 echo Done.
