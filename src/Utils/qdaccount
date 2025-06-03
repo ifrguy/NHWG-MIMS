@@ -19,6 +19,7 @@
 
 # History:
 # 06Apr25 MEG Member Type can now be a quoted string, e.g. "CADET SPONSOR"
+# 07Dec24 DJL Consolidate configuration files for single point changes.
 # 15Mar23 MEG Add new unit 023
 # 25Jul22 MEG Checks for duplicate account name.
 # 10Mar21 MEG Fixed gam create syntax error.
@@ -37,11 +38,13 @@
 # $8 - Notification email address
 # OUTPUT: appropriate gam command to create an account
 
+. ../getConfigValue
+
 # Path to email message template
-EMAIL_TEMPLATE=$HOME/work/NHWG/Templates/new-user-email-template.html
+EMAIL_TEMPLATE=$(getConfigValue "welcomeMessage")
 
 # Domain in which to create account
-DOMAIN="nhwg.cap.gov"
+DOMAIN=$(getConfigValue "domain")
 
 # Help message
 USAGE="Usage: $(basename $0) args\n
@@ -56,21 +59,6 @@ Build a gam command to create a Google account\n
 \t\$6 - Member Type: CADET|SENIOR|\"<string>\"\n
 \t\$7 - Password\n
 \t\$8 - Notification email address\n"
-
-declare -A ORGUNIT
-ORGUNIT[000]="/000 - New Hampshire Wing"
-ORGUNIT[001]="/001 - New Hampshire Wing"
-ORGUNIT[010]="/010 - Portsmouth Squadron"
-ORGUNIT[014]="/014 - Lebanon Squadron"
-ORGUNIT[016]="/016 - Nashua Squadron"
-ORGUNIT[023]="/023 - Woodsville Cadet Squadron"
-ORGUNIT[032]="/032 - Concord Squadron"
-ORGUNIT[037]="/037 - Highlanders Squadron - Rochester"
-ORGUNIT[053]="/053 - Monadnock Squadron - Keene"
-ORGUNIT[054]="/054 - Manchester Squadron"
-ORGUNIT[056]="/056 - Hawk Squadron - Laconia"
-ORGUNIT[075]="/075 - Whitefield"
-ORGUNIT[999]="/999 - State Legislators"
 
 if (( $# < 8 )); then
     echo -e $USAGE

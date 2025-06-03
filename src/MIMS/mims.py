@@ -1,4 +1,4 @@
-#!/usr/bin/env /usr/bin/python
+#!/usr/bin/env python3
 # -*- mode: Python; coding: utf-8 -*-
 
 ## Copyright 2023 Marshall E. Giguere
@@ -23,6 +23,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires Workspace admin privileges.
 
 History:
+07Dec24 DJL Consolidate configuration files for single point changes.
 09Dec23 MEG Modularized base on mims version 2.0.11.
 10May17 MEG Original MIMS created.
 """
@@ -35,7 +36,6 @@ import re
 from bson.regex import Regex
 
 # MIMS specific
-from config.config import *
 from config.mims_conf import *
 from config.credentials import *
 from mims.Manager import *

@@ -1,26 +1,20 @@
 """
 Configuation options for CAPWatch2 downloader
 
-WARNING: You must change the None values to the appropriate values.
-
 These options may be overridden by commandline options.
 
 """
 import os
 
-# Fully qualified output filename
-OUTFILE = None
+# Read the configuration file
+import json
+with open('config.json') as f:
+  CONFIGURATION = json.load(f)
 
-# The default organization to download. This is the CAP OrgId.
-ORGID = None
-
-# Default retry and connection control values
-
-# Number of attempts to download CAPWATCH file                                                                                                                  
-TRIES = 5                                                                       
-                                                                                
-# Time to wait between retries in seconds                                       
-RETRY_DELAY_TIME = 30                                                           
-                                                                                
-# Max time to wait for TCP connection to time out in seconds                    
-TIMEOUT = 120                                                                   
+# Internal-use variables
+# See config.json for comments documenting each of these
+OUTFILE          = CONFIGURATION["capwatch"]["outfile"]
+ORGID            = CONFIGURATION["capwatch"]["orgId"]
+TRIES            = CONFIGURATION["capwatch"]["tries"]
+RETRY_DELAY_TIME = CONFIGURATION["capwatch"]["retryDelayTime"]
+TIMEOUT          = CONFIGURATION["capwatch"]["timeout"]

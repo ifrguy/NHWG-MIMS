@@ -1,9 +1,11 @@
 //NotMembers - interate over the Google account collection, check if user is found in Member collection.
 // If user is not found they are a candidate for account removal, or suspend
 // History:
+// 07Dec24 DJL Consolidate configuration files for single point changes.
 // 05May17 MEG Created.
 //
-db = db.getSiblingDB("NHWG");
+const { config } = require("../MIMS/config/getConfig.js");
+db = db.getSiblingDB(config.wing);
 var cur = db.Google.find( {externalIds:{$elemMatch:{value:{$ne:null}}}} );
 var m; //member
 var g; //Google account

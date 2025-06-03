@@ -1,2 +1,3 @@
-db=db.getSiblingDB("NHWG");
-db.Commanders.remove({});
+const { config } = require("./config/getConfig.js");
+db=db.getSiblingDB(config.wing);
+db.Commanders.deleteMany({});

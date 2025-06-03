@@ -1,0 +1,23 @@
+
+From: Maj. Marshall Giguere
+
+Here's the "Squadron_Drive_Folders_Create script I used to create unit
+drive file hierarchies. Things to know. First, the user/actor must be
+an organizer on all the drives. Second, the drives must exist. Third,
+you will need to supply a list of the drive names on the command line.
+I had at one time used a conf file with the drive names, but we have
+added squadrons, so I made it an argument so I could do one offs.
+
+The "unitRoleAccts" script needs to be adjusted for your situation.
+
+
+
+PS.
+
+I forgot to mention the account create includes a randomly generated
+password using a little generator I wrote a couple of decades ago, so
+you'll need to come up with something for that.
+
+------------------------------------------------------------------------------
+
+SUI worksheets are at https://www.gocivilairpatrol.com/members/cap-national-hq/inspector-general/sui

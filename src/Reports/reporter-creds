@@ -1,4 +1,5 @@
 # Report generator credentials for MongoDB
 # Add the credentials for the Mongo user that does reports
-USERID=""
-PASSWD=""
+. ../getConfigValue
+USERID=$(getConfigValue "reporter.user" "credentials.json")
+PASSWD=$(getConfigValue "reporter.password" "credentials.json")

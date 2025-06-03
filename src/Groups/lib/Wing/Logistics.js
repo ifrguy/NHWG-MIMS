@@ -16,6 +16,7 @@
 // Purpose: Corral wing logistics officers into a group
 
 // History:
+// 07Dec24 DJL Consolidate configuration files for single point changes.
 // 22Feb24 MEG Created.
 
 
