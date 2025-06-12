@@ -14,7 +14,7 @@
 ##   limitations under the License.
 
 # Runs through a list of groups I allow people to "unsubscribe"
-# from but since groups are automatically update from eServices
+# from but since groups are automatically updated from eServices
 # regularly and I don't keep track of unsubscribers in the database
 # members can't really unsubscribe.
 # As a workaround set memebers delivery status to "No email", this
@@ -24,6 +24,7 @@
 
 # History:
 # 11Jun25 MEG Fixed user entered LOOKBACK_PERIOD ignored.
+# 11Jun25 MEG Use actor.profileId rather than email address
 # 05Aug24 MEG Created.
 
 # Reads the groups to be scanned from a CSV file, reads output CSV file
