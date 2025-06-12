@@ -13,7 +13,6 @@
 ##   See the License for the specific language governing permissions and
 ##   limitations under the License.
 
-
 # Runs through a list of groups I allow people to "unsubscribe"
 # from but since groups are automatically update from eServices
 # regularly and I don't keep track of unsubscribers in the database
@@ -24,6 +23,7 @@
 #
 
 # History:
+# 11Jun25 MEG Fixed user entered LOOKBACK_PERIOD ignored.
 # 05Aug24 MEG Created.
 
 # Reads the groups to be scanned from a CSV file, reads output CSV file
@@ -66,12 +66,17 @@ while getopts $OPTS o; do
 done
 shift $(( $OPTIND - 1 ))
 
+# Check to see if caller entered a lookback
+if [[ $1 ]];then
+    LOOKBACK_PERIOD=$1
+fi
+
 # Search the permitted groups for unsubscribe events
 # PLEASE NOTE: the redirect of stderr to /dev/null at the end
 # is necessary because gam will insist on showing progress no matter how
 # you tell it not to.  According to the author it's "a feature", so you will
 # be able to tell if a very long running task is still actually running.
-gam config show_gettings false csv_output_header_filter name,actor.callerType,actor.email,group_email,id.time csv_output_row_filter "name:text=unsubscribe_via_mail id.time:date>-$LOOKBACK_PERIOD" redirect csv ./groups_unsubscribe_events.csv multiprocess csv $INPUT_CSV_FILE gam report groups filter "group_email==~~group~~" &>/dev/null
+gam config show_gettings false csv_output_header_filter name,actor.callerType,actor.email,actor.profileId,group_email,id.time csv_output_row_filter "name:text=unsubscribe_via_mail id.time:date>-$LOOKBACK_PERIOD" redirect csv ./groups_unsubscribe_events.csv multiprocess csv $INPUT_CSV_FILE gam report groups filter "group_email==~~group~~" &>/dev/null
 
 # Update group members selected to "No Email" delivery option
-gam csv ./groups_unsubscribe_events.csv gam update group "~group_email" update member delivery nomail "~actor.email"
+gam csv ./groups_unsubscribe_events.csv gam update group "~group_email" update member delivery nomail id:"~~actor.profileId~~"
