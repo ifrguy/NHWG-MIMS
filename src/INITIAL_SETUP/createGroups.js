@@ -129,6 +129,18 @@ const CONFIG_DEFAULT =
  */
 const groups =
       [
+        //
+        // Public announcements
+        //
+        {
+          attributes :
+          {
+            "name": "public-announce",
+            "email": "public-announce@mawg.cap.gov",
+            "description": `"Open to the public, and all members of MAWG"`,
+            "messageModerationLevel": "MODERATE_ALL_MESSAGES",
+          }
+        },
 /*
         //
         // Members
@@ -1771,7 +1783,6 @@ const groups =
             "description": `"Pilgrim Squadron Safety officers"`
           }
         },
-*/
 
         //
         // PD
@@ -1881,7 +1892,6 @@ const groups =
           }
         },
 
-/*
         //
         // Parents
         //
