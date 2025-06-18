@@ -85,7 +85,7 @@ class UnSuspend( Manager ):
                 continue
             if ( m ) :
                 # Fix double apostrophes created during import
-                fixedEmail = m['primaryEmail'].replace("''", "'")
+                fixedEmail = g['primaryEmail'].replace("''", "'")
 
                 # check to see if member is on the Holds list and skip
                 if ( self.checkHolds( m['CAPID'] )):

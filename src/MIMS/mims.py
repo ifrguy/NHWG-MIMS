@@ -43,7 +43,7 @@ from mims.help import *
 from mims.NewMembers import *
 from mims.NewSeniors import *
 from mims.NewCadets import *
-from mims.Expired import *
+from mims.ExpiredV2 import *
 from mims.PurgeMembers import *
 from mims.UnSuspend import *
 from mims.SweepExpired import *
@@ -72,12 +72,12 @@ def main():
     if DEBUG : print( "Close" )
     MIMS.close()
     if DEBUG : print( "Exit" )
+
+
 ###########################################
 #
 #       Invoke main function
 #
 ###########################################
-
-
 if __name__ == "__main__" :
     sys.exit( main() )
