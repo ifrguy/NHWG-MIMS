@@ -1,5 +1,6 @@
 # -*- mode: Python; coding: utf-8 -*-
 ## Copyright 2025 Marshall E. Giguere
+## Copyright 2025 Derrell Lipman
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -14,6 +15,7 @@
 ##   limitations under the License.
 
 # History:
+# 18Jun25 DJL Replace logic: aggregate Google with Member vs reverse
 # 23Jan25 MEG NHWGStatus DB field renamed to WingStatus.
 # 10Dec23 MEG Module version
 # 28May17 MEG Original MIMS created.
