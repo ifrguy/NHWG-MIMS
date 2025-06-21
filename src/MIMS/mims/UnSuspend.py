@@ -46,6 +46,7 @@ class UnSuspend( Manager ):
     def __init__( self ):
         super().__init__()
         self.query = { 'suspended' : True }
+        #self.outfileName = JobFilePath + 'hold-' + self.name() + self.TS() + ".job"
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.INFO )
 

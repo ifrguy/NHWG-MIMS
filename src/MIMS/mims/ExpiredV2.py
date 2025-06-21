@@ -51,7 +51,7 @@ class ExpiredV2( Manager ):
         super().__init__()
         today = datetime.today()
         self.expired = today - timedelta( days = LOOKBACK )
-        self.outfileName = JobFilePath + 'hold-' + self.name() + self.TS() + ".job"
+        #self.outfileName = JobFilePath + 'hold-' + self.name() + self.TS() + ".job"
         print("Outfile=" + self.outfileName)
         self.query = [
             {
@@ -147,10 +147,11 @@ class ExpiredV2( Manager ):
             except KeyError as e:
                 m['CAPID'] = -1
 
-            # Check whether this is an internal
+            # Check whether this is an internal or role
             # (admin-specified) account.
             try:
-                if ( m['Type'] == "INTERNAL" ): continue
+                if ( re.fullmatch(r"internal", m['Type'], re.IGNORECASE) ): continue
+                if ( re.fullmatch(r"role", m['Type'], re.IGNORECASE) ): continue
             except KeyError as e:
                 m['Type'] = "None"
 
@@ -170,7 +171,7 @@ class ExpiredV2( Manager ):
                         m[ 'name' ],
                         m[ 'Type' ] ))
 
-                outputCmds.append( "gam {} user {}\n".format( EXPIRED_ACTION,
+                outputCmds.append( "gam {} user \"{}\"\n".format( EXPIRED_ACTION,
                                                             m[ 'primaryEmail' ]))
                 try:
                     logging.info( "Delete: %d %s %s %s", 
@@ -197,7 +198,7 @@ class ExpiredV2( Manager ):
                         m[ 'name' ],
                         m[ 'Type' ] ))
 
-                outputCmds.append( "gam update user {} suspended on gal off\n".format( m[ 'primaryEmail' ] ))
+                outputCmds.append( "gam update user \"{}\" suspended on gal off\n".format( m[ 'primaryEmail' ] ))
                 try:
                     logging.info( "Suspend: %d %s %s %s", 
                                   m[ 'CAPID' ],
