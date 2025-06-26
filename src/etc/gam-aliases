@@ -2,10 +2,17 @@
 ## you need to do something quickly, but can't remember
 ## the GAM syntax
 
+## For most functions you can get a brief usage by typing the command
+## with zero args.
+
+# History:
+# 26Jun25  MEG Released into the wild.
+# Big Bang MEG Created.
+
 # META
-# list all gam functions
+# list all the gam-aliases functions
 function lsgam () {
-	 grep '^function' /home/meg/etc/gam-aliases
+	 grep '^function' /home/meg/etc/gam-aliases|(while read h f t;do echo $f;done) | sort
 }
 	
 ########  GAM Functions ###############
@@ -14,7 +21,13 @@ function lsgam () {
 
 # Find acls for specific email account
 function findallacls () {
-	 gam redirect csv ./$1.csv all users show filelist query "'$1' in writers or '$1' in readers" id
+	 local USAGE="${FUNCNAME[0]} <userEmail>\n
+\t Print all drive file ACLs for a user, write to <userEmail>.csv file."
+   	 if [[ $# < 1 ]];then
+	    echo -e $USAGE
+	    return 1
+	 fi
+	 gam redirect csv ./$1.csv all users show filelist query "'$1' in writers or '$1' in readers" id filepath
 }
 	 
 # delete all acls for a specified user
@@ -30,14 +43,17 @@ function delacls () {
 # }
 
 # $1 is a Python pattern, you may get more than one drive ID back
-function teamdriveid() {
+function teamdriveid () {
 	 echo $(IFS=\,;gam redirect stderr /dev/null print teamdrive matchname "$1" fields id| \
 	 tail +2|while read owner id drive ;do echo $id;done)
  }
 # List all WorkSpace shared/team drives
-function allteamdrives () {
-	 gam print teamdrives fields name,id;
+function allSharedDrives () {
+	 gam print shareddrives fields name,id;
 }
+
+# Companion alias for all of us old tymers.
+alias allteamdrives='allSharedDrives'
 
 ### GAM SHARED DRIVE ACL MANAGEMENT  ###
 
@@ -50,7 +66,7 @@ function driveacls ()
 
 function gamAddOrganizer () {
 if (( $# < 2 )); then
-        echo -e "USAGE: ${FUNCNAME[0]} <shared drive name>  <user>\n";
+        echo -e "USAGE: ${FUNCNAME[0]} \"<shared drive name>\"  <user>\n";
         return 1;
 fi
     gam add drivefileacls teamdrive "$1" user $2 role organizer
@@ -58,7 +74,7 @@ fi
 
 function gamRmOrganizer () { 
 if (( $# < 2 )); then
-        echo -e "USAGE: ${FUNCNAME[0]} <shared drive name>  <user>\n";
+        echo -e "USAGE: ${FUNCNAME[0]} \"<shared drive name>\"  <user>\n";
         return 1;
 fi
     gam delete drivefileacls teamdrive "$1" $2
@@ -165,14 +181,38 @@ function gamAllUsersQuota () {
     gam report users fulldatarequired all fields "accounts:used_quota_in_mb,accounts:drive_used_quota_in_mb,accounts:gmail_used_quota_in_mb,accounts:gplus_photos_used_quota_in_mb"
 }
 
+## User email message management
+
 ## show a message from Google workspace
 function gamShowMessage ()
 { 
     if (( $# < 2 )); then
-        echo -e "USAGE: ${FUNCNAME[0]} <userEmail>  <RFC822 MessageID>\n";
+        echo -e "USAGE: ${FUNCNAME[0]} <userEmail>  \"<query string>\" [optional]
+	https://support.google.com/mail/answer/7190";
         return 1;
 fi
-	gam user $1 show messages query "rfc822msgid:$2" showbody showattachments includespamtrash;
+	gam user $1 show messages query "$2" showbody showattachments includespamtrash;
+}
+
+function gamDelMessages () {
+    if (( $# < 2 )); then
+        echo -e "USAGE: ${FUNCNAME[0]} <userEmail>  <RFC822 MessageID> [doit]\n
+	\t doit - required to actually perform operation";
+        return 1;
+fi
+	gam user $1 delete messages query "rfc822msgid:$2" $3
+}
+
+## Forward email from a user to a target email address
+function gamForward ()
+{
+    if [[ $# < 2 ]]; then
+        echo -e "USAGE: ${FUNCNAME[0]} <userEmail> <forwardingEmailAddress>\n
+	Forward a users email to another address."
+        return 1;
+    fi;
+    gam user $1 add forwardingaddress $2
+    gam user $1 forward true keep $2
 }
 
 ### Files ###
