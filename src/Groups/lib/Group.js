@@ -332,11 +332,11 @@ export class Group {
       DEBUG && console.log( '# DEBUG:' + this.name + "::removeMembers:called with email:",e);
       if ( this.#isAuth( e )) { continue; }
       if ( await this.#isOnHold( e )) {
-        print( '# INFO:', e, 'on hold status, not removed.');
+        print( '# INFO:', '"' + e + '"', 'on hold status, not removed.');
         continue;
       }
       DEBUG && console.log("# DEBUG: Member to be removed:", e );
-      print( '# INFO:Remove:', e );
+      print( '# INFO:Remove:', '"' + e + '"' );
       print( 'gam update group', this.myGroup, 'delete member', '"' + e + '"' );
       count++;
     }
