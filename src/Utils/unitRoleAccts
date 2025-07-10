@@ -45,6 +45,6 @@ ACCTS=("commander" "deputy-commander" "deputy-commander-cadets" "it" "pao" "fina
 for u in ${UNITS[@]};do
     echo "# Unit: $u"
     for a in ${ACCTS[@]};do
-    	echo "gam create user $a@$u.nhwg.cap.gov ou \"${ORGUNIT[$u]}\" Member.Unit "$u" Member.Type "ROLE" "
+    	echo "gam create user $a@$u.nhwg.cap.gov ou "${ORGUNIT[$u]}" Member.Unit "$u" Member.Type "ROLE" "
     done
 done
