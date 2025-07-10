@@ -19,23 +19,28 @@
 # Unit email addresses are assigned by subdomain.  Each unit has
 # a subdomain under the Wing domain.  Subdomain names are the three
 # digit charter number for each unit, e.g. "010"
+# You will need to add the subdomains in your Workspace domains and
+# MX records for each subdomain in eServices Internet Ops.
 
 # Units needing role based accounts
 # List of unit charter numbers as strings
-UNITS=("010" "014" "023" "032" "037" "054")
+# Example: ( "010" "020" ... )
+UNITS=( )
 
 # Accounts to create
-ACCTS=("commander" "deputy-commander" "deputy-commander-cadets" "it")
+ACCTS=("commander" "deputy-commander" "deputy-commander-cadets" "it" "pao" "finance")
 
 # Workspace org unit paths
 # For each unit there must be a Workspace organization unit, declare
 # the org unit path in this array indexed by the unit charter number.
 # You must create your Workspace organization hierarchy before hand.
-declare -A ORGUNIT
-ORGUNIT[000]="/000 - Patrons and Inactive Members"
-ORGUNIT[001]="/001 - Wing"
+# Example:
+#declare -A ORGUNIT
+#ORGUNIT[000]="/000 - Wing - Reserve Unit"
+#ORGUNIT[001]="/001 - Wing"
+#ORGUNIT[010]="/010 - Unit 010"
 # ... as needed
-ORGUNIT[999]="/999 - State Legislators"
+
 
 for u in ${UNITS[@]};do
     echo "# Unit: $u"
