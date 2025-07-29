@@ -25,7 +25,13 @@
 // MSO = 77;
 // PIO = 72;
 // LO = 78;
+// MC = 79;
 // MSA = 80;
+// MCCS = 253;
+// CSSCS = 254;
+// CSSDS = 255;
+// MCDS = 256;
+// MCAF = 269;
 
 // History:
 // 18Nov22 MEG Created.
@@ -55,9 +61,11 @@ const memberpipeline =  [
 			76,
 			77,
 			78,
+			79,
 			80,
 			125,
 			128,
+			253,254,255,256,
 			]
                 }, 
                 "$or" : [
