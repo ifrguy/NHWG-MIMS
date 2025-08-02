@@ -1,6 +1,9 @@
-// Find and report all expired memberships
+// Find and report all expired memberships from lookback_day ago
+// to the first day of the current month.
 
 // History:
+// 01Aug25 MEG Changed selection to data range (lookback_days) from
+//             MbrStatus == EXPIRED.
 // 29Aug23 MEG "getSiblingDB" call removed, DB passed on command line.
 
 load( db.ENV.findOne({name:'DATEFNS'}).value );
@@ -9,9 +12,11 @@ load( db.ENV.findOne({name:'stringFormat'}).value );
 var ktemplate = '{capid},{namelast},{namefirst},{type},{unit},{expiration},{email},{homephone}';
 // Positional notation template string
 var ptemplate = '{0},{1},{2},{3},{4},{5},{6},{7}';
-var days = 1;
-var start = dateFns.startOfMonth( new Date() );
-var future = dateFns.addDays( dateFns.endOfMonth( start ), days );
+var lookback_days = 90;
+// First day of today's month
+var end_date = dateFns.startOfMonth( new Date() );
+// First day of month lookback_days ago
+var begin_date = dateFns.startOfMonth( dateFns.subDays( end_date, lookback_days ));
 //print("start:", start, "future:", future );
 print('CAPID,NameLast,NameFirst,Type,Unit,Expiration,Email,HomePhone');
 
@@ -22,12 +27,18 @@ var pipeline = db.getCollection("Member").aggregate(
 		// Stage 1
 		{
 			$match: { 
-			      // Find active members primary email address
 			    // Member selection here
-			    MbrStatus:'EXPIRED',
-			//    Type: 'SENIOR',
-			 //    Type:'CADET',
-			}
+		             $and: [
+				        { "Expiration": {
+					    "$gte" : begin_date
+					}
+					},
+				        { "Expiration" : {
+					    "$lt" : end_date
+					}
+					}
+			    ]
+			    }
 		},
 
 		// Stage 2
