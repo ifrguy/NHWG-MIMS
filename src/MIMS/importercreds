@@ -1,6 +1,6 @@
 # MongoDB CAPWATCH table importers credentials
 # Must be set by dba or admin before use
 # User ID for the Importer
-MONGOUID=""
-# Password
-MONGOPASS=""
+. getConfigValue
+MONGOUID=$(getConfigValue "importer.user" credentials.json)
+MONGOPASS=$(getConfigValue "importer.password" credentials.json)

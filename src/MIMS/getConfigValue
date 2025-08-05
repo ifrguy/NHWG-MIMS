@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+#
+# Internal function to obtain the argument to jq
+#
+function _getConfigValue_setup_jqArg()
+{
+  if [ $# -lt 1 ]; then
+    echo "getConfigValue: missing argument"
+    return 1
+  fi
+
+  # Take the possibly dot-separated argument and quote each component.
+  # This is necessary because we use indexes that look like numbers,
+  # e.g., in `orgunit` where each key is a 3-digit number, and numbers
+  # as keys confuse jq.
+  echo $1 | awk -F . '{for(i=1;i<=NF;i++) printf ".\"%s\"",$i}'
+}
+
+#
+# Internal function to obtain the configuration file to read
+#
+function _getConfigValue_setup_configFile()
+{
+  # Figure out what directory the current script is running in. The
+  # config file will be found in this same directory.
+  scriptDir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+  # The default configuration file is config.json
+  configFile="config.json"
+  if [ $# -gt 1 ]; then
+    configFile=$2
+  fi
+
+  # Abort if configuration file doesn't exist
+  if [ ! -f $scriptDir/$configFile ]; then
+      echo "Could not find configuration file: $scriptDir/$configFile"
+      return 1
+  fi
+
+  echo $scriptDir/$configFile
+}
+
+#
+# Get a configuration value
+#
+# @param key {String}
+#   Dot-separated full path of a value in config.json
+#
+# @param configFile {String?"config.json"}
+#   The JSON configuration file to read the value from. The path, if
+#   provided, must be relative to the directoroy in which this script
+#   is located.
+#
+# @return {String}
+#   The value of the specified configuration key, if defined;
+#
+function getConfigValue()
+{
+  jqArg=$(_getConfigValue_setup_jqArg $@)
+  configFile=$(_getConfigValue_setup_configFile $@)
+
+  # Get the config value. Output it as our return value
+  jq --raw-output "$jqArg" $configFile
+}
+
+#
+# Get the keys of an object (or array) configuration value
+#
+# @param key {String}
+#   Dot-separated full path of a object or array value in config.json
+#
+# @param configFile {String?"config.json"}
+#   The JSON configuration file to read the value from. The path, if
+#   provided, must be relative to the directoroy in which this script
+#   is located.
+#
+# @return {String}
+#   The keys of the specified configuration key, joined into a single string
+#
+function getConfigValueKeys()
+{
+  jqArg=$(_getConfigValue_setup_jqArg $@)
+  configFile=$(_getConfigValue_setup_configFile $@)
+
+  # Get the config value. Output it as our return value
+  jq "$jqArg | keys | join(\" \")" $configFile
+}

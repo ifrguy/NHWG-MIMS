@@ -3,7 +3,8 @@ if (!load("/home/meg/work/NHWG/Queries/stringFormatting.js")) {
   quit();
 }
 
-var db = db.getSiblingDB( 'NHWG' );
+const { config } = require("../MIMS/config/getConfig.js");
+db = db.getSiblingDB(config.wing);
 var t1 ="{0},{1},{2}";
 var rx = new RegExp( '^brown', 'i' );
 var cursor = db.Member.find({NameLast: {$regex: rx }}).sort({CAPID:1});

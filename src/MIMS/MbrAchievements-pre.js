@@ -1,4 +1,3 @@
-db=db.getSiblingDB("NHWG");
-//db.MbrAchievements.remove({});
-// remove() deprecated
+const { config } = require("./config/getConfig.js");
+db=db.getSiblingDB(config.wing);
 db.MbrAchievements.deleteMany({});

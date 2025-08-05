@@ -62,10 +62,6 @@ $IMPORT --db $DB --authenticationDatabase=$DB --username=$MONGOUID \
 	--password=$MONGOPASS --collection GoogleGroups --drop --type csv \
 	--headerline --file $GROUPSFILE
 
-# Removed the command line method is work
-#$IMPORT "mongodb://$MONGOUID:$MONGOPASS@localhost/$DB?authSource=$DB" \
-#	--collection GoogleGroups --drop --type csv \
-#	--headerline --file $GROUPSFILE
 
 # After import convert "createTime" and "updateTime" strings to ISO dates
 mongosh  $DB -u $MONGOUID -p $MONGOPASS --authenticationDatabase=$DB --eval \

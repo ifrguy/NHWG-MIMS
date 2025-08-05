@@ -5,10 +5,12 @@
 //NOTE: must be run with find, update privileges or by root DBA.
 //
 //History:
-//03Apr2019 MEG Created.
+// 07Dec2024 DJL Consolidate configuration files for single point changes.
+// 03Apr2019 MEG Created.
 //
 
-var db = db.getSiblingDB("NHWG")
+const { config } = require("../MIMS/config/getConfig.js");
+var db = db.getSiblingDB(config.wing);
 var LOG = true;
 load( db.ENV.findOne({name:'DATEFNS'}).value );
 var today = new Date();

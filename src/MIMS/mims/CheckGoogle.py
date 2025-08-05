@@ -50,7 +50,7 @@ class CheckGoogle ( Manager ):
             {
                "$match" : {
                    "customSchemas.Member.CAPID" : {
-                       "$gt" : 100000
+                       "$gte" : 100000
                     }
                 }
             }, 
@@ -58,8 +58,8 @@ class CheckGoogle ( Manager ):
             {
                "$lookup" : {
                   "from" : "Member",
-                  "localField" : "customSchemas.Member.CAPID",
                   "foreignField" : "CAPID",
+                  "localField" : "customSchemas.Member.CAPID",
                   "as" : "memberInfo"
                  }
             }, 
@@ -104,18 +104,28 @@ class CheckGoogle ( Manager ):
         gamCmdList = []
         for m in result:
            # Act on those records for which the Member.Unit from Google does not equal the Unit from CAPWATCH:
-           if ( m[ 'GUnit' ] != m[ 'CUnit' ] ):
-               nOrgChanges += 1
-               logging.info("The Unit is different for CAPID [%d] %s versus %s", m['Gid'], m['GUnit'], m['CUnit'])
-               # Add gam update command to our list:
-               gamCmdList.append('gam update user {} orgUnitPath \"{}\" Member.Unit \"{}\"'.format( m['primaryEmail'], orgUnitPath[ m[ 'CUnit' ] ], m[ 'CUnit' ]))
+           del m[ '_id' ]
+
+           # Fix double apostrophes created during import
+           fixedEmail = m['primaryEmail'].replace("''", "'")
+
+           if ( m[ 'GUnit' ] != m[ 'CUnit' ] or m[ 'orgUnit' ] == "/"):
+               gamCmdList.append('# ' + str(m))
+               # Ah, but only proceed for those members NOT in unit '000' (** do we want this?)
+               including_000 = True # djl says YES we want it!
+               if ( including_000 or m[ 'CUnit' ] != '000' ):
+                   nOrgChanges += 1
+                   logging.info("The Unit is different for CAPID [%d] %s versus %s", m['Gid'], m['GUnit'], m['CUnit'])
+                   # Add gam update command to our list:
+                   gamCmdList.append('gam update user \"{}\" orgUnitPath \"{}\" Member.Unit \"{}\"'.format( fixedEmail, orgUnitPath[ m[ 'CUnit' ] ], m[ 'CUnit' ]))
 
            # Now look for differing Member Types:
            if ( m[ 'gType' ] != m[ 'mType' ] ):
                nMemberTypeChanges += 1
                logging.info("The member type for CAPID [%s] has changed from %s to %s", m['Gid'], m['gType'], m['mType'])
                # Add gam update command to our list:
-               gamCmdList.append('gam update user {} Member.Type \"{}\" '.format( m['primaryEmail'], m['mType']))
+               gamCmdList.append('# ' + str(m))
+               gamCmdList.append('gam update user \"{}\" Member.Type \"{}\" '.format( fixedEmail, m['mType']))
                
         # If we have any gam update commands in our list, write them to the file:
         if (len(gamCmdList) > 0) :

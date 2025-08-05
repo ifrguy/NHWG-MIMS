@@ -1,3 +1,4 @@
 # Group Manager credentials
-USERID=groupMgr
-PASSWD=''
+. ../getConfigValue
+USERID=$(getConfigValue "groupmanager.user" "credentials.json")
+PASSWD=$(getConfigValue "groupmanager.password" "credentials.json")

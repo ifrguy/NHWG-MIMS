@@ -66,7 +66,7 @@ class PurgeMembers( Manager ):
         """
         Write a GAM batch job file to purge members.
         """
-        gamcmdfmt = 'gam {} user {}'
+        gamcmdfmt = 'gam {} user "{}"'
         if ( len( list ) > 0 ):
              with open( self.outfileName, 'w' ) as outfile:
                  for j in list:
@@ -84,9 +84,11 @@ class PurgeMembers( Manager ):
         the member.
         """
         if len( list ) == 0 : return # if empty skip making file
-        gamcmdfmt = 'gam user {} print filelist fields "title"'
+        gamcmdfmt = 'gam user "{}" print filelist fields "title"'
         filename = JobFilePath + 'FileList' + self.TS() + '.job'
         with open( filename, 'w' ) as ofile:
+            ofile.write("#!/bin/bash\n");
+            ofile.write("set -v\n");
             for j in list:
                 print( gamcmdfmt.format( j ),
                        file = ofile )
@@ -119,7 +121,7 @@ class PurgeMembers( Manager ):
                              capid, g['name']['fullName'],
                              g['primaryEmail'] )
                 continue
-            l.append( g['primaryEmail'] )
+            l.append( g['primaryEmail'].replace("''", "'") )
             try:
                 logging.info( "Remove: %d %s", capid,
                               g['name']['fullName'])

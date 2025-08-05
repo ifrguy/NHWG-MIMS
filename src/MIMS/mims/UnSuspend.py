@@ -46,6 +46,7 @@ class UnSuspend( Manager ):
     def __init__( self ):
         super().__init__()
         self.query = { 'suspended' : True }
+        #self.outfileName = JobFilePath + 'hold-' + self.name() + self.TS() + ".job"
         logging.basicConfig( filename = self.logfileName, filemode = 'w',
                              level = logging.INFO )
 
@@ -58,7 +59,7 @@ class UnSuspend( Manager ):
         Note: Member.Type == ROLE accounts are exempt, and manually managed.
         """
         outputCmds = []  #array of gam commands to output
-        gamcmdfmt = 'gam update user {} suspended off gal on'
+        gamcmdfmt = 'gam update user "{}" suspended off gal on'
         today = datetime.today()
         if DEBUG:
             print( f"{self.__class__.__name__}:{sys._getframe().f_code.co_name}()" )
@@ -84,11 +85,14 @@ class UnSuspend( Manager ):
                                 g['primaryEmail'] )
                 continue
             if ( m ) :
+                # Fix double apostrophes created during import
+                fixedEmail = g['primaryEmail'].replace("''", "'")
+
                 # check to see if member is on the Holds list and skip
                 if ( self.checkHolds( m['CAPID'] )):
                     logging.warning("Member on permanent hold CAPID: %d, Account: %s not reactivated.",
                                     m['CAPID'],
-                                    g['primaryEmail'] )
+                                    fixedEmail )
                     continue
                 # if membership is still expired skip reactivation
                 if ( m[ 'Expiration' ] < today ):
@@ -96,8 +100,8 @@ class UnSuspend( Manager ):
                 # push unsuspend command to output list
                 logging.info( "UNSUSPEND: %d, %s, %s, %s",
                               m['CAPID'], g['name']['fullName'],
-                              g['primaryEmail'], orgUnitPath[ m['Unit'] ] )
-                outputCmds.append( gamcmdfmt.format( g[ 'primaryEmail' ] ))
+                              fixedEmail, orgUnitPath[ m['Unit'] ] )
+                outputCmds.append( gamcmdfmt.format( fixedEmail ))
                 # check to see if we should update the local Google collection
                 if UPDATE_SUSPEND :
                     result = self.DB().Google.update_one( { 'primaryEmail' : g['primaryEmail']},

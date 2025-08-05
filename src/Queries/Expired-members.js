@@ -2,7 +2,8 @@
 // Sorted output by Unit, expiration date, last name
 // 28Sep2019 MEG New.
 //
-db = db.getSiblingDB( 'NHWG' );
+const { config } = require("../MIMS/config/getConfig.js");
+db = db.getSiblingDB(config.wing);
 var dfns = db.ENV.findOne({name:'DATEFNS'}).value;
 //print(dfns);
 load( dfns );

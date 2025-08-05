@@ -3,7 +3,8 @@
 // 01Oct2018 MEG Updated.
 // 12Apr2017 MEG Updated.
 //
-db = db.getSiblingDB( 'NHWG' );
+const { config } = require("../MIMS/config/getConfig.js");
+db = db.getSiblingDB(config.wing);
 var dfns = db.ENV.findOne({name:'DATEFNS'}).value;
 load( dfns );
 

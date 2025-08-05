@@ -2,9 +2,11 @@
 // output a batch job to check if non-members have files
 // 
 // History:
+// 07Dec24 DJL Consolidate configuration files for single point changes.
 // 18May17 MEG Created.
 //
-db = db.getSiblingDB("NHWG");
+const { config } = require("../MIMS/config/getConfig.js");
+db = db.getSiblingDB(config.wing);
 var cur = db.Google.find( {externalIds:{$elemMatch:{value:{$ne:null}}}} );
 var m; //member
 var g; //Google account

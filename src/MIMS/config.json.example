@@ -1,0 +1,499 @@
+{
+  "$comment": "Whether to print copious debugging information",
+  "debug": false,
+
+  "$comment": "Your wing",
+  "wing": "MAWG",
+
+  "$comment": "Top-level directory of the MIMS source.",
+  "mimsSourceTopDir": "/home/mims/work/MAWG",
+
+  "$comment": [
+                "Each organizational unit in your wing. ",
+                "Only list units for whom accounts should be ",
+                "created. Typically, you would exclude such units ",
+                "as ",
+                "  /000 - Patrons ",
+                "  /999 - Legislative Squadron"
+              ],
+  "orgUnit":
+  {
+    "000": "/000 - Unit Unassigned",
+    "001": "/001 - Massachusetts Wing",
+    "002": "/002 - Boston Cadet Squadron",
+    "005": "/005 - Bridgewater State University Composite Squadron",
+    "007": "/007 - Goddard Cadet Sqdn",
+    "013": "/013 - Brigadier General Arthur J. Pierce Squadron",
+    "015": "/015 - Westover Composite Sqdn",
+    "019": "/019 - Beverly Composite Sqdn",
+    "022": "/022 - Worcester Cadet Squadron",
+    "043": "/043 - Hanscom Composite Sqdn",
+    "044": "/044 - Cape Cod Coastal Patrol 18 Comp Sqdn",
+    "070": "/070 - Essex County Composite Sqdn",
+    "071": "/071 - Pilgrim Composite Sqdn"
+  },
+
+  "$comment": "Mongo DB host options",
+  "mongoDb":
+  {
+    "host": "localhost",
+    "port": 27017,
+    "db": "MAWG"
+  },
+
+  "$comment": "Cadet account creation control",
+  "createCadetAccounts" : false,
+
+  "$comment": "Minimum age at which Cadets are permitted to have accounts",
+  "minCadetAge": 12,
+
+  "$comment": [
+    "Default group strings",
+    "May be a string of comma separated group email addresses, e.g. 'all,cadets'",
+    "Default cadet groups"
+  ],
+  "cadetGroups": "all",
+
+  "$comment": "Default senior member groups",
+  "seniorGroups": "seniors@example.com",
+
+  "$comment": "Domain to be used when creating, deleting accounts or groups",
+  "domain": "mawg.cap.gov",
+
+  "$comment": [
+    "Domain calendar ID",
+    "These are the wing level calendars everyone should see.",
+    "Put you domain wide calerdar ID (email address in this variable).",
+    "You will find this by looking the calendar settings for the particular",
+    "calendar."
+  ],
+  "domainCalendars": [],
+
+  "$comment": [
+    "Grace period. The number of days beyond the LOOKBACK after which member",
+    "accounts will be purged"
+  ],
+  "grace": 30,
+
+  "$comment": [
+    "Look Back period - how many days back to start considering expired members",
+    "for suspend"
+  ],
+  "lookBack": 31,
+
+  "$comment": [
+    "Default action, create placeholder Google accounts in the Google collection",
+    "MIMS normally creates a placeholder account to prevent subesquent",
+    "account creations from creating duplicates.",
+    "NOTE: you should only turn this off for DEBUGGING or TESTING."
+  ],
+  "googlePlaceholderAccount": true,
+
+  "$comment": "Default action for Expired members: delete|suspend",
+  "expiredAction": "suspend",
+
+  "$comment": "Default action for ex-members, no longer on eServices rolls",
+  "purgeAction": "delete",
+
+  "$comment": "Whether to remove purged members from $WING.Google collection",
+  "deletePurged": false,
+
+  "$comment": "Where to save output",
+  "logFilePath": "/home/mims/work/MAWG/job/log/",
+  "jobFilePath": "/home/mims/work/MAWG/job/queue/",
+  "completedFilePath": "/home/mims/work/MAWG/job/completed/",
+
+  "$comment": "Whether to update the user record in local MongoDB Google collection",
+  "updateSuspend": false,
+
+  "$comment": [
+    "Welcome message template file path relaitve to ./job",
+    "May also include a flag to tell gam this is a HTML file by adding 'html true'",
+    "to the tail of file spec."
+  ],
+  "welcomeMessage": "./new-user-email-template.html",
+
+  "$comment": [
+    "New members groups",
+    "These are groups to which new members current primary email will be added.",
+    "newbie group addresses"
+  ],
+  "newbieGroup": null,
+  "cadetNewbieGroup": null,
+
+  "$comment": "Whether to add seniors to the newbie group",
+  "seniorNewbies": false,
+
+  "$comment": "Whether to add cadets to the newbie group",
+  "cadetNewbies": false,
+
+  "$comment": [
+    "Algorithm to generate a member's email address.",
+    "This code has access to a CAPWATCH member record, m, ",
+    "which contains, among others, the fields ",
+    "'NameFirst', 'NameLast', 'NameMiddle', and 'NameSuffix'.",
+    "",
+    "Examples:",
+    "",
+    "  First initial of first name immediately followed by last name:",
+    "  \"(m['NameFirst'][0] + m['NameLast']).lower()\" ",
+    "",
+    "  firstname-dot-lastname:",
+    "  \"(m['NameFirst'].lower() + '.' + m['NameLast']).lower()\" "
+  ],
+  "makeMemberEmailAddress": "(m['NameFirst'][0] + m['NameLast']).lower()",
+
+  "$comment": "GAM command and related config",
+  "gam":
+  {
+    "command": "/usr/local/bin/gam",
+    "log": "./log/GAM.log"
+  },
+
+  "$comment": "Mongo import tool",
+  "mongoImport": "/usr/bin/mongoimport",
+
+  "$comment": [
+    "*****************",
+    "*** getTables ***",
+    "*****************"
+  ],
+  "getTables":
+  {
+    "$comment": "Archiver - application to unzip/decompress CAPWATCH download",
+    "arc": "/usr/bin/unzip",
+
+    "$comment": "Max age in hours after which the CAPWATCH zip archive is considered stale (expired)",
+    "maxZipAge": 23,
+
+    "$comment": "List of Tables to extract",
+    "tables": "Commanders Member MbrContact MbrAddresses MbrAchievements DutyPosition equipment Organization OrgAddresses"
+  },
+
+  "$comment": [
+    "********************",
+    "*** importTables ***",
+    "********************"
+  ],
+  "importTables":
+  {
+    "$comment": "List of Tables to extract",
+    "$comment": "NOTE: Use getTables.tables instead of importTables.tables",
+
+    "$comment": "Path to column type definitions for each table",
+    "typePath": "./"
+  },
+
+  "$comment": [
+    "********************",
+    "*** importGroups ***",
+    "********************"
+  ],
+  "importGroups":
+  {
+    "$comment": "Google Groups file",
+    "groupsFile": "./GoogleGroups.csv"
+  },
+
+  "$comment": [
+    "****************",
+    "*** capwatch ***",
+    "****************"
+  ],
+  "capwatch":
+  {
+    "$comment": "Fully qualified output filename",
+    "outfile": "/home/mims/work/MAWG/downloads/WING.zip",
+
+    "$comment": "The default organization to download. This is the CAP OrgId.",
+    "orgId": 99999,
+
+    "$comment": "Number of attempts to download CAPWATCH file",
+    "tries": 5,
+
+    "$comment": "Time to wait between retries in seconds",
+    "retryDelayTime": 30,
+
+    "$comment": "Max time to wait for TCP connection to time out in seconds",
+    "timeout": 120
+  },
+
+  "$comment": [
+    "***************",
+    "*** jobexec ***",
+    "***************"
+  ],
+  "jobexec":
+  {
+    "$comment": "Recipient (address/mailing list) of jobexec reporting",
+    "mailTo": "someone@example.com"
+  },
+
+
+  "$comment": [
+    "**************",
+    "*** Groups ***",
+    "**************"
+  ],
+  "groups": [
+    { "name" : "all-members",         "file" : "MAWG/Members.js", "unit" : ""    },
+    { "name" : "wing-members",        "file" : "MAWG/Members.js", "unit" : "001" },
+    { "name" : "boston-members",      "file" : "MAWG/Members.js", "unit" : "002" },
+    { "name" : "bridgewater-members", "file" : "MAWG/Members.js", "unit" : "005" },
+    { "name" : "goddard-members",     "file" : "MAWG/Members.js", "unit" : "007" },
+    { "name" : "pierce-members",      "file" : "MAWG/Members.js", "unit" : "013" },
+    { "name" : "westover-members",    "file" : "MAWG/Members.js", "unit" : "015" },
+    { "name" : "beverly-members",     "file" : "MAWG/Members.js", "unit" : "019" },
+    { "name" : "worcester-members",   "file" : "MAWG/Members.js", "unit" : "022" },
+    { "name" : "hanscom-members",     "file" : "MAWG/Members.js", "unit" : "043" },
+    { "name" : "cp18-members",        "file" : "MAWG/Members.js", "unit" : "044" },
+    { "name" : "essex-members",       "file" : "MAWG/Members.js", "unit" : "070" },
+    { "name" : "pilgrim-members",     "file" : "MAWG/Members.js", "unit" : "071" },
+
+    { "name" : "all-seniors",         "file" : "MAWG/Seniors.js", "unit" : ""    },
+    { "name" : "wing-seniors",        "file" : "MAWG/Seniors.js", "unit" : "001" },
+    { "name" : "boston-seniors",      "file" : "MAWG/Seniors.js", "unit" : "002" },
+    { "name" : "bridgewater-seniors", "file" : "MAWG/Seniors.js", "unit" : "005" },
+    { "name" : "goddard-seniors",     "file" : "MAWG/Seniors.js", "unit" : "007" },
+    { "name" : "pierce-seniors",      "file" : "MAWG/Seniors.js", "unit" : "013" },
+    { "name" : "westover-seniors",    "file" : "MAWG/Seniors.js", "unit" : "015" },
+    { "name" : "beverly-seniors",     "file" : "MAWG/Seniors.js", "unit" : "019" },
+    { "name" : "worcester-seniors",   "file" : "MAWG/Seniors.js", "unit" : "022" },
+    { "name" : "hanscom-seniors",     "file" : "MAWG/Seniors.js", "unit" : "043" },
+    { "name" : "cp18-seniors",        "file" : "MAWG/Seniors.js", "unit" : "044" },
+    { "name" : "essex-seniors",       "file" : "MAWG/Seniors.js", "unit" : "070" },
+    { "name" : "pilgrim-seniors",     "file" : "MAWG/Seniors.js", "unit" : "071" },
+
+    { "name" : "all-cadets",         "file" : "MAWG/Cadets.js", "unit" : ""    },
+    { "name" : "wing-cadets",        "file" : "MAWG/Cadets.js", "unit" : "001" },
+    { "name" : "boston-cadets",      "file" : "MAWG/Cadets.js", "unit" : "002" },
+    { "name" : "bridgewater-cadets", "file" : "MAWG/Cadets.js", "unit" : "005" },
+    { "name" : "goddard-cadets",     "file" : "MAWG/Cadets.js", "unit" : "007" },
+    { "name" : "pierce-cadets",      "file" : "MAWG/Cadets.js", "unit" : "013" },
+    { "name" : "westover-cadets",    "file" : "MAWG/Cadets.js", "unit" : "015" },
+    { "name" : "beverly-cadets",     "file" : "MAWG/Cadets.js", "unit" : "019" },
+    { "name" : "worcester-cadets",   "file" : "MAWG/Cadets.js", "unit" : "022" },
+    { "name" : "hanscom-cadets",     "file" : "MAWG/Cadets.js", "unit" : "043" },
+    { "name" : "cp18-cadets",        "file" : "MAWG/Cadets.js", "unit" : "044" },
+    { "name" : "essex-cadets",       "file" : "MAWG/Cadets.js", "unit" : "070" },
+    { "name" : "pilgrim-cadets",     "file" : "MAWG/Cadets.js", "unit" : "071" },
+
+    { "name" : "all-ae",         "file" : "MAWG/AE.js", "unit" : ""    },
+    { "name" : "wing-ae",        "file" : "MAWG/AE.js", "unit" : "001" },
+    { "name" : "boston-ae",      "file" : "MAWG/AE.js", "unit" : "002" },
+    { "name" : "bridgewater-ae", "file" : "MAWG/AE.js", "unit" : "005" },
+    { "name" : "goddard-ae",     "file" : "MAWG/AE.js", "unit" : "007" },
+    { "name" : "pierce-ae",      "file" : "MAWG/AE.js", "unit" : "013" },
+    { "name" : "westover-ae",    "file" : "MAWG/AE.js", "unit" : "015" },
+    { "name" : "beverly-ae",     "file" : "MAWG/AE.js", "unit" : "019" },
+    { "name" : "worcester-ae",   "file" : "MAWG/AE.js", "unit" : "022" },
+    { "name" : "hanscom-ae",     "file" : "MAWG/AE.js", "unit" : "043" },
+    { "name" : "cp18-ae",        "file" : "MAWG/AE.js", "unit" : "044" },
+    { "name" : "essex-ae",       "file" : "MAWG/AE.js", "unit" : "070" },
+    { "name" : "pilgrim-ae",     "file" : "MAWG/AE.js", "unit" : "071" },
+
+    { "name" : "all-aem",        "file" : "MAWG/AEM.js", "unit" : ""    },
+
+    { "name" : "all-ap",         "file" : "MAWG/AP.js", "unit" : ""    },
+    { "name" : "wing-ap",        "file" : "MAWG/AP.js", "unit" : "001" },
+    { "name" : "boston-ap",      "file" : "MAWG/AP.js", "unit" : "002" },
+    { "name" : "bridgewater-ap", "file" : "MAWG/AP.js", "unit" : "005" },
+    { "name" : "goddard-ap",     "file" : "MAWG/AP.js", "unit" : "007" },
+    { "name" : "pierce-ap",      "file" : "MAWG/AP.js", "unit" : "013" },
+    { "name" : "westover-ap",    "file" : "MAWG/AP.js", "unit" : "015" },
+    { "name" : "beverly-ap",     "file" : "MAWG/AP.js", "unit" : "019" },
+    { "name" : "worcester-ap",   "file" : "MAWG/AP.js", "unit" : "022" },
+    { "name" : "hanscom-ap",     "file" : "MAWG/AP.js", "unit" : "043" },
+    { "name" : "cp18-ap",        "file" : "MAWG/AP.js", "unit" : "044" },
+    { "name" : "essex-ap",       "file" : "MAWG/AP.js", "unit" : "070" },
+    { "name" : "pilgrim-ap",     "file" : "MAWG/AP.js", "unit" : "071" },
+
+    { "name" : "all-aircrew",         "file" : "MAWG/Aircrew.js", "unit" : ""    },
+    { "name" : "wing-aircrew",        "file" : "MAWG/Aircrew.js", "unit" : "001" },
+    { "name" : "boston-aircrew",      "file" : "MAWG/Aircrew.js", "unit" : "002" },
+    { "name" : "bridgewater-aircrew", "file" : "MAWG/Aircrew.js", "unit" : "005" },
+    { "name" : "goddard-aircrew",     "file" : "MAWG/Aircrew.js", "unit" : "007" },
+    { "name" : "pierce-aircrew",      "file" : "MAWG/Aircrew.js", "unit" : "013" },
+    { "name" : "westover-aircrew",    "file" : "MAWG/Aircrew.js", "unit" : "015" },
+    { "name" : "beverly-aircrew",     "file" : "MAWG/Aircrew.js", "unit" : "019" },
+    { "name" : "worcester-aircrew",   "file" : "MAWG/Aircrew.js", "unit" : "022" },
+    { "name" : "hanscom-aircrew",     "file" : "MAWG/Aircrew.js", "unit" : "043" },
+    { "name" : "cp18-aircrew",        "file" : "MAWG/Aircrew.js", "unit" : "044" },
+    { "name" : "essex-aircrew",       "file" : "MAWG/Aircrew.js", "unit" : "070" },
+    { "name" : "pilgrim-aircrew",     "file" : "MAWG/Aircrew.js", "unit" : "071" },
+
+    { "name" : "all-it",         "file" : "MAWG/IT.js", "unit" : ""    },
+    { "name" : "wing-it",        "file" : "MAWG/IT.js", "unit" : "001" },
+    { "name" : "boston-it",      "file" : "MAWG/IT.js", "unit" : "002" },
+    { "name" : "bridgewater-it", "file" : "MAWG/IT.js", "unit" : "005" },
+    { "name" : "goddard-it",     "file" : "MAWG/IT.js", "unit" : "007" },
+    { "name" : "pierce-it",      "file" : "MAWG/IT.js", "unit" : "013" },
+    { "name" : "westover-it",    "file" : "MAWG/IT.js", "unit" : "015" },
+    { "name" : "beverly-it",     "file" : "MAWG/IT.js", "unit" : "019" },
+    { "name" : "worcester-it",   "file" : "MAWG/IT.js", "unit" : "022" },
+    { "name" : "hanscom-it",     "file" : "MAWG/IT.js", "unit" : "043" },
+    { "name" : "cp18-it",        "file" : "MAWG/IT.js", "unit" : "044" },
+    { "name" : "essex-it",       "file" : "MAWG/IT.js", "unit" : "070" },
+    { "name" : "pilgrim-it",     "file" : "MAWG/IT.js", "unit" : "071" },
+
+    { "name" : "all-cfi",         "file" : "MAWG/CFI.js", "unit" : ""    },
+    { "name" : "wing-cfi",        "file" : "MAWG/CFI.js", "unit" : "001" },
+    { "name" : "boston-cfi",      "file" : "MAWG/CFI.js", "unit" : "002" },
+    { "name" : "bridgewater-cfi", "file" : "MAWG/CFI.js", "unit" : "005" },
+    { "name" : "goddard-cfi",     "file" : "MAWG/CFI.js", "unit" : "007" },
+    { "name" : "pierce-cfi",      "file" : "MAWG/CFI.js", "unit" : "013" },
+    { "name" : "westover-cfi",    "file" : "MAWG/CFI.js", "unit" : "015" },
+    { "name" : "beverly-cfi",     "file" : "MAWG/CFI.js", "unit" : "019" },
+    { "name" : "worcester-cfi",   "file" : "MAWG/CFI.js", "unit" : "022" },
+    { "name" : "hanscom-cfi",     "file" : "MAWG/CFI.js", "unit" : "043" },
+    { "name" : "cp18-cfi",        "file" : "MAWG/CFI.js", "unit" : "044" },
+    { "name" : "essex-cfi",       "file" : "MAWG/CFI.js", "unit" : "070" },
+    { "name" : "pilgrim-cfi",     "file" : "MAWG/CFI.js", "unit" : "071" },
+
+    { "name" : "all-commanders",         "file" : "MAWG/Commanders.js", "unit" : ""    },
+    { "name" : "wing-commanders",        "file" : "MAWG/Commanders.js", "unit" : "001" },
+    { "name" : "boston-commanders",      "file" : "MAWG/Commanders.js", "unit" : "002" },
+    { "name" : "bridgewater-commanders", "file" : "MAWG/Commanders.js", "unit" : "005" },
+    { "name" : "goddard-commanders",     "file" : "MAWG/Commanders.js", "unit" : "007" },
+    { "name" : "pierce-commanders",      "file" : "MAWG/Commanders.js", "unit" : "013" },
+    { "name" : "westover-commanders",    "file" : "MAWG/Commanders.js", "unit" : "015" },
+    { "name" : "beverly-commanders",     "file" : "MAWG/Commanders.js", "unit" : "019" },
+    { "name" : "worcester-commanders",   "file" : "MAWG/Commanders.js", "unit" : "022" },
+    { "name" : "hanscom-commanders",     "file" : "MAWG/Commanders.js", "unit" : "043" },
+    { "name" : "cp18-commanders",        "file" : "MAWG/Commanders.js", "unit" : "044" },
+    { "name" : "essex-commanders",       "file" : "MAWG/Commanders.js", "unit" : "070" },
+    { "name" : "pilgrim-commanders",     "file" : "MAWG/Commanders.js", "unit" : "071" },
+
+    { "name" : "all-ic",         "file" : "MAWG/IC.js", "unit" : ""    },
+    { "name" : "wing-ic",        "file" : "MAWG/IC.js", "unit" : "001" },
+    { "name" : "boston-ic",      "file" : "MAWG/IC.js", "unit" : "002" },
+    { "name" : "bridgewater-ic", "file" : "MAWG/IC.js", "unit" : "005" },
+    { "name" : "goddard-ic",     "file" : "MAWG/IC.js", "unit" : "007" },
+    { "name" : "pierce-ic",      "file" : "MAWG/IC.js", "unit" : "013" },
+    { "name" : "westover-ic",    "file" : "MAWG/IC.js", "unit" : "015" },
+    { "name" : "beverly-ic",     "file" : "MAWG/IC.js", "unit" : "019" },
+    { "name" : "worcester-ic",   "file" : "MAWG/IC.js", "unit" : "022" },
+    { "name" : "hanscom-ic",     "file" : "MAWG/IC.js", "unit" : "043" },
+    { "name" : "cp18-ic",        "file" : "MAWG/IC.js", "unit" : "044" },
+    { "name" : "essex-ic",       "file" : "MAWG/IC.js", "unit" : "070" },
+    { "name" : "pilgrim-ic",     "file" : "MAWG/IC.js", "unit" : "071" },
+
+    { "name" : "all-logistics",         "file" : "MAWG/Logistics.js", "unit" : ""    },
+    { "name" : "wing-logistics",        "file" : "MAWG/Logistics.js", "unit" : "001" },
+    { "name" : "boston-logistics",      "file" : "MAWG/Logistics.js", "unit" : "002" },
+    { "name" : "bridgewater-logistics", "file" : "MAWG/Logistics.js", "unit" : "005" },
+    { "name" : "goddard-logistics",     "file" : "MAWG/Logistics.js", "unit" : "007" },
+    { "name" : "pierce-logistics",      "file" : "MAWG/Logistics.js", "unit" : "013" },
+    { "name" : "westover-logistics",    "file" : "MAWG/Logistics.js", "unit" : "015" },
+    { "name" : "beverly-logistics",     "file" : "MAWG/Logistics.js", "unit" : "019" },
+    { "name" : "worcester-logistics",   "file" : "MAWG/Logistics.js", "unit" : "022" },
+    { "name" : "hanscom-logistics",     "file" : "MAWG/Logistics.js", "unit" : "043" },
+    { "name" : "cp18-logistics",        "file" : "MAWG/Logistics.js", "unit" : "044" },
+    { "name" : "essex-logistics",       "file" : "MAWG/Logistics.js", "unit" : "070" },
+    { "name" : "pilgrim-logistics",     "file" : "MAWG/Logistics.js", "unit" : "071" },
+
+    { "name" : "all-missionstaff",         "file" : "MAWG/MissionStaff.js", "unit" : ""    },
+    { "name" : "wing-missionstaff",        "file" : "MAWG/MissionStaff.js", "unit" : "001" },
+    { "name" : "boston-missionstaff",      "file" : "MAWG/MissionStaff.js", "unit" : "002" },
+    { "name" : "bridgewater-missionstaff", "file" : "MAWG/MissionStaff.js", "unit" : "005" },
+    { "name" : "goddard-missionstaff",     "file" : "MAWG/MissionStaff.js", "unit" : "007" },
+    { "name" : "pierce-missionstaff",      "file" : "MAWG/MissionStaff.js", "unit" : "013" },
+    { "name" : "westover-missionstaff",    "file" : "MAWG/MissionStaff.js", "unit" : "015" },
+    { "name" : "beverly-missionstaff",     "file" : "MAWG/MissionStaff.js", "unit" : "019" },
+    { "name" : "worcester-missionstaff",   "file" : "MAWG/MissionStaff.js", "unit" : "022" },
+    { "name" : "hanscom-missionstaff",     "file" : "MAWG/MissionStaff.js", "unit" : "043" },
+    { "name" : "cp18-missionstaff",        "file" : "MAWG/MissionStaff.js", "unit" : "044" },
+    { "name" : "essex-missionstaff",       "file" : "MAWG/MissionStaff.js", "unit" : "070" },
+    { "name" : "pilgrim-missionstaff",     "file" : "MAWG/MissionStaff.js", "unit" : "071" },
+
+    { "name" : "all-pilots",         "file" : "MAWG/Pilots.js", "unit" : ""    },
+    { "name" : "wing-pilots",        "file" : "MAWG/Pilots.js", "unit" : "001" },
+    { "name" : "boston-pilots",      "file" : "MAWG/Pilots.js", "unit" : "002" },
+    { "name" : "bridgewater-pilots", "file" : "MAWG/Pilots.js", "unit" : "005" },
+    { "name" : "goddard-pilots",     "file" : "MAWG/Pilots.js", "unit" : "007" },
+    { "name" : "pierce-pilots",      "file" : "MAWG/Pilots.js", "unit" : "013" },
+    { "name" : "westover-pilots",    "file" : "MAWG/Pilots.js", "unit" : "015" },
+    { "name" : "beverly-pilots",     "file" : "MAWG/Pilots.js", "unit" : "019" },
+    { "name" : "worcester-pilots",   "file" : "MAWG/Pilots.js", "unit" : "022" },
+    { "name" : "hanscom-pilots",     "file" : "MAWG/Pilots.js", "unit" : "043" },
+    { "name" : "cp18-pilots",        "file" : "MAWG/Pilots.js", "unit" : "044" },
+    { "name" : "essex-pilots",       "file" : "MAWG/Pilots.js", "unit" : "070" },
+    { "name" : "pilgrim-pilots",     "file" : "MAWG/Pilots.js", "unit" : "071" },
+
+    { "name" : "all-pa",         "file" : "MAWG/PA.js", "unit" : ""    },
+    { "name" : "wing-pa",        "file" : "MAWG/PA.js", "unit" : "001" },
+    { "name" : "boston-pa",      "file" : "MAWG/PA.js", "unit" : "002" },
+    { "name" : "bridgewater-pa", "file" : "MAWG/PA.js", "unit" : "005" },
+    { "name" : "goddard-pa",     "file" : "MAWG/PA.js", "unit" : "007" },
+    { "name" : "pierce-pa",      "file" : "MAWG/PA.js", "unit" : "013" },
+    { "name" : "westover-pa",    "file" : "MAWG/PA.js", "unit" : "015" },
+    { "name" : "beverly-pa",     "file" : "MAWG/PA.js", "unit" : "019" },
+    { "name" : "worcester-pa",   "file" : "MAWG/PA.js", "unit" : "022" },
+    { "name" : "hanscom-pa",     "file" : "MAWG/PA.js", "unit" : "043" },
+    { "name" : "cp18-pa",        "file" : "MAWG/PA.js", "unit" : "044" },
+    { "name" : "essex-pa",       "file" : "MAWG/PA.js", "unit" : "070" },
+    { "name" : "pilgrim-pa",     "file" : "MAWG/PA.js", "unit" : "071" },
+
+    { "name" : "all-pd",         "file" : "MAWG/PD.js", "unit" : ""    },
+    { "name" : "wing-pd",        "file" : "MAWG/PD.js", "unit" : "001" },
+    { "name" : "boston-pd",      "file" : "MAWG/PD.js", "unit" : "002" },
+    { "name" : "bridgewater-pd", "file" : "MAWG/PD.js", "unit" : "005" },
+    { "name" : "goddard-pd",     "file" : "MAWG/PD.js", "unit" : "007" },
+    { "name" : "pierce-pd",      "file" : "MAWG/PD.js", "unit" : "013" },
+    { "name" : "westover-pd",    "file" : "MAWG/PD.js", "unit" : "015" },
+    { "name" : "beverly-pd",     "file" : "MAWG/PD.js", "unit" : "019" },
+    { "name" : "worcester-pd",   "file" : "MAWG/PD.js", "unit" : "022" },
+    { "name" : "hanscom-pd",     "file" : "MAWG/PD.js", "unit" : "043" },
+    { "name" : "cp18-pd",        "file" : "MAWG/PD.js", "unit" : "044" },
+    { "name" : "essex-pd",       "file" : "MAWG/PD.js", "unit" : "070" },
+    { "name" : "pilgrim-pd",     "file" : "MAWG/PD.js", "unit" : "071" },
+
+    { "name" : "all-safety",         "file" : "MAWG/Safety.js", "unit" : ""    },
+    { "name" : "wing-safety",        "file" : "MAWG/Safety.js", "unit" : "001" },
+    { "name" : "boston-safety",      "file" : "MAWG/Safety.js", "unit" : "002" },
+    { "name" : "bridgewater-safety", "file" : "MAWG/Safety.js", "unit" : "005" },
+    { "name" : "goddard-safety",     "file" : "MAWG/Safety.js", "unit" : "007" },
+    { "name" : "pierce-safety",      "file" : "MAWG/Safety.js", "unit" : "013" },
+    { "name" : "westover-safety",    "file" : "MAWG/Safety.js", "unit" : "015" },
+    { "name" : "beverly-safety",     "file" : "MAWG/Safety.js", "unit" : "019" },
+    { "name" : "worcester-safety",   "file" : "MAWG/Safety.js", "unit" : "022" },
+    { "name" : "hanscom-safety",     "file" : "MAWG/Safety.js", "unit" : "043" },
+    { "name" : "cp18-safety",        "file" : "MAWG/Safety.js", "unit" : "044" },
+    { "name" : "essex-safety",       "file" : "MAWG/Safety.js", "unit" : "070" },
+    { "name" : "pilgrim-safety",     "file" : "MAWG/Safety.js", "unit" : "071" },
+
+    { "name" : "wing-directors",     "file" : "MAWG/Directors.js", "unit" : "001" },
+
+    { "name" : "boston-parents",      "file" : "MAWG/Parents.js", "unit" : "002" },
+    { "name" : "bridgewater-parents", "file" : "MAWG/Parents.js", "unit" : "005" },
+    { "name" : "goddard-parents",     "file" : "MAWG/Parents.js", "unit" : "007" },
+    { "name" : "pierce-parents",      "file" : "MAWG/Parents.js", "unit" : "013" },
+    { "name" : "westover-parents",    "file" : "MAWG/Parents.js", "unit" : "015" },
+    { "name" : "beverly-parents",     "file" : "MAWG/Parents.js", "unit" : "019" },
+    { "name" : "worcester-parents",   "file" : "MAWG/Parents.js", "unit" : "022" },
+    { "name" : "hanscom-parents",     "file" : "MAWG/Parents.js", "unit" : "043" },
+    { "name" : "cp18-parents",        "file" : "MAWG/Parents.js", "unit" : "044" },
+    { "name" : "essex-parents",       "file" : "MAWG/Parents.js", "unit" : "070" },
+    { "name" : "pilgrim-parents",     "file" : "MAWG/Parents.js", "unit" : "071" }
+  ],
+
+  "$comment": [
+    "***************",
+    "*** Reports ***",
+    "***************"
+  ],
+  "reports" :
+  {
+    "AEM" :
+    {
+      "mailTo" : "wing-ae@mawg.ap.gov"
+    },
+    "Expiration" :
+    {
+      "mailTo" : "all-cc@mawg.cap.gov",
+      "emailTemplate" : "./expiration-report-email-template.html",
+      "sharedDrive" : "Commanders",
+      "driveFolder" : "Expiration Reports"
+    }
+  }
+}
