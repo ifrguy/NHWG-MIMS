@@ -19,7 +19,7 @@ function makePipeline(unit, domain, groupname)
       {
 	    $match : {
 	      CAPID     : { $gte : 100000 },
-	      Type      : "SENIOR",
+	      Type      : { $in : [ "SENIOR", "FIFTY YEAR" ] },
 	      MbrStatus : "ACTIVE",
           Unit      : unit
 	    }
@@ -32,7 +32,7 @@ function makePipeline(unit, domain, groupname)
       {
 	    $match : {
 	      CAPID     : { $gte : 100000 },
-	      Type      : "SENIOR",
+	      Type      : { $in : [ "SENIOR", "FIFTY YEAR" ] },
 	      MbrStatus : "ACTIVE",
 	    }
       }
