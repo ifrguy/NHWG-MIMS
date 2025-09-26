@@ -13,6 +13,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+
 // Each subclass group must define:
 // const group = <theGroupName>  The name of the Google group
 // const memberpipeline = [] an array containing the MongoDB aggregation
@@ -26,6 +27,9 @@
 // MongoShell(mongosh) >1.1.7
 
 // History:
+// 26Sep25 MEG Added "allowUnit000MembersInGroup switch to control whether to
+// include or exclude reserve unit (000) members from groups.
+// 06Sep25 MEG Added additional DEBUG usage info below.
 // 28Sep24 MEG Selection $expr selecting GROUP types, it shouldn't
 // 27Sep24 MEG Change REGEX in group selection to simple test for speed.
 // 26Sep24 MEG Fixed bug where non-NHWG emails were ignored for removal.
@@ -39,7 +43,8 @@
 // 26May22 MEG Debugged into existence.
 // 22Dec21 MEG Created.
 
-//const db = db.getSiblingDB("NHWG");
+// Debug output may be produced by including 'DEBUG=true;'
+// at the tail of command line.
 
 try {
 	if ( DEBUG ) {}
@@ -85,6 +90,11 @@ class Group {
     #groupMemberPipeline;
     // Aggregation pipeline options
     #agg_options =  { "allowDiskUse" : false };
+    // Unit 000 (reserve unit) are not allowed to participate in missions or
+    // be on staff.
+    // Subclasses may set this to true if they wish to permit 000 members in
+    // groups.
+    allowUnit000MembersInGroups = false;
 
     dump() {
 	print( "DB: " + db.getName(),
@@ -126,9 +136,16 @@ class Group {
     #isActiveMember( capid ) {
 	// Check to see if member is active.
 	// This function needs to be changed for each group depending
-	// on what constitutes "active".
+	// on what constitutes "active" and not in the reserve unit 000.
+	// Reserve unit members can not participate in CAP missions
+	// or be staff members.
 	var m = db.getCollection( "Member").findOne( { "CAPID": capid, "MbrStatus": "ACTIVE" } );
-	return ( m == null )? false : true;
+	if ( !m ) return false;  // no member found
+	if ( this.allowUnit000MembersInGroups === false && m.Unit == '000' ) {
+	    return false;
+	}
+	return true;
+//	return ( m == null | m.Unit == '000' )? false : true;
     }
 
     #isAuth( email ) {
@@ -209,6 +226,7 @@ class Group {
 	var cursor = db.getCollection( this.#aggStart ).aggregate( this.#pipeline, this.#agg_options );
 	while ( cursor.hasNext() ) {
             var m = cursor.next();  
+	    DEBUG && print( "m.email: ", m.email, " CAPID: ", m.CAPID );
 	    let e = this.cleanEmailAddress( m.email );
             if ( ! this.#isActiveMember( m.CAPID ) ) { continue; }
 	    // if already in the auth list skip we've done them previously
