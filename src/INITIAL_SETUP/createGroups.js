@@ -129,6 +129,7 @@ const CONFIG_DEFAULT =
  */
 const groups =
       [
+/*
         //
         // Public announcements
         //
@@ -141,7 +142,6 @@ const groups =
             "messageModerationLevel": "MODERATE_ALL_MESSAGES",
           }
         },
-/*
         //
         // Members
         //
@@ -1984,6 +1984,113 @@ const groups =
           }
         },
 */
+        //
+        // Chaplain Corps
+        //
+        {
+          attributes :
+          {
+            "name": "all-chaplaincorps",
+            "email": "all-chaplaincorps@mawg.cap.gov",
+            "description": `"All chaplains and CDIs"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "wing-chaplaincorps",
+            "email": "wing-chaplaincorps@mawg.cap.gov",
+            "description": `"MAWG HQ chaplains and CDIs"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "boston-chaplaincorps",
+            "email": "boston-chaplaincorps@mawg.cap.gov",
+            "description": `"Boston Squadron chaplains and CDIs"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "bridgewater-chaplaincorps",
+            "email": "bridgewater-chaplaincorps@mawg.cap.gov",
+            "description": `"Bridgewater Squadron chaplains and CDIs"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "goddard-chaplaincorps",
+            "email": "goddard-chaplaincorps@mawg.cap.gov",
+            "description": `"Goddard Squadron chaplains and CDIs"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pierce-chaplaincorps",
+            "email": "pierce-chaplaincorps@mawg.cap.gov",
+            "description": `"Pierce Squadron  chaplains and CDIs"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "westover-chaplaincorps",
+            "email": "westover-chaplaincorps@mawg.cap.gov",
+            "description": `"Westover Squadron chaplains and CDIs"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": " beverly-chaplaincorps",
+            "email": "beverly-chaplaincorps@mawg.cap.gov",
+            "description": `"Beverly Squadron chaplains and CDIs"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "worcester-chaplaincorps",
+            "email": "worcester-chaplaincorps@mawg.cap.gov",
+            "description": `"Worcester Cadet Squadron chaplains and CDIs"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "hanscom-chaplaincorps",
+            "email": "hanscom-chaplaincorps@mawg.cap.gov",
+            "description": `"Hanscom Squadron chaplains and CDIs"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "cp18-chaplaincorps",
+            "email": "cp18-chaplaincorps@mawg.cap.gov",
+            "description": `"CP18 chaplains and CDIs"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "essex-chaplaincorps",
+            "email": "essex-chaplaincorps@mawg.cap.gov",
+            "description": `"Essex Composite Squadron chaplains and CDIs"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pilgrim-chaplaincorps",
+            "email": "pilgrim-chaplaincorps@mawg.cap.gov",
+            "description": `"Pilgrim Squadron chaplains and CDIs"`
+          }
+        }
       ];
 
 
