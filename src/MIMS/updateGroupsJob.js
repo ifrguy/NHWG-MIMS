@@ -34,7 +34,7 @@ const client = new MongoClient(uri);
 async function main()
 {
   // Parse arguments
-  let { values : { help, libDir }, positionals } = parseArgs(
+  let { values : { help, libDir, verbose }, positionals } = parseArgs(
     {
       allowPositionals : false,
       options :
@@ -48,6 +48,11 @@ async function main()
         {
           type  : "string",
           short : "L",
+        },
+        verbose :
+        {
+          type  : "boolean",
+          short : "v"
         }
       }
     });
@@ -58,10 +63,14 @@ async function main()
       [
         "updateGroupsJob.js",
         "  [-h|--help]",
-        "  [-l|--lib <libDir>]"
+        "  [-l|--lib <libDir>]",
+        "  [-v|--verbose]"
       ].join("\n"));
     process.exit(0);
   }
+
+  // VERBOSE is used in Group.js
+  global.VERBOSE = !!verbose;
 
   try
   {

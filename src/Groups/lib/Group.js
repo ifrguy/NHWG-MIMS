@@ -244,7 +244,7 @@ export class Group {
       console.log( '# DEBUG:' + this.name + ':' + 'called addMembers():' );
     }
     let count = 0;
-    print( "## Add group members." );
+    global.VERBOSE && print( "## Add group members." );
     // Get the list of all qualified potential members for the list
     var cursor = await this.#db.collection(this.#aggStart).aggregate( this.#pipeline, this.#agg_options );
     while ( await cursor.hasNext() ) {
@@ -298,7 +298,7 @@ export class Group {
         print("gam update group", this.myGroup, "update member", '"' + e + '"' );
       }
     }
-    print( "## Added:", count, "members." );
+    global.VERBOSE && print( "## Added:", count, "members." );
   }
 
   async removeMembers() {
@@ -321,7 +321,7 @@ export class Group {
       console.log( '# DEBUG:' + this.name + ':' + 'called removeMembers():' );
     }
 
-    print( "## Remove group members." );
+    global.VERBOSE && print( "## Remove group members." );
     var cursor = await this.#db.collection("GoogleGroups").aggregate( this.#groupMemberPipeline, this.#agg_options );
     while ( await cursor.hasNext() ) {
       var m = await cursor.next();
@@ -332,15 +332,15 @@ export class Group {
       DEBUG && console.log( '# DEBUG:' + this.name + "::removeMembers:called with email:",e);
       if ( this.#isAuth( e )) { continue; }
       if ( await this.#isOnHold( e )) {
-        print( '# INFO:', '"' + e + '"', 'on hold status, not removed.');
+        global.VERBOSE && print( '# INFO:', '"' + e + '"', 'on hold status, not removed.');
         continue;
       }
       DEBUG && console.log("# DEBUG: Member to be removed:", e );
-      print( '# INFO:Remove:', '"' + e + '"' );
+      global.VERBOSE && print( '# INFO:Remove:', '"' + e + '"' );
       print( 'gam update group', this.myGroup, 'delete member', '"' + e + '"' );
       count++;
     }
-    print( "## Removed:", count, "members." );
+    global.VERBOSE && print( "## Removed:", count, "members." );
   };
   async updateGroup() {
     // Default update procedure
@@ -350,7 +350,7 @@ export class Group {
     if ( process.env.NOAUTORUNGROUP ) {
       print( "# NOAUTORUNGROUP: enabled, returning without running." );
       return; }
-    print( "# Update: " + this.myGroup + " Group" );
+    global.VERBOSE && print( "# Update: " + this.myGroup + " Group" );
 
     await this.addMembers();
     await this.removeMembers();
