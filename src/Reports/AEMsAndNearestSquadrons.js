@@ -8,7 +8,7 @@ async function findLatLon(address)
           method: 'GET',
           headers:
           {
-            // Nominatim requires a custom User-Agent string identifying the applciation
+            // Nominatim requires a custom User-Agent string identifying the application
             "User-Agent" : "MIMS/MAWG Civil Air Patrol, Massachusetts Wing, monthly aerospace education report"
           }
         };
