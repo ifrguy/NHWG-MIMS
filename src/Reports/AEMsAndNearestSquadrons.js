@@ -3,6 +3,15 @@
 async function findLatLon(address)
 {
   const addrToLatLonUrl = "https://nominatim.openstreetmap.org/search";
+  const options =
+        {
+          method: 'GET',
+          headers:
+          {
+            // Nominatim requires a custom User-Agent string identifying the applciation
+            "User-Agent" : "MIMS/MAWG Civil Air Patrol, Massachusetts Wing, monthly aerospace education report"
+          }
+        };
   let query;
 
   // Which address type do we have? A string is a freeform query; an
@@ -40,7 +49,7 @@ async function findLatLon(address)
   let url = `${addrToLatLonUrl}?${query}&format=geocodejson`;
   
   // Issue the query!
-  return fetch(url)
+  return fetch(url, options)
     .then((response) => response.body)
     .then((rb) => {
       const reader = rb.getReader();
