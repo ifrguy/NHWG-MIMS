@@ -1,0 +1,5 @@
+CAPID.int32()
+Committee.string()
+Chair.int32()
+ORGID.int32()
+DateAssigned.date_ms(MM/dd/yyyy HH:mm:ss)

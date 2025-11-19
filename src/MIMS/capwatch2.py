@@ -27,6 +27,7 @@ use the API, or web.  Also note that you are restricted to downloading
 CAPWATCH once in a 24 hour period.
 """
 # History:
+# 19Nov25 MEG Changed return exit codes for systemd compatibility.
 # 15Jan20 MEG fixed retry count down error.
 # 14Feb19 MEG Moved retry control var's to conf file.
 # 28Nov18 MEG download() timeout throws error, no request packet returned.
@@ -100,9 +101,10 @@ def download():
         with open( opts.outfile , 'wb' ) as f:
             f.write( r.content )
         if ( opts.v ): print( 'Download Complete.' )
+        return 0
     else:
         print( 'ERROR:', r.status_code, r.content )
-    return r.status_code
+        return r.status_code
 
 # Make download request and save results, if fail try for opts.r+1 times.
 for i in range( 1, opts.r + 1 ):

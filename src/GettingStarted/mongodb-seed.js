@@ -1,6 +1,6 @@
 // Seed MongoDB with new wing database and starting collecions
 // Example: Wing name is "New Hampshire Wing" -> NHWG
-use YOUR DB NAME HERE;
+use <YOUR DB NAME HERE>;
 const collections = [ 'Achievements',
 		      'Commanders',
 		      'DutyPosition',
@@ -9,6 +9,7 @@ const collections = [ 'Achievements',
 		      'Holds',
 		      'MbrAchievements',
 		      'MbrAddresses',
+		      'MbrCommittee',
 		      'MbrContact',
 		      'Member',
 		      'equipment',
