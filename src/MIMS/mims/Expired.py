@@ -14,6 +14,7 @@
 ##   limitations under the License.
 
 # History:
+# 13Nov25 MEG Now includes a Google account sign out for additionl security.
 # 23Jan25 MEG NHWGStatus DB field renamed to WingStatus.
 # 10Dec23 MEG Module version
 # 28May17 MEG Original MIMS created.
@@ -64,6 +65,7 @@ class Expired( Manager ):
         outputCmds = []  # the list of gam cmds to output
         gamcmdfmt = "gam {} user {}"
         gamSuspendCmdFmt = "gam update user {} suspended on gal off"
+        gamSignOutCmdFmt = "gam user {} signout"
         if DEBUG:
             print( f"{self.__class__.__name__}:{sys._getframe().f_code.co_name}()" )
 
@@ -95,6 +97,7 @@ class Expired( Manager ):
                                   g[ 'primaryEmail' ] )
 
                 else:
+                    outputCmds.append( gamSignOutCmdFmt.format( g[ 'primaryEmail' ] ))
                     outputCmds.append( gamSuspendCmdFmt.format( g[ 'primaryEmail' ] ))
                     logging.info( "Suspend: %d %s %s %s %s %s", 
                                   m[ 'CAPID' ],
