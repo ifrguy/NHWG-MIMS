@@ -198,6 +198,7 @@ class ExpiredV2( Manager ):
                         m[ 'name' ],
                         m[ 'Type' ] ))
 
+                outputCmds.append( "gam user \"{}\" signout\n".format( m[ 'primaryEmail' ] ))
                 outputCmds.append( "gam update user \"{}\" suspended on gal off\n".format( m[ 'primaryEmail' ] ))
                 try:
                     logging.info( "Suspend: %d %s %s %s", 
