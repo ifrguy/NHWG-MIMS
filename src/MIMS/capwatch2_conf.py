@@ -8,6 +8,12 @@ These options may be overridden by commandline options.
 """
 import os
 
+# Debug print enable
+DEBUG = False
+
+# CAPWATCH API request URL
+URL = 'https://www.capnhq.gov/CAP.CapWatchAPI.Web/api/cw?'
+
 # Fully qualified output filename
 OUTFILE = None
 

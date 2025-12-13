@@ -27,6 +27,8 @@ use the API, or web.  Also note that you are restricted to downloading
 CAPWATCH once in a 24 hour period.
 """
 # History:
+# 13Dec25 MEG Request URL moved to conf file, DEBUG added to see request headers.
+# 13Dec25 MEG Fixed return code disagreement that caused success to be unrecognized.
 # 19Nov25 MEG Changed return exit codes for systemd compatibility.
 # 15Jan20 MEG fixed retry count down error.
 # 14Feb19 MEG Moved retry control var's to conf file.
@@ -57,12 +59,9 @@ opts = parser.parse_args()
 
 if ( opts.v ): print( 'USERID:', opts.i )
 
-# CAPWATCH API request URL
-url = 'https://www.capnhq.gov/CAP.CapWatchAPI.Web/api/cw?'
-
 args = 'ORGID={}&unitOnly=0'.format( opts.o )
 
-uri = url + args
+uri = URL + args
 if ( opts.v ): print( 'URI:', uri )
 
 def download():
@@ -72,11 +71,13 @@ def download():
     """
     if ( opts.v ): print( 'Requesting CAPWATCH for OrgID:', opts.o )
     try:
-        r = requests.get( uri, auth=( opts.i, opts.p), timeout=opts.t ) 
+        r = requests.get( uri, auth=( opts.i, opts.p), timeout=opts.t )
+        if DEBUG:
+            print( "Return code: ", r.status_code, "Headers: ", r.headers )
     except requests.exceptions.ReadTimeout as e:
 # Note: if the requests times out, i.e. no connection, "requests.get" returns
 # no value.  The return variable is "unbound".  Attempting to access any
-# of the atts of the request package with throw an UnboundLocalVarilable error.
+# of the atts of the request package will throw an UnboundLocalVarilable error.
 # So we force the return of an HTTP 408 Timeout Error, so we can try again.
         print('Read: download orgid:', str( opts.o ), 'timed out.')
         print( "Error: ", e )
@@ -94,6 +95,7 @@ def download():
         return r.status_code
 
     if ( r.status_code == 200 ):
+        print( 'download' )
         if ( opts.v ):
             print( 'Request Code:{} downloading to: {}'.format(
                    r.status_code,
@@ -110,7 +112,7 @@ def download():
 for i in range( 1, opts.r + 1 ):
     if ( opts.v ): print( 'Try #:', i )
     ret = download()
-    if ret == 200:
+    if ret == 0:
         break
     if i < opts.r:
         time.sleep( RETRY_DELAY_TIME )
