@@ -110,6 +110,10 @@ export class Group {
   #groupMemberPipeline;
   // Aggregation pipeline options
   #agg_options =  { "allowDiskUse" : false };
+  // Whether to bypass the test that excludes inactive members. This
+  // is useful when including members of other wings such as by duty
+  // position
+  #bypassInactiveTest;
 
   dump() {
     print( "#:DUMP: Group: " + this.myGroup,
@@ -118,7 +122,7 @@ export class Group {
            "\n#:DUMP: #aggStart: " + this.#aggStart,
            "\n#:DUMP: #authList:", this.#authList );
   }
-  constructor( db, domain, name, pipeline, agg_start ) {
+  constructor( db, domain, name, pipeline, agg_start, bypassInactiveTest = false ) {
     this.#db = db;
     this.#myName = name;
     this.#myDomain = domain;
@@ -126,6 +130,7 @@ export class Group {
     this.#group = name + '@' + domain;
     this.#pipeline = pipeline;
     this.#aggStart = agg_start;
+    this.#bypassInactiveTest = bypassInactiveTest;
     // Ignores managers and groups
     this.#groupMemberPipeline = [
       {
@@ -255,7 +260,7 @@ export class Group {
       let e = this.cleanEmailAddress( m.email );
 
       // We don't want to include inactive members
-      if ( ! await this.#isActiveMember( m.CAPID ) ) { continue; }
+      if ( ! this.#bypassInactiveTest && ! await this.#isActiveMember( m.CAPID ) ) { continue; }
 
       // Determine if this member is a moderator of this group
       let isModerator = await this.#isModerator( m.email );
