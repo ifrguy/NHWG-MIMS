@@ -1016,6 +1016,117 @@ const groups =
           }
         },
 
+*/
+        //
+        // Staff (any duty position for the unit
+        //
+
+        // {
+        //   attributes :
+        //   {
+        //     "name": "all-staff",
+        //     "email": "all-staff@mawg.cap.gov",
+        //     "description": `"All staff"`
+        //   }
+        // },
+        {
+          attributes :
+          {
+            "name": "wing-staff",
+            "email": "wing-staff@mawg.cap.gov",
+            "description": `"MAWG HQ staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "boston-staff",
+            "email": "boston-staff@mawg.cap.gov",
+            "description": `"Boston Squadron staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "bridgewater-staff",
+            "email": "bridgewater-staff@mawg.cap.gov",
+            "description": `"Bridgewater Squadron staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "goddard-staff",
+            "email": "goddard-staff@mawg.cap.gov",
+            "description": `"Goddard Squadron staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pierce-staff",
+            "email": "pierce-staff@mawg.cap.gov",
+            "description": `"Pierce Squadron  staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "westover-staff",
+            "email": "westover-staff@mawg.cap.gov",
+            "description": `"Westover Squadron staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": " beverly-staff",
+            "email": "beverly-staff@mawg.cap.gov",
+            "description": `"Beverly Squadron staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "worcester-staff",
+            "email": "worcester-staff@mawg.cap.gov",
+            "description": `"Worcester Cadet Squadron staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "hanscom-staff",
+            "email": "hanscom-staff@mawg.cap.gov",
+            "description": `"Hanscom Squadron staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "cp18-staff",
+            "email": "cp18-staff@mawg.cap.gov",
+            "description": `"CP18 staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "essex-staff",
+            "email": "essex-staff@mawg.cap.gov",
+            "description": `"Essex Composite Squadron staff"`
+          }
+        },
+        {
+          attributes :
+          {
+            "name": "pilgrim-staff",
+            "email": "pilgrim-staff@mawg.cap.gov",
+            "description": `"Pilgrim Squadron staff"`
+          }
+        },
+
+/*
         //
         // Directors
         //
@@ -1983,7 +2094,7 @@ const groups =
             "description": `"Pilgrim Squadron Parents officers"`
           }
         },
-*/
+
         //
         // Chaplain Corps
         //
@@ -2091,6 +2202,7 @@ const groups =
             "description": `"Pilgrim Squadron chaplains and CDIs"`
           }
         }
+*/
       ];
 
 
