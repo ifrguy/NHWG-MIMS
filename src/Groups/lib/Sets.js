@@ -1,3 +1,20 @@
+// Copyright 2026 Marshall E. Giguere
+//
+//   Licensed under the Apache License, Version 2.0 (the "License");
+//   you may not use this file except in compliance with the License.
+//   You may obtain a copy of the License at
+//
+//       https://www.apache.org/licenses/LICENSE-2.0
+//
+//   Unless required by applicable law or agreed to in writing, software
+//   distributed under the License is distributed on an "AS IS" BASIS,
+//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//   See the License for the specific language governing permissions and
+//   limitations under the License.
+
+
+==========================================================================
+
 // These function extend the Mongosh Set object with missing set operations.
 // Mongosh is clearly not up to date with the latest JavaScript MDN standard.
 //
@@ -26,7 +43,7 @@ Set.prototype.difference = function( other ) {
 
 // Intersection A∩B={x∊A∣x∊B}
 // Returns a new set containing intersection of 'this' set and the 'other' set,
-// i.e. all the elements that appear are in both sets.
+// i.e. all the elements that appear in both sets.
 Set.prototype.intersection = function( other ) {
     let result = new Set();
     this.forEach( (k) => { other.has( k ) ? result.add( k ) : null; } );
