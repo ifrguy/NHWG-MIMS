@@ -13,7 +13,7 @@
 //   limitations under the License.
 
 
-==========================================================================
+// ==========================================================================
 
 // These function extend the Mongosh Set object with missing set operations.
 // Mongosh is clearly not up to date with the latest JavaScript MDN standard.
