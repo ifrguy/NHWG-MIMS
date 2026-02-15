@@ -2,7 +2,7 @@
 # Download and install a specified version of GAMADV-XTD3.
 # GAM must have been previous installed and configured with project.
 #
-## Copyright 2020 Marshall E. Giguere
+## Copyright 2026 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 ##   limitations under the License.
 
 # History:
+# 11Feb26 MEG Added uninstall to clean up prior to installation.
 # 22Mar25 MEG Switched to GAM Team GAM7 from GAMADV-XTD3 repo.
 # 10Mar25 MEG $# = 0; print USAGE and exit with failure.
 # 27Apr22 MEG $ARCH now calls cmd arch to get system architecture.
@@ -40,21 +41,20 @@ OPTS="Dd:i:l:Lh?u:"
 ARCH=$(arch)
 DLPATH=$HOME/downloads
 GLIBCVERSION=$(ldd --version|head -1|while read a b c d e;do echo $e;done)
-#GAMURL="https://github.com/taers232c/GAMADV-XTD3/releases/download/v"
 GAMURL="https://github.com/GAM-team/GAM/releases/download/v"
 INSTALLDIR="/usr/local/bin"
 USAGE="Usage: $(basename $0) [$OPTS] [\"gam-version-number\"]\n
 Download and install GAM\n
 \tD - Download only, do not install\n
-\td - Download target path ($DLPATH)\n
-\ti - Installation target directory ($INSTALLDIR)\n
+\td - Download target path (${DLPATH})\n
+\ti - Installation target directory (${INSTALLDIR})\n
 \th|? - Help - this message\n
 
-\tl - Glibc version ($GLIBCVERSION)\n
+\tl - Glibc version (${GLIBCVERSION})\n
 \tL - get GAM Latest version (takes precedence)\n
-\tu - URL to GAM repo ($GAMURL)\n
+\tu - URL to GAM repo (${GAMURL})\n
 Note: you must have privileges to copy to the install directory.\n
-\tuse setfacl to set acls for user. Example: setfacl -m u:user1:rwx /usr/local/bin\n"
+\tuse setfacl to set acls for user. Example: setfacl -R -m u:user1:rwx /usr/local/bin\n"
 
 if [ $# = 0 ];then
     echo -e $USAGE
@@ -75,6 +75,14 @@ while getopts $OPTS o; do
 done
 shift $((OPTIND - 1 ))
 
+function uninstall () {
+    # remove previous gam7 unpack dir 
+    /bin/rm -fr ${DLPATH}/gam7
+    # Remove the old libraries from the INSTALLDIR.
+    # This is to prevent accumulating old libraries that can confuse GAM.
+    /bin/rm -fr ${INSTALLDIR}/lib
+}
+
 if [ -v LATEST ]; then
     # Check for latest release, install only if gam not up to date
     # Depends on Ross's "checkrc" option for the gam version command.
@@ -90,7 +98,7 @@ else
     GAMVERSION=$1
 fi
 
-ARCHIVE="gam-$GAMVERSION-linux-$ARCH-glibc$GLIBCVERSION.tar.xz"
+ARCHIVE="gam-${GAMVERSION}-linux-${ARCH}-glibc${GLIBCVERSION}.tar.xz"
 
 if [ -v DEBUG ]; then
     echo ARCH: $ARCH
@@ -106,31 +114,34 @@ pushd $DLPATH &>/dev/null
 
 # attempt to download GAM archive
 echo "Downloading GAM..."
-echo Download: "$GAMURL$GAMVERSION/$ARCHIVE"
+echo Download: "${GAMURL}${GAMVERSION}/${ARCHIVE}"
 
 /usr/bin/curl -sL "$GAMURL$GAMVERSION/$ARCHIVE" --output $ARCHIVE
 #echo ret: $?
 SIZE=$(stat -c%s $ARCHIVE)
 echo SIZE: $SIZE
 (($SIZE > 1000000)) || die
-#trap "echo ERROR:Download $GAMURL$GAMVERSION/$ARCHIVE failed." ERR
-#wget -q "$GAMURL$GAMVERSION/$ARCHIVE" > $ARCHIVE
+#trap "echo ERROR:Download ${GAMURL}${GAMVERSION}/${ARCHIVE} failed." ERR
+#wget -q "${GAMURL}${GAMVERSION}/${ARCHIVE}" > $ARCHIVE
 
 # Check for download only
 # If DOWNLOANDONLY bail out and leave it for the user
 if [ -v DOWNLOADONLY ]; then
-    echo "Downloaded: $ARCHIVE"
+    echo "Downloaded: ${ARCHIVE}"
     popd &>/dev/null
     exit 0
 fi
 
-echo "Installing: $GAMVERSION"
+# Do the uninstall here to clean up before installing
+echo "Uninstalling previous version."
+uninstall
+
+echo "Installing: ${GAMVERSION}"
 # unpack archive
 tar Jxf $ARCHIVE
 
-# you must have access privilege to do the copy to system directories
-# See man setfacl
-cp -pr $DLPATH/gam7/* $INSTALLDIR
+# copy gam7 to install location
+cp -r ${DLPATH}/gam7/* $INSTALLDIR
 echo "Done."
 
 popd &>/dev/null
