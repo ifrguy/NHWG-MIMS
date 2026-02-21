@@ -1,5 +1,5 @@
 #!/bin/bash -e
-## Copyright 2025 Marshall E. Giguere
+## Copyright 2026 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -22,11 +22,30 @@
 # available to all wing members for viewing.
 
 # History:
+# 20Feb26 MEG New -n option, create csv files, but do not upload.
 # 29Aug23 MEG Upgraded to mongosh, DB passed to script on command line.
 # 25May21 MEG Created.
 
+# Command options
+OPTS='nh?'
+
 # source config file var's must be in same directory
 . ./$(basename $0).conf
+
+USAGE="$(basename $0) [${OPTS}]\n
+\tGenerate spreadsheets for Wing and Squadron officers.\n
+\th|? - Print this usage message.\n
+\tn - Generate csv files, but do not upload to spreadsheet.\n
+"
+
+while getopts $OPTS o; do
+    case $o in
+	h|?) echo -e $USAGE;exit 1;;
+	n) NOUPLOAD=1;;
+	*) echo -e $USAGE;exit 1;;
+    esac
+done
+shift $(($OPTIND - 1 ))
 
 # source MongoDB credentials
 . ./$CREDS
@@ -36,5 +55,8 @@ for s in "${SHEETS[@]}"; do
     echo sheet: "$s"
     mongosh --quiet -u "$USERID" -p "$PASSWD" --authenticationDatabase $DB $DB "$s".js >"$s".csv
     # upload sheet
-    gam user $GUID update drivefile id "$FILEID" retainname localfile ./"$s".csv gsheet "$s"
+    if [ ! -v NOUPLOAD ]; then
+	gam user $GUID update drivefile id "$FILEID" retainname localfile ./"$s".csv gsheet "$s"
+    fi
+    
 done
