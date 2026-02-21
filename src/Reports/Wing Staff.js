@@ -17,6 +17,7 @@
 // Produces a csv file of all Wing staff officers
 //
 // History:
+// 20Feb26 MEG Removed extraneaous squadron fields and other cruft.
 // 29Aug23 MEG Removed call to "getSiblingDB", DB now supplied on command line.
 // 22May21 MEG Created.
 
@@ -25,7 +26,7 @@ var cur = db.getCollection("DutyPosition").aggregate(
         { 
             "$match" : { 
                 "Lvl" : "WING", 
-                "Asst" : 0.0
+                "Asst" : 0
             }
         }, 
         { 
@@ -69,8 +70,8 @@ var cur = db.getCollection("DutyPosition").aggregate(
         }, 
         { 
             "$project" : { 
-                "CAPID" : 1.0, 
-                "Duty" : 1.0, 
+                "CAPID" : 1, 
+                "Duty" : 1, 
                 "Rank" : "$member.Rank", 
                 "Name" : { 
                     "$cond" : [
@@ -99,13 +100,11 @@ var cur = db.getCollection("DutyPosition").aggregate(
                     ]
                 }, 
                 "Email" : "$google.primaryEmail", 
-                "Unit" : "$member.Unit", 
-                "Squadron" : "$squadron.SquadName"
             }
         }, 
         { 
             "$sort" : { 
-                "Duty" : 1.0
+                "Duty" : 1
             }
         }
     ], 
