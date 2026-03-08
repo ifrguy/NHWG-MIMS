@@ -1,4 +1,4 @@
-// Copyright 2025 Marshall E. Giguere
+// Copyright 2026 Marshall E. Giguere
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 // produce a csv file, with header.
 
 // History:
+// 08Mar26 MEG Removed old debug print line.
 // 12May24 MEG Catch missing email contact error.
 // 29Aug23 MEG "getSiblingDB" call removed, DB passed on command line.
 // 02Oct18 MEG Created.
@@ -35,7 +36,6 @@ var cur = db.Member.find({$or: [ {Joined:{ $gte: sdate }}, { OrgJoined: {$gte: s
 
 while ( cur.hasNext() ) {
     var mbr = cur.next();
-    print( "CAPID:", mbr.CAPID );
     var ct = db.MbrContact.findOne( {CAPID:mbr.CAPID,Type:'EMAIL',Priority:'PRIMARY'})
 
     var ln = (mbr.NameSuffix == undefined? "" : mbr.NameLast + " " + mbr.NameSuffix);
