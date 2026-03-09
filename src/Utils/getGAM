@@ -17,6 +17,8 @@
 ##   limitations under the License.
 
 # History:
+# 09Mar26 MEG Fixed crash where pushd $DLPATH happens after archive download
+# 27Feb26 MEG Added post install clean up of installation files.
 # 11Feb26 MEG Added uninstall to clean up prior to installation.
 # 22Mar25 MEG Switched to GAM Team GAM7 from GAMADV-XTD3 repo.
 # 10Mar25 MEG $# = 0; print USAGE and exit with failure.
@@ -75,13 +77,7 @@ while getopts $OPTS o; do
 done
 shift $((OPTIND - 1 ))
 
-function uninstall () {
-    # remove previous gam7 unpack dir 
-    /bin/rm -fr ${DLPATH}/gam7
-    # Remove the old libraries from the INSTALLDIR.
-    # This is to prevent accumulating old libraries that can confuse GAM.
-    /bin/rm -fr ${INSTALLDIR}/lib
-}
+pushd $DLPATH &>/dev/null
 
 if [ -v LATEST ]; then
     # Check for latest release, install only if gam not up to date
@@ -100,18 +96,6 @@ fi
 
 ARCHIVE="gam-${GAMVERSION}-linux-${ARCH}-glibc${GLIBCVERSION}.tar.xz"
 
-if [ -v DEBUG ]; then
-    echo ARCH: $ARCH
-    echo DLPATH: $DLPATH
-    echo INSTALLDIR: $INSTALLDIR
-    echo GAMVERSION: $GAMVERSION
-    echo ARCHIVE: $ARCHIVE
-    echo URL: $GAMURL
-fi
-
-
-pushd $DLPATH &>/dev/null
-
 # attempt to download GAM archive
 echo "Downloading GAM..."
 echo Download: "${GAMURL}${GAMVERSION}/${ARCHIVE}"
@@ -124,6 +108,36 @@ echo SIZE: $SIZE
 #trap "echo ERROR:Download ${GAMURL}${GAMVERSION}/${ARCHIVE} failed." ERR
 #wget -q "${GAMURL}${GAMVERSION}/${ARCHIVE}" > $ARCHIVE
 
+INSTALLATIONFILESDIR=$(t=$(tar Jtf gam-${GAMVERSION}-linux-x86_64-glibc2.35.tar.xz | head -n 1);echo ${t%/})
+
+if [ -v DEBUG ]; then
+    echo ARCH: $ARCH
+    echo DLPATH: $DLPATH
+    echo INSTALLDIR: $INSTALLDIR
+    echo INSTALLATIONFILESDIR: ${INSTALLATIONFILESDIR}
+    echo GAMVERSION: $GAMVERSION
+    echo ARCHIVE: $ARCHIVE
+    echo URL: $GAMURL
+fi
+
+
+
+function uninstall () {
+    # remove previous gam7 unpack dir just in case it wasn't previously removed
+    [ -v DEBUG ] && echo ${FUNCNAME[0]}
+    /bin/rm -rf ./${INSTALLATIONFILESDIR}
+    # Remove the old libraries from the INSTALLDIR.
+    # This is to prevent accumulating old libraries that can confuse GAM.
+    /bin/rm -rf ${INSTALLDIR}/lib/*
+}
+
+function cleanup () {
+    # Clean up/remove installation files
+    [ -v DEBUG ] && echo ${FUNCNAME[0]}
+    /bin/rm -f ${DLPATH}/${ARCHIVE}
+    /bin/rm -rf ${DLPATH}/${INSTALLATIONFILESDIR}
+}
+
 # Check for download only
 # If DOWNLOANDONLY bail out and leave it for the user
 if [ -v DOWNLOADONLY ]; then
@@ -132,16 +146,16 @@ if [ -v DOWNLOADONLY ]; then
     exit 0
 fi
 
+echo "Installing: ${GAMVERSION}"
 # Do the uninstall here to clean up before installing
 echo "Uninstalling previous version."
 uninstall
-
-echo "Installing: ${GAMVERSION}"
 # unpack archive
 tar Jxf $ARCHIVE
-
 # copy gam7 to install location
-cp -r ${DLPATH}/gam7/* $INSTALLDIR
+cp -r ${DLPATH}/${INSTALLATIONFILESDIR}/* $INSTALLDIR
+echo "Removing installation files..."
+cleanup
 echo "Done."
 
 popd &>/dev/null
