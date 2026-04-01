@@ -1,5 +1,5 @@
 #!/bin/bash -e
-## Copyright 2025 Marshall E. Giguere
+## Copyright 2026 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -22,6 +22,9 @@
 # Note: You will need to update the variables to point to the utilities.
 #
 # History:
+# 01Apr26 MEG Replace G-Suite with Workspace in help message.
+# 02Dec25 MEG Added print default action to USAGE.
+# 03Jul25 MEG Added error check/exit if Google service unavailable.
 # 18Oct22 MEG mongosh connection/auth db selection changed to URI form.
 # 11Oct22 MEG Old mongo shell (mongo) replaced by mongosh.
 # 11Oct22 MEG Deprecated collection.remove() replaced by deleteMany() method.
@@ -86,13 +89,14 @@ EOJS
 OPTS="cDd:hiu?"
 
 USAGE="Usage: $(basename $0) [$OPTS]\n
-\tImport Google G-Suite member data\n
+\tImport Google Workspace member data\n
 \tc - Clear collection then import\n
-\tD - Download G-Suite members from Google first ($D)\n
+\tD - Download Workspace members from Google first ($D)\n
 \td - database ($DB)\n
 \ti - index the collection ($INDEX)\n
 \tu - update/upsert collection default is: ($CALL)\n
 \th|? - this help\n
+\tDEFAULT ACTION: $CAll\n
 \t Import key fields: $KEYS\n"
 
 while getopts $OPTS o; do
@@ -111,7 +115,10 @@ shift $(($OPTIND - 1))
 if [ $D = "yes" ]; then
     echo "Downloading Google members"
     $GAM config csv_output_header_filter JSON redirect csv - noheader print users full formatjson quotechar "'" 2>$LOG | sed -r -f ./jsonfix.sed >$COLL.json
-    echo "GAM download exit code: $?"
+    if [[ $? != 0 ]]; then
+	echo "GAM ERROR:$?:ABORTING: could not download Google users."
+	exit 1
+    fi
     cat $LOG
 fi
 
@@ -130,10 +137,8 @@ if [ $INDEX == "yes" ]; then
     if [ -f $INDEXSCRIPT ]; then
 	mongosh  --quiet --host $HOST--username=$MONGOUID --password=$MONGOPASS --authenticationDatabase=$DB $DB $COLL-index.js
 	echo "Done."
-
     else
 	echo "WARNING:Indexing script: $INDEXSCRIPT not found."
 	echo "Indexing not performed."
     fi
 fi
-
