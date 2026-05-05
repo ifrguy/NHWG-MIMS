@@ -61,7 +61,7 @@ const memberpipeline = [
             "Duty" : NumberInt(1),
             "Asst" : NumberInt(1),
             "email" : "$memberInfo.primaryEmail",
-            "name" : "$memberInfo.name.fullname",
+            "name" : "$memberInfo.name.fullName",
             "Unit" : "$memberInfo.customSchemas.Member.Unit"
         }
     }
