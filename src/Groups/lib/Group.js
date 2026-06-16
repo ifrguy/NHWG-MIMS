@@ -27,6 +27,8 @@
 // MongoShell(mongosh) >1.1.7
 
 // History:
+// 06Jun26 MEG Check if Unit 000 members allow in groups
+// 04Jan26 MEG Change add to make sure email addresses are cleaner.
 // 26Sep25 MEG Added "allowUnit000MembersInGroup switch to control whether to
 // include or exclude reserve unit (000) members from groups.
 // 06Sep25 MEG Added additional DEBUG usage info below.
@@ -45,6 +47,8 @@
 
 // Debug output may be produced by including 'DEBUG=true;'
 // at the tail of command line.
+
+load( './lib/config.js' );
 
 try {
 	if ( DEBUG ) {}
@@ -94,7 +98,6 @@ class Group {
     // be on staff.
     // Subclasses may set this to true if they wish to permit 000 members in
     // groups.
-    allowUnit000MembersInGroups = false;
 
     dump() {
 	print( "DB: " + db.getName(),
@@ -135,17 +138,8 @@ class Group {
     // Private methods
     #isActiveMember( capid ) {
 	// Check to see if member is active.
-	// This function needs to be changed for each group depending
-	// on what constitutes "active" and not in the reserve unit 000.
-	// Reserve unit members can not participate in CAP missions
-	// or be staff members.
 	var m = db.getCollection( "Member").findOne( { "CAPID": capid, "MbrStatus": "ACTIVE" } );
-	if ( !m ) return false;  // no member found
-	if ( this.allowUnit000MembersInGroups === false && m.Unit == '000' ) {
-	    return false;
-	}
-	return true;
-//	return ( m == null | m.Unit == '000' )? false : true;
+	return ( m ) ? true : false;
     }
 
     #isAuth( email ) {
@@ -174,6 +168,14 @@ class Group {
 	return r;
     }
 
+    #isReservedUnitMember( capid ) {
+	// Checks for reserved unit (000) membership.
+	// Return true if the member is in unit 000
+	// non-participating members.
+	let m = db.getCollection( "Member" ).findOne( capid );
+	return ( m.Unit == '000' ) ? true : false;
+    }
+
     // Public methods
     get domain() {
 	return this.#myDomain;
@@ -187,7 +189,7 @@ class Group {
 	// all email addresses are assumed to but UTF-8 charset.
 
 	// rex - illegal characters to remove from email address
-	const rex = /[\,\;\ ]/g;
+	const rex = /[,; ]/g;
 	Assert( email, this.name + ":cleanEmailAddress: invalid email" );
 	let e = email.toLowerCase();
 	e = e.replace( rex, "" );
@@ -228,7 +230,14 @@ class Group {
             var m = cursor.next();  
 	    DEBUG && print( "m.email: ", m.email, " CAPID: ", m.CAPID );
 	    let e = this.cleanEmailAddress( m.email );
+	    // Force clean email address to record to get rid of spurious
+	    // spaces inserted by eServices.
+	    m.email = e;
             if ( ! this.#isActiveMember( m.CAPID ) ) { continue; }
+	    // Check if reserve unit members are allowed in groups
+	    if ( this.#isReservedUnitMember( m.capid )) {
+		if ( !ALLOW_RESERVE_UNIT_GROUP_MEMBERS ) { continue; }
+	    }
 	    // if already in the auth list skip we've done them previously
 	    // if member is not in auth list add them and issue group add
 	    // this is to handle duplicates from queries.
