@@ -1,5 +1,5 @@
 // Group Class
-// Copyright 2025 Marshall E. Giguere
+// Copyright 2026 Marshall E. Giguere
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@
 // MongoShell(mongosh) >1.1.7
 
 // History:
+// 20Jun26 MEG Fixed query arg error in #isReserveUnitMember().
 // 06Jun26 MEG Check if Unit 000 members allow in groups
 // 04Jan26 MEG Change add to make sure email addresses are cleaner.
 // 26Sep25 MEG Added "allowUnit000MembersInGroup switch to control whether to
@@ -49,7 +50,7 @@
 // at the tail of command line.
 
 load( './lib/config.js' );
-
+print( "Reserve flage:", ALLOW_RESERVE_UNIT_GROUP_MEMBERS);
 try {
 	if ( DEBUG ) {}
 }
@@ -168,12 +169,17 @@ class Group {
 	return r;
     }
 
-    #isReservedUnitMember( capid ) {
+    #isReserveUnitMember( capid ) {
 	// Checks for reserved unit (000) membership.
 	// Return true if the member is in unit 000
 	// non-participating members.
-	let m = db.getCollection( "Member" ).findOne( capid );
-	return ( m.Unit == '000' ) ? true : false;
+	DEBUG &&
+	    print("CALLED: isReservedUnitMember, with CAPID:", capid, "DB: ", db );
+	let m = db.getCollection( "Member" ).findOne( { "CAPID": capid } );
+	let ret =( m.Unit == '000' ) ? true : false;
+	DEBUG &&
+	    print( "CAPID:", capid, "Name:", m.NameFirst + " " + m.NameLast, " Unit:", m.Unit );
+	return ret;
     }
 
     // Public methods
@@ -235,9 +241,8 @@ class Group {
 	    m.email = e;
             if ( ! this.#isActiveMember( m.CAPID ) ) { continue; }
 	    // Check if reserve unit members are allowed in groups
-	    if ( this.#isReservedUnitMember( m.capid )) {
-		if ( !ALLOW_RESERVE_UNIT_GROUP_MEMBERS ) { continue; }
-	    }
+	    if ( this.#isReserveUnitMember( m.CAPID ) && 
+		ALLOW_RESERVE_UNIT_GROUP_MEMBERS == false ) { continue; }
 	    // if already in the auth list skip we've done them previously
 	    // if member is not in auth list add them and issue group add
 	    // this is to handle duplicates from queries.
