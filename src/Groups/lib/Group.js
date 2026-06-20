@@ -50,7 +50,7 @@
 // at the tail of command line.
 
 load( './lib/config.js' );
-print( "Reserve flage:", ALLOW_RESERVE_UNIT_GROUP_MEMBERS);
+
 try {
 	if ( DEBUG ) {}
 }
