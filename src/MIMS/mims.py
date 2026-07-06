@@ -1,7 +1,7 @@
 #!/usr/bin/env /usr/bin/python
 # -*- mode: Python; coding: utf-8 -*-
 
-## Copyright 2023 Marshall E. Giguere
+## Copyright 2026 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ MIMS - Member Information Management System.
        Google Account Management tool. Requires Workspace admin privileges.
 
 History:
+05Jul26 MEG Expired deprecated, if found load it. Replaced by ExpiredV2
 09Dec23 MEG Modularized base on mims version 2.0.11.
 10May17 MEG Original MIMS created.
 """
@@ -43,7 +44,11 @@ from mims.help import *
 from mims.NewMembers import *
 from mims.NewSeniors import *
 from mims.NewCadets import *
-from mims.Expired import *
+try:
+    from mims.Expired import * #DEPRECATED - but if found load it.
+except ModuleNotFoundError:
+   pass
+from mims.ExpiredV2 import *
 from mims.PurgeMembers import *
 from mims.UnSuspend import *
 from mims.SweepExpired import *
