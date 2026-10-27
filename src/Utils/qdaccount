@@ -18,6 +18,7 @@
 # Outputs an appropriate gam command to create an account
 
 # History:
+# 09May25 MEG Added OU 004 for AEM's.
 # 06Apr25 MEG Member Type can now be a quoted string, e.g. "CADET SPONSOR"
 # 15Mar23 MEG Add new unit 023
 # 25Jul22 MEG Checks for duplicate account name.
@@ -58,14 +59,14 @@ Build a gam command to create a Google account\n
 \t\$8 - Notification email address\n"
 
 declare -A ORGUNIT
-ORGUNIT[000]="/000 - New Hampshire Wing"
+ORGUNIT[000]="/000 - New Hampshire Wing Reserve Unit"
 ORGUNIT[001]="/001 - New Hampshire Wing"
+ORGUNIT[004]="/004 - Aerospace Education Members"
 ORGUNIT[010]="/010 - Portsmouth Squadron"
 ORGUNIT[014]="/014 - Lebanon Squadron"
 ORGUNIT[016]="/016 - Nashua Squadron"
 ORGUNIT[023]="/023 - Woodsville Cadet Squadron"
 ORGUNIT[032]="/032 - Concord Squadron"
-ORGUNIT[037]="/037 - Highlanders Squadron - Rochester"
 ORGUNIT[053]="/053 - Monadnock Squadron - Keene"
 ORGUNIT[054]="/054 - Manchester Squadron"
 ORGUNIT[056]="/056 - Hawk Squadron - Laconia"
@@ -85,4 +86,4 @@ if [[ $? = 0 ]]; then
     exit 1
 fi    
 
-/usr/local/bin/gam create user $1@$DOMAIN givenname "$3" familyname "$4" orgunitpath "${ORGUNIT[$5]}" Member.CAPID $2 Member.Type "$6" Member.Unit $5 password $7 changepassword true notify "$8" subject "Welcome to your NH Wing account" file $EMAIL_TEMPLATE html true
+echo "/usr/local/bin/gam create user $1@$DOMAIN givenname "$3" familyname "$4" orgunitpath "${ORGUNIT[$5]}" Member.CAPID $2 Member.Type "$6" Member.Unit $5 password $7 changepassword true notify "$8" subject "Welcome to your NH Wing account" file $EMAIL_TEMPLATE html true"
