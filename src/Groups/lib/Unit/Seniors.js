@@ -1,5 +1,3 @@
-load('./lib/Group.js');
-
 // Copyright 2025 Marshall E. Giguere
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +11,9 @@ load('./lib/Group.js');
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
+
+
+load('./lib/Group.js');
 
 var pipeline = 
     [
@@ -58,11 +59,6 @@ var pipeline =
             }
         }
     ]; 
-
-var AggOptions =
-    {
-        "allowDiskUse" : false
-    };
 
 // unit charter number as a string must be supplied by --eval or other means
 var unit_domain = unit + "." + wing_domain;

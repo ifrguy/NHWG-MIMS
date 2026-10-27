@@ -27,6 +27,8 @@
 // MongoShell(mongosh) >1.1.7
 
 // History:
+// 27Oct26 MEG default agg_options default now allowDisk true.
+//             May be overriden by subclasses.
 // 20Jun26 MEG Fixed query arg error in #isReserveUnitMember().
 // 06Jun26 MEG Check if Unit 000 members allow in groups
 // 04Jan26 MEG Change add to make sure email addresses are cleaner.
@@ -48,8 +50,6 @@
 
 // Debug output may be produced by including 'DEBUG=true;'
 // at the tail of command line.
-
-load( './lib/config.js' );
 
 try {
 	if ( DEBUG ) {}
@@ -81,6 +81,8 @@ const groupsCollectioName = 'GoogleGroups';
 // Group base class
 class Group {
     // Private:
+    // Do we allow reserved unit members in this group, set to false by default
+    #ALLOW_RESERVE_UNIT_MEMBERS;
     #_myName;
     #authList;
     #myDomain;
@@ -94,7 +96,7 @@ class Group {
     // Group member agg pipeline
     #groupMemberPipeline;
     // Aggregation pipeline options
-    #agg_options =  { "allowDiskUse" : false };
+    #agg_options =  { "allowDiskUse" : true };
     // Unit 000 (reserve unit) are not allowed to participate in missions or
     // be on staff.
     // Subclasses may set this to true if they wish to permit 000 members in
@@ -109,6 +111,7 @@ class Group {
 	       "\n#authList:", this.#authList );
     }
     constructor( domain, name, pipeline, agg_start ) {
+	this.#ALLOW_RESERVE_UNIT_MEMBERS = false;
 	this.#_myName = name;
 	this.#myDomain = domain;
 	this.#authList = {}; //uses a JS object as a cheap associative set
@@ -162,7 +165,7 @@ class Group {
     #isOnHold( email ) {
 	// Checks the "GroupHolds" collection for "email" and "group"
 	// for a hold to prevent email address removal.
-	// email - the email address to check for
+// email - the email address to check for
 	DEBUG && print( this.name + ':' + 'called isOnHold():' + email );
 	let r = db.getCollection( "GroupHolds" ).findOne(
 	    { email: email, group: this.myGroup } );
@@ -183,6 +186,12 @@ class Group {
     }
 
     // Public methods
+    get allowReserveUnitMembers() {
+	return this.#ALLOW_RESERVE_UNIT_MEMBERS;
+    }
+    set allowReserveUnitMembers( bool ) {
+	this.#ALLOW_RESERVE_UNIT_MEMBERS = bool;
+    }
     get domain() {
 	return this.#myDomain;
     }
@@ -242,7 +251,7 @@ class Group {
             if ( ! this.#isActiveMember( m.CAPID ) ) { continue; }
 	    // Check if reserve unit members are allowed in groups
 	    if ( this.#isReserveUnitMember( m.CAPID ) && 
-		ALLOW_RESERVE_UNIT_GROUP_MEMBERS == false ) { continue; }
+		this.allowReserveUnitMembers == false ) { continue; }
 	    // if already in the auth list skip we've done them previously
 	    // if member is not in auth list add them and issue group add
 	    // this is to handle duplicates from queries.

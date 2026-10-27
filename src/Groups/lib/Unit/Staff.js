@@ -94,12 +94,6 @@ var pipeline =
 	},
     ]; 
 
-var AggOptions =
-    {
-        "allowDiskUse" : false
-    };
-
-
 class Staff extends Group {
     constructor( domain, groupname, pipeline, start_agg ) {
 	super( domain, groupname, pipeline, start_agg );

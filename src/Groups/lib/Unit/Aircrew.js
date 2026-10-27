@@ -1,5 +1,4 @@
 // Unit level Aircrew groups
-
 // Copyright 2025 Marshall E. Giguere
 //
 //   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +12,7 @@
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
+
 
 load('./lib/Group.js');
 
@@ -74,11 +74,6 @@ var pipeline =
         }
     ]; 
 
-var AggOptions =
-    {
-        "allowDiskUse" : false
-    };
-
 class Aircrew extends Group {
     constructor( domain, groupname, pipeline, start_agg ) {
 	super( domain, groupname, pipeline, start_agg );
@@ -88,5 +83,6 @@ class Aircrew extends Group {
 var theGroup = new Aircrew( unit_domain,
 			    unit_group_name,
 			    pipeline, "MbrAchievements" );
+
 theGroup.updateGroup();
 
