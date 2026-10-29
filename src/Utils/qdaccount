@@ -1,5 +1,5 @@
 #!/bin/bash
-## Copyright 2025 Marshall E. Giguere
+## Copyright 2026 Marshall E. Giguere
 ##
 ##   Licensed under the Apache License, Version 2.0 (the "License");
 ##   you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 # Outputs an appropriate gam command to create an account
 
 # History:
+# 29Oct26 MEG Added option -D to specify fqdn.
 # 09May25 MEG Added OU 004 for AEM's.
 # 06Apr25 MEG Member Type can now be a quoted string, e.g. "CADET SPONSOR"
 # 15Mar23 MEG Add new unit 023
@@ -42,13 +43,20 @@
 EMAIL_TEMPLATE=$HOME/work/NHWG/Templates/new-user-email-template.html
 
 # Domain in which to create account
-DOMAIN="nhwg.cap.gov"
+# YOUR DOMAIN HERE, MAY BE OVERRIDDEN BY -D <domain>
+DOMAIN=""
+
+# Command options
+OPTS=D:h?
 
 # Help message
-USAGE="Usage: $(basename $0) args\n
+USAGE="Usage: $(basename $0) [$OPTS] args\n
 Build a gam command to create a Google account\n
----You must have GAMADV-XTD installed and have a Google application key---\n
-\tARGS:\n
+---You must have GAM7 installed and have a Google application key---\n
+Options:\n
+\tD - domain ($DOMAIN)\n
+\th|? - Print usage and exit\n
+ARGS:\n
 \t\$1 - new account base name\n
 \t\$2 - CAPID\n
 \t\$3 - First name\n
@@ -58,24 +66,26 @@ Build a gam command to create a Google account\n
 \t\$7 - Password\n
 \t\$8 - Notification email address\n"
 
+
+# Map unit charter number to a Google Workspace org unit path
+# Example mapping:
+#         ORGUNIT[000]="/000 - Wing Reserve Unit"
+# One entry per unit
 declare -A ORGUNIT
-ORGUNIT[000]="/000 - New Hampshire Wing Reserve Unit"
-ORGUNIT[001]="/001 - New Hampshire Wing"
-ORGUNIT[004]="/004 - Aerospace Education Members"
-ORGUNIT[010]="/010 - Portsmouth Squadron"
-ORGUNIT[014]="/014 - Lebanon Squadron"
-ORGUNIT[016]="/016 - Nashua Squadron"
-ORGUNIT[023]="/023 - Woodsville Cadet Squadron"
-ORGUNIT[032]="/032 - Concord Squadron"
-ORGUNIT[053]="/053 - Monadnock Squadron - Keene"
-ORGUNIT[054]="/054 - Manchester Squadron"
-ORGUNIT[056]="/056 - Hawk Squadron - Laconia"
-ORGUNIT[075]="/075 - Whitefield"
-ORGUNIT[999]="/999 - State Legislators"
+# mappings here
+
+while getopts $OPTS o; do
+    case $o in
+	D) DOMAIN=$OPTARG;;
+	h|?) echo -e $USAGE;exit 1;;
+    esac
+done
+shift $(( $OPTIND - 1 ))
+
 
 if (( $# < 8 )); then
     echo -e $USAGE
-    echo "Units: " ${ORGUNIT[@]}
+    echo "Organization Units: " ${ORGUNIT[@]}
     exit 1
 fi
 
